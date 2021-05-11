@@ -24,7 +24,7 @@ blueprint:
         entity:
           domain: input_select
 
-triger:
+trigger:
   - platform: state
     entity_id: !input power_switch
   - platform: numeric_state
