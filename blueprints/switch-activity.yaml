@@ -23,55 +23,52 @@ blueprint:
       selector:
         entity:
           domain: input_select
-
 trigger:
   - platform: state
-    entity_id: !input power_switch
+    entity_id: !input "power_switch"
   - platform: numeric_state
-    entity_id: !input power_sensor
-    below: '5'
+    entity_id: !input "power_sensor"
+    below: "5"
   - platform: numeric_state
-    entity_id: !input power_sensor
-    above: '5'
-
+    entity_id: !input "power_sensor"
+    above: "5"
 condition: []
-
 action:
   - choose:
       - conditions:
           - condition: state
-            entity_id: !input power_switch
-            state: 'off'
+            entity_id: !input "power_switch"
+            state: "off"
         sequence:
           - service: input_select.select_option
             target:
-              entity_id: !input activity_input
+              entity_id: !input "activity_input"
             data:
-              option: 'off'
+              option: "off"
       - conditions:
           - condition: state
-            entity_id: !input power_switch
-            state: 'on'
+            entity_id: !input "power_switch"
+            state: "on"
           - condition: numeric_state
-            entity_id: !input power_sensor
-            below: '5'
+            entity_id: !input "power_sensor"
+            below: "5"
         sequence:
           - service: input_select.select_option
             target:
-              entity_id: !input activity_input
+              entity_id: !input "activity_input"
             data:
               option: sleeping
       - conditions:
           - condition: state
-            entity_id: !input power_switch
-            state: 'on'
+            entity_id: !input "power_switch"
+            state: "on"
           - condition: numeric_state
-            entity_id: !input power_sensor
-            above: '5'
+            entity_id: !input "power_sensor"
+            above: "5"
         sequence:
           - service: input_select.select_option
             target:
-              entity_id: !input activity_input
+              entity_id: !input "activity_input"
             data:
               option: working
     default:
@@ -79,6 +76,5 @@ action:
         data:
           option: unknown
         target:
-          entity_id: !input activity_input
-
+          entity_id: !input "activity_input"
 mode: single
