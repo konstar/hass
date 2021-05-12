@@ -1,5 +1,5 @@
 blueprint:
-  name: _area set time
+  name: AREA set time
   description: Set time selection for the state of an area.
   domain: automation
   source_url: https://github.com/konstar/hass/blob/main/blueprints/area-set-time.yaml
@@ -13,6 +13,7 @@ blueprint:
     night_time:
       name: Night time
       description: The start of night time. E.g. 22:00:00
+      default: "23:00:00"
       selector:
         time:
 trigger:
@@ -37,7 +38,7 @@ action:
             entity_id: sun.sun
             state: below_horizon
           - condition: time
-            before: "!input night_time"
+            before: !input night_time
             after: "16:00:00"
         sequence:
           - service: input_select.select_option

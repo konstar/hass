@@ -1,5 +1,5 @@
 blueprint:
-  name: _ set activity
+  name: PLUG set activity
   description: Set activity state for a switch.
   domain: automation
   source_url: https://github.com/konstar/hass/blob/main/blueprints/plug-set-activity.yaml
