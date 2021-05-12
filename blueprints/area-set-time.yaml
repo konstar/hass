@@ -1,0 +1,56 @@
+blueprint:
+  name: _area set time
+  description: Set time selection for the state of an area.
+  domain: automation
+  source_url: https://github.com/konstar/hass/blob/main/blueprints/area-set-time.yaml
+  input:
+    area:
+      name: Area input helper
+      description: Dropdown helper associated with the time of an area.
+      selector:
+        entity:
+          domain: input_select
+    night_time:
+      name: Night time
+      description: The start of night time. E.g. 22:00:00
+      selector:
+        time:
+trigger:
+  - platform: state
+    entity_id: sun.sun
+  - platform: time_pattern
+    minutes: /15
+condition: []
+action:
+  - choose:
+      - conditions:
+          - condition: state
+            entity_id: sun.sun
+            state: above_horizon
+        sequence:
+          - service: input_select.select_option
+            entity_id: !area
+            data:
+              option: daytime
+      - conditions:
+          - condition: state
+            entity_id: sun.sun
+            state: below_horizon
+          - condition: time
+            before: "!input night_time"
+            after: "16:00:00"
+        sequence:
+          - service: input_select.select_option
+            entity_id: !area
+            data:
+              option: evening
+      - conditions:
+          - condition: state
+            entity_id: sun.sun
+            state: below_horizon
+        sequence:
+          - service: input_select.select_option
+            entity_id: !area
+            data:
+              option: midnight
+mode: single
