@@ -29,7 +29,7 @@ action:
             state: above_horizon
         sequence:
           - service: input_select.select_option
-            entity_id: !area
+            entity_id: !input area
             data:
               option: daytime
       - conditions:
@@ -41,7 +41,7 @@ action:
             after: "16:00:00"
         sequence:
           - service: input_select.select_option
-            entity_id: !area
+            entity_id: !input area
             data:
               option: evening
       - conditions:
@@ -50,7 +50,7 @@ action:
             state: below_horizon
         sequence:
           - service: input_select.select_option
-            entity_id: !area
+            entity_id: !input area
             data:
               option: midnight
 mode: single
