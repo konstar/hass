@@ -1,8 +1,8 @@
 blueprint:
-  name: Switch Activity
+  name: _ set activity
   description: Set activity state for a switch.
   domain: automation
-  source_url: https://github.com/konstar/hass/blob/main/blueprints/switch-activity.yaml
+  source_url: https://github.com/konstar/hass/blob/main/blueprints/set-activity.yaml
   input:
     power_switch:
       name: Power Switch
