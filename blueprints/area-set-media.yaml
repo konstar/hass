@@ -1,6 +1,6 @@
 blueprint:
   name: AREA set media
-  description: Set media player in an area to recieve announcements or go to sleep.
+  description: Set media player in an area to recieve announcements, play music or sleep.
   domain: automation
   source_url: https://github.com/konstar/hass/blob/main/blueprints/area-set-media.yaml
   input:
@@ -48,7 +48,7 @@ blueprint:
           max: 1
           step: 0.1
           mode: slider
-    evening_volume:
+    midnight_volume:
       name: Midnight volume
       description: Volume of the media player at midnight.
       default: 0.1
