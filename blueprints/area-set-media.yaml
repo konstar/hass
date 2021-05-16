@@ -54,8 +54,6 @@ blueprint:
           mode: slider
 trigger:
   - platform: state
-    entity_id: !input area_time
-  - platform: state
     entity_id: !input area_activity
 condition: []
 action:
