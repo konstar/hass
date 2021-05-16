@@ -110,7 +110,7 @@ action:
           - service: media_player.volume_set
             entity_id: !input media_player
             data:
-              volume_level: !input focus_volume
+              volume_level: !input focused_volume
     default:
       - service: media_player.media_stop
         entity_id: !input media_player
