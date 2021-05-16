@@ -10,12 +10,6 @@ blueprint:
       selector:
         entity:
           domain: input_select
-    area_time:
-      name: Area input helper for time
-      description: Dropdown helper that describes the time of day in an area.
-      selector:
-        entity:
-          domain: input_select
     do_not_disturb_switch:
       name: Media Player do not disturb switch
       description: Alexa uses a switch to turn the Echo device between do not disturb mode
