@@ -28,9 +28,9 @@ blueprint:
       selector:
         entity:
           domain: media_player
-    daytime_volume:
-      name: Daytime volume
-      description: Volume of the media player during the day.
+    active_volume:
+      name: Active area device volume 
+      description: Volume of the media player while in an active area.
       default: 0.3
       selector:
         number:
@@ -38,9 +38,9 @@ blueprint:
           max: 1
           step: 0.1
           mode: slider
-    evening_volume:
-      name: Evening volume
-      description: Volume of the media player during the evening.
+    relaxed_volume:
+      name: Relaxed area device volume
+      description: Volume of the media player while in an area with people relaxing.
       default: 0.2
       selector:
         number:
@@ -48,9 +48,9 @@ blueprint:
           max: 1
           step: 0.1
           mode: slider
-    midnight_volume:
-      name: Midnight volume
-      description: Volume of the media player at midnight.
+    focused_volume:
+      name: Focused area device volume
+      description: Volume of the media player while in a area with focused people.
       default: 0.1
       selector:
         number:
@@ -67,11 +67,9 @@ condition: []
 action:
   - choose:
       - conditions:
-          - condition: template
-            value_template: '{{ not states(!input area_activity) in ["unknown","empty","sleeping"] }}'
           - condition: state
-            entity_id: !input area_time
-            state: "daytime"
+            entity_id: !input area_activity
+            state: active
         sequence:
           - service: switch.turn_off
             entity_id: !input do_not_disturb_switch
@@ -82,13 +80,11 @@ action:
           - service: media_player.volume_set
             entity_id: !input media_player
             data:
-              volume_level: !input daytime_volume
+              volume_level: !input active_volume
       - conditions:
-          - condition: template
-            value_template: '{{ not states(!input area_activity) in ["unknown","empty","sleeping"] }}'
           - condition: state
-            entity_id: !input area_time
-            state: "evening"
+            entity_id: !input area_activity
+            state: relax
         sequence:
           - service: switch.turn_off
             entity_id: !input do_not_disturb_switch
@@ -99,13 +95,11 @@ action:
           - service: media_player.volume_set
             entity_id: !input media_player
             data:
-              volume_level: !input evening_volume
+              volume_level: !input relaxed_volume
       - conditions:
-          - condition: template
-            value_template: '{{ not states(!input area_activity) in ["unknown","empty","sleeping"] }}'
           - condition: state
-            entity_id: !input area_time
-            state: "midnight"
+            entity_id: !input area_activity
+            state: focus
         sequence:
           - service: switch.turn_off
             entity_id: !input do_not_disturb_switch
@@ -116,7 +110,7 @@ action:
           - service: media_player.volume_set
             entity_id: !input media_player
             data:
-              volume_level: !input midnight_volume
+              volume_level: !input focus_volume
     default:
       - service: media_player.media_stop
         entity_id: !input media_player
