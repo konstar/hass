@@ -18,6 +18,10 @@ blueprint:
           domain: sensor
           device_class: humidity
 trigger:
+  - platform: state
+    entity_id: !input sensor
+    state: 0
+    for: 00:05:00
   - platform: numeric_state
     entity_id: !input sensor
     above: input_number.home_healthy_humidity_max
@@ -44,6 +48,15 @@ trigger:
 condition: []
 action:
   - choose:
+      - conditions:
+          - condition: state
+            entity_id: !input sensor
+            state: 0
+        sequence:
+          - service: input_number.set_option
+            entity_id: !input area
+            data:
+              option: "unknown"
       - conditions:
           - condition: numeric_state
             entity_id: !input sensor
