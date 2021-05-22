@@ -18,9 +18,9 @@ blueprint:
           domain: sensor
           device_class: humidity
 trigger:
-  - platform: state
+  - platform: numeric_state
     entity_id: !input sensor
-    state: 0
+    below: 10
     for: 00:05:00
   - platform: numeric_state
     entity_id: !input sensor
@@ -49,9 +49,9 @@ condition: []
 action:
   - choose:
       - conditions:
-          - condition: state
+          - condition: numeric_state
             entity_id: !input sensor
-            state: 0
+            below: 10
         sequence:
           - service: input_number.set_option
             entity_id: !input area
