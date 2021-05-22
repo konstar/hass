@@ -53,8 +53,9 @@ action:
             entity_id: !input sensor
             below: 10
         sequence:
-          - service: input_number.set_option
-            entity_id: !input area
+          - service: input_select.select_option
+            target:
+              entity_id: !input area
             data:
               option: "unknown"
       - conditions:
@@ -62,8 +63,9 @@ action:
             entity_id: !input sensor
             above: input_number.home_healthy_humidity_max
         sequence:
-          - service: input_number.set_option
-            entity_id: !input area
+          - service: input_select.select_option
+            target:
+              entity_id: !input area
             data:
               option: "very-humid"
       - conditions:
@@ -72,8 +74,9 @@ action:
             below: input_number.home_healthy_humidity_max
             above: input_number.home_ideal_humidity_max
         sequence:
-          - service: input_number.set_option
-            entity_id: !input area
+          - service: input_select.select_option
+            target:
+              entity_id: !input area
             data:
               option: "humid"
       - conditions:
@@ -82,8 +85,9 @@ action:
             below: input_number.home_ideal_humidity_max
             above: input_number.home_ideal_humidity_min
         sequence:
-          - service: input_number.set_option
-            entity_id: !input area
+          - service: input_select.select_option
+            target:
+              entity_id: !input area
             data:
               option: "normal"
       - conditions:
@@ -92,8 +96,9 @@ action:
             below: input_number.home_ideal_humidity_min
             above: input_number.home_healthy_humidity_min
         sequence:
-          - service: input_number.set_option
-            entity_id: !input area
+          - service: input_select.select_option
+            target:
+              entity_id: !input area
             data:
               option: "dry"
       - conditions:
@@ -101,8 +106,9 @@ action:
             entity_id: !input sensor
             below: input_number.home_healthy_humidity_min
         sequence:
-          - service: input_number.set_option
-            entity_id: !input area
+          - service: input_select.select_option
+            target:
+              entity_id: !input area
             data:
               option: "very-dry"
 mode: single
