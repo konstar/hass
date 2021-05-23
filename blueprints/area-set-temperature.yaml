@@ -67,7 +67,7 @@ action:
             target:
               entity_id: !input area
             data:
-              option: "very-humid"
+              option: "very-hot"
       - conditions:
           - condition: numeric_state
             entity_id: !input sensor
@@ -78,7 +78,7 @@ action:
             target:
               entity_id: !input area
             data:
-              option: "humid"
+              option: "hot"
       - conditions:
           - condition: numeric_state
             entity_id: !input sensor
@@ -100,7 +100,7 @@ action:
             target:
               entity_id: !input area
             data:
-              option: "dry"
+              option: "cold"
       - conditions:
           - condition: numeric_state
             entity_id: !input sensor
@@ -110,5 +110,5 @@ action:
             target:
               entity_id: !input area
             data:
-              option: "very-dry"
+              option: "very-cold"
 mode: single
