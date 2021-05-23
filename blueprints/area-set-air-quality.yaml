@@ -22,7 +22,7 @@ blueprint:
         number:
           min: 0
           max: 1000
-          step: 5
+          step: 1
           mode: box
     very_abnormal:
       name: Very Abnormal level
@@ -31,7 +31,7 @@ blueprint:
         number:
           min: 0
           max: 1000
-          step: 5
+          step: 1
           mode: box
 trigger:
   - platform: state
