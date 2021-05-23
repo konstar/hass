@@ -1,0 +1,79 @@
+blueprint:
+  name: AREA set air quality
+  description: Set air quality selection for the state of an area.
+  domain: automation
+  source_url: https://github.com/konstar/hass/blob/main/blueprints/area-set-air-quality.yaml
+  input:
+    area:
+      name: Area input helper
+      description: Dropdown helper associated with the air quality of an area.
+      selector:
+        entity:
+          domain: input_select
+    sensor:
+      name: Air Quality Sensor
+      description: Air Quality sensor of the area
+      selector:
+        entity:
+    abnormal:
+      name: Abnormal level
+      description: Lowest abnormal air quality level/index
+      selector:
+        number:
+          min: 0
+          max: 1000
+          step: 5
+          mode: box
+    very_abnormal:
+      name: Very Abnormal level
+      description: Lowest very abnormal air quality level/index
+      selector:
+        number:
+          min: 0
+          max: 1000
+          step: 5
+          mode: box
+trigger:
+  - platform: state
+    entity_id: !input sensor
+condition: []
+action:
+  - choose:
+      - conditions:
+          - condition: numeric_state
+            entity_id: !input sensor
+            above: !input very_abnormal
+        sequence:
+          - service: input_select.select_option
+            target:
+              entity_id: !input area
+            data:
+              option: very-abnormal
+      - conditions:
+          - condition: numeric_state
+            entity_id: !input sensor
+            above: !input abnormal
+            below: !input very_abnormal
+        sequence:
+          - service: input_select.select_option
+            target:
+              entity_id: !input area
+            data:
+              option: abnormal
+      - conditions:
+          - condition: numeric_state
+            entity_id: !input sensor
+            below: !input abnormal
+        sequence:
+          - service: input_select.select_option
+            target:
+              entity_id: !input area
+            data:
+              option: normal
+    default:
+      - service: input_select.select_option
+        target:
+          entity_id: !input area
+        data:
+          option: unknown
+mode: single
