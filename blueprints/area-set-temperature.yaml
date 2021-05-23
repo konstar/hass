@@ -1,0 +1,114 @@
+blueprint:
+  name: AREA set temperature
+  description: Set temperature selection for the state of an area.
+  domain: automation
+  source_url: https://github.com/konstar/hass/blob/main/blueprints/area-set-temperature.yaml
+  input:
+    area:
+      name: Area input helper
+      description: Dropdown helper associated with the temperature of an area.
+      selector:
+        entity:
+          domain: input_select
+    sensor:
+      name: Temperature Sensor
+      description: Temperature sensor of the area
+      selector:
+        entity:
+          domain: sensor
+          device_class: temperature
+trigger:
+  - platform: numeric_state
+    entity_id: !input sensor
+    below: 5
+    for: 00:05:00
+  - platform: numeric_state
+    entity_id: !input sensor
+    above: input_number.home_healthy_temperature_max
+    for: 00:05:00
+  - platform: numeric_state
+    entity_id: !input sensor
+    below: input_number.home_healthy_temperature_max
+    above: input_number.home_ideal_temperature_max
+    for: 00:05:00
+  - platform: numeric_state
+    entity_id: !input sensor
+    below: input_number.home_ideal_temperature_max
+    above: input_number.home_ideal_temperature_min
+    for: 00:05:00
+  - platform: numeric_state
+    entity_id: !input sensor
+    below: input_number.home_ideal_temperature_min
+    above: input_number.home_healthy_temperature_min
+    for: 00:05:00
+  - platform: numeric_state
+    entity_id: !input sensor
+    below: input_number.home_healthy_temperature_min
+    for: 00:05:00
+condition: []
+action:
+  - choose:
+      - conditions:
+          - condition: numeric_state
+            entity_id: !input sensor
+            below: 5
+        sequence:
+          - service: input_select.select_option
+            target:
+              entity_id: !input area
+            data:
+              option: "unknown"
+      - conditions:
+          - condition: numeric_state
+            entity_id: !input sensor
+            above: input_number.home_healthy_temperature_max
+        sequence:
+          - service: input_select.select_option
+            target:
+              entity_id: !input area
+            data:
+              option: "very-humid"
+      - conditions:
+          - condition: numeric_state
+            entity_id: !input sensor
+            below: input_number.home_healthy_temperature_max
+            above: input_number.home_ideal_temperature_max
+        sequence:
+          - service: input_select.select_option
+            target:
+              entity_id: !input area
+            data:
+              option: "humid"
+      - conditions:
+          - condition: numeric_state
+            entity_id: !input sensor
+            below: input_number.home_ideal_temperature_max
+            above: input_number.home_ideal_temperature_min
+        sequence:
+          - service: input_select.select_option
+            target:
+              entity_id: !input area
+            data:
+              option: "normal"
+      - conditions:
+          - condition: numeric_state
+            entity_id: !input sensor
+            below: input_number.home_ideal_temperature_min
+            above: input_number.home_healthy_temperature_min
+        sequence:
+          - service: input_select.select_option
+            target:
+              entity_id: !input area
+            data:
+              option: "dry"
+      - conditions:
+          - condition: numeric_state
+            entity_id: !input sensor
+            below: input_number.home_healthy_temperature_min
+        sequence:
+          - service: input_select.select_option
+            target:
+              entity_id: !input area
+            data:
+              option: "very-dry"
+mode: single
