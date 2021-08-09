@@ -22,6 +22,7 @@ blueprint:
       selector:
         entity:
           domain: sensor
+          device_class: illuminance
 trigger:
   - platform: state
     entity_id:
