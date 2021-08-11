@@ -51,7 +51,7 @@ action:
           - condition: numeric_state
             entity_id: !input light_sensor
             above: '0'
-            value_template: "{{ state.state|int - states('!input input_number.artificial_light_on')|int }}"
+            value_template: "{{ state.state|int - states('input_number.artificial_light_on')|int }}"
         sequence:
           - service: input_boolean.turn_on
             entity_id: !input natural_light_helper
@@ -65,7 +65,7 @@ action:
           - condition: numeric_state
             entity_id: !input light_sensor
             above: '0'
-            value_template: "{{ state.state|int - states('!input input_number.artificial_light_off')|int }}"
+            value_template: "{{ state.state|int - states('input_number.artificial_light_off')|int }}"
         sequence:
           - service: input_boolean.turn_on
             entity_id: !input natural_light_helper
