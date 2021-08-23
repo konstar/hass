@@ -69,5 +69,7 @@ action:
         sequence:
           - service: input_boolean.turn_on
             entity_id: !input natural_light_helper
-    default: []
+    default:
+      - service: input_boolean.turn_off
+        entity_id: !input natural_light_helper
 mode: single
