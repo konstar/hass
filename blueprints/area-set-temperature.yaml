@@ -4,111 +4,223 @@ blueprint:
   domain: automation
   source_url: https://github.com/konstar/hass/blob/main/blueprints/area-set-temperature.yaml
   input:
-    area:
-      name: Area input helper
-      description: Dropdown helper associated with the temperature of an area.
+    output:
+      name: Output helper
+      description: Helper to store the human temeperature of the area.
       selector:
         entity:
           domain: input_select
     sensor:
       name: Temperature Sensor
-      description: Temperature sensor of the area
+      description: Temperature sensor of the area.
       selector:
         entity:
           domain: sensor
           device_class: temperature
+    sleep:
+      name: Sleep helper
+      description: Helper boolean that captures whether someone is sleeping in the area.
+      slector:
+        entity:
+          domain: input_boolean
+    active_temp:
+      name: Active temperature helper
+      description: Helper with the normal temperature of the area in degc.
+      selector:
+        entity:
+          domain: input_number
+    sleep_temp:
+      name: Sleep temperature helper
+      description: Helper with the normal temperature of the area in degc.
+      selector:
+        entity:
+          domain: input_number
 trigger:
-  - platform: numeric_state
-    entity_id: !input sensor
-    below: 5
-    for: 00:05:00
-  - platform: numeric_state
-    entity_id: !input sensor
-    above: input_number.home_healthy_temperature_max
-    for: 00:05:00
-  - platform: numeric_state
-    entity_id: !input sensor
-    below: input_number.home_healthy_temperature_max
-    above: input_number.home_ideal_temperature_max
-    for: 00:05:00
-  - platform: numeric_state
-    entity_id: !input sensor
-    below: input_number.home_ideal_temperature_max
-    above: input_number.home_ideal_temperature_min
-    for: 00:05:00
-  - platform: numeric_state
-    entity_id: !input sensor
-    below: input_number.home_ideal_temperature_min
-    above: input_number.home_healthy_temperature_min
-    for: 00:05:00
-  - platform: numeric_state
-    entity_id: !input sensor
-    below: input_number.home_healthy_temperature_min
-    for: 00:05:00
+  - id: active_normal
+    platform: template
+    value_template: >-
+      {% if is_state('!input sleep','off')
+          and ( states('!input sensor')|float - states('!input active_temp')|float ) > -2
+          and ( states('!input sensor')|float - states('!input active_temp')|float ) < 2 -%}
+true
+{%- else -%}
+false
+{%- endif %}
+  - id: sleep_normal
+    platform: template
+    value_template: >-
+      {% if is_state('!input sleep','on')
+          and ( states('!input sensor')|float - states('!input sleep_temp')|float ) > -2
+          and ( states('!input sensor')|float - states('!input sleep_temp')|float ) < 2 -%}
+true
+{%- else -%}
+false
+{%- endif %}
+  - id: active_hot
+    platform: template
+    value_template: >-
+      {% if is_state('!input sleep','off')
+          and ( states('!input sensor')|float - states('!input active_temp')|float ) > 2
+          and ( states('!input sensor')|float - states('!input active_temp')|float ) < 4 -%}
+true
+{%- else -%}
+false
+{%- endif %}
+  - id: sleep_hot
+    platform: template
+    value_template: >-
+      {% if is_state('!input sleep','on')
+          and ( states('!input sensor')|float - states('!input sleep_temp')|float ) > 2
+          and ( states('!input sensor')|float - states('!input sleep_temp')|float ) < 4 -%}
+true
+{%- else -%}
+false
+{%- endif %}
+  - id: active_cold
+    platform: template
+    value_template: >-
+      {% if is_state('!input sleep','off')
+          and ( states('!input sensor')|float - states('!input active_temp')|float ) > -4
+          and ( states('!input sensor')|float - states('!input active_temp')|float ) < -2 -%}
+true
+{%- else -%}
+false
+{%- endif %}
+  - id: sleep_cold
+    platform: template
+    value_template: >-
+      {% if is_state('!input sleep','on')
+          and ( states('!input sensor')|float - states('!input sleep_temp')|float ) > -4
+          and ( states('!input sensor')|float - states('!input sleep_temp')|float ) < -2 -%}
+true
+{%- else -%}
+false
+{%- endif %}
+  - id: active_very_hot
+    platform: template
+    value_template: >-
+      {% if is_state('!input sleep','off')
+          and ( states('!input sensor')|float - states('!input active_temp')|float ) > 4 -%}
+true
+{%- else -%}
+false
+{%- endif %}
+  - id: sleep_very_hot
+    platform: template
+    value_template: >-
+      {% if is_state('!input sleep','on')
+          and ( states('!input sensor')|float - states('!input sleep_temp')|float ) > 4 -%}
+true
+{%- else -%}
+false
+{%- endif %}
+  - id: active_very_cold
+    platform: template
+    value_template: >-
+      {% if is_state('!input sleep','off')
+          and ( states('!input sensor')|float - states('!input active_temp')|float ) < -4 -%}
+true
+{%- else -%}
+false
+{%- endif %}
+  - id: sleep_very_cold
+    platform: template
+    value_template: >-
+      {% if is_state('!input sleep','on')
+          and ( states('!input sensor')|float - states('!input sleep_temp')|float ) < -4 -%}
+true
+{%- else -%}
+false
+{%- endif %}
+    - id: unknown_1
+      platform: numeric_state
+      entity_id: !input sensor
+      below: 1
+      for: 00:05:00
+    - id: unknown_2
+      platform: numeric_state
+      entity_id: !input sensor
+      above: 50
+      for: 00:05:00
 condition: []
 action:
   - choose:
       - conditions:
-          - condition: numeric_state
-            entity_id: !input sensor
-            below: 5
+          - condition: or
+            conditions:
+              - condition: trigger
+                id: active_normal
+              - condition: trigger
+                id: sleep_normal
         sequence:
           - service: input_select.select_option
             target:
-              entity_id: !input area
-            data:
-              option: "unknown"
-      - conditions:
-          - condition: numeric_state
-            entity_id: !input sensor
-            above: input_number.home_healthy_temperature_max
-        sequence:
-          - service: input_select.select_option
-            target:
-              entity_id: !input area
-            data:
-              option: "very-hot"
-      - conditions:
-          - condition: numeric_state
-            entity_id: !input sensor
-            below: input_number.home_healthy_temperature_max
-            above: input_number.home_ideal_temperature_max
-        sequence:
-          - service: input_select.select_option
-            target:
-              entity_id: !input area
-            data:
-              option: "hot"
-      - conditions:
-          - condition: numeric_state
-            entity_id: !input sensor
-            below: input_number.home_ideal_temperature_max
-            above: input_number.home_ideal_temperature_min
-        sequence:
-          - service: input_select.select_option
-            target:
-              entity_id: !input area
+              entity_id: !input output
             data:
               option: "normal"
       - conditions:
-          - condition: numeric_state
-            entity_id: !input sensor
-            below: input_number.home_ideal_temperature_min
-            above: input_number.home_healthy_temperature_min
+          - condition: or
+            conditions:
+              - condition: trigger
+                id: active_hot
+              - condition: trigger
+                id: sleep_hot
         sequence:
           - service: input_select.select_option
             target:
-              entity_id: !input area
+              entity_id: !input output
+            data:
+              option: "hot"
+      - conditions:
+          - condition: or
+            conditions:
+              - condition: trigger
+                id: active_cold
+              - condition: trigger
+                id: sleep_cold
+        sequence:
+          - service: input_select.select_option
+            target:
+              entity_id: !input output
             data:
               option: "cold"
       - conditions:
-          - condition: numeric_state
-            entity_id: !input sensor
-            below: input_number.home_healthy_temperature_min
+          - condition: or
+            conditions:
+              - condition: trigger
+                id: active_very_hot
+              - condition: trigger
+                id: sleep_very_hot
         sequence:
           - service: input_select.select_option
             target:
-              entity_id: !input area
+              entity_id: !input output
+            data:
+              option: "very_hot"
+      - conditions:
+          - condition: or
+            conditions:
+              - condition: trigger
+                id: active_very_cold
+              - condition: trigger
+                id: sleep_very_cold
+        sequence:
+          - service: input_select.select_option
+            target:
+              entity_id: !input output
             data:
               option: "very-cold"
+      - conditions:
+          - condition: or
+            conditions:
+              - condition: trigger
+                id: unknown_1
+              - condition: trigger
+                id: unknown_2
+        sequence:
+          - service: input_select.select_option
+            target:
+              entity_id: !input output
+            data:
+              option: "unknown"
 mode: single
