@@ -20,7 +20,7 @@ blueprint:
     sleep:
       name: Sleep helper
       description: Helper boolean that captures whether someone is sleeping in the area.
-      slector:
+      selector:
         entity:
           domain: input_boolean
     active_temp:
@@ -40,108 +40,118 @@ trigger:
     platform: template
     value_template: >-
       {% if is_state('!input sleep','off')
-          and ( states('!input sensor')|float - states('!input active_temp')|float ) > -2
-          and ( states('!input sensor')|float - states('!input active_temp')|float ) < 2 -%}
-true
-{%- else -%}
-false
-{%- endif %}
+        and ( states('!input sensor')|float - states('!input active_temp')|float ) > -2
+        and ( states('!input sensor')|float - states('!input active_temp')|float ) < 2 -%}
+        true
+      {%- else -%}
+        false
+      {%- endif %}
+    for: '00:05:00'
   - id: sleep_normal
     platform: template
     value_template: >-
       {% if is_state('!input sleep','on')
-          and ( states('!input sensor')|float - states('!input sleep_temp')|float ) > -2
-          and ( states('!input sensor')|float - states('!input sleep_temp')|float ) < 2 -%}
-true
-{%- else -%}
-false
-{%- endif %}
+        and ( states('!input sensor')|float - states('!input sleep_temp')|float ) > -2
+        and ( states('!input sensor')|float - states('!input sleep_temp')|float ) < 2 -%}
+        true
+      {%- else -%}
+        false
+      {%- endif %}
+    for: '00:05:00'
   - id: active_hot
     platform: template
     value_template: >-
       {% if is_state('!input sleep','off')
-          and ( states('!input sensor')|float - states('!input active_temp')|float ) > 2
-          and ( states('!input sensor')|float - states('!input active_temp')|float ) < 4 -%}
-true
-{%- else -%}
-false
-{%- endif %}
+        and ( states('!input sensor')|float - states('!input active_temp')|float ) > 2
+        and ( states('!input sensor')|float - states('!input active_temp')|float ) < 4 -%}
+        true
+      {%- else -%}
+        false
+      {%- endif %}
+    for: '00:05:00'
   - id: sleep_hot
     platform: template
     value_template: >-
       {% if is_state('!input sleep','on')
-          and ( states('!input sensor')|float - states('!input sleep_temp')|float ) > 2
-          and ( states('!input sensor')|float - states('!input sleep_temp')|float ) < 4 -%}
-true
-{%- else -%}
-false
-{%- endif %}
+        and ( states('!input sensor')|float - states('!input sleep_temp')|float ) > 2
+        and ( states('!input sensor')|float - states('!input sleep_temp')|float ) < 4 -%}
+        true
+      {%- else -%}
+        false
+      {%- endif %}
+    for: '00:05:00'
   - id: active_cold
     platform: template
     value_template: >-
       {% if is_state('!input sleep','off')
-          and ( states('!input sensor')|float - states('!input active_temp')|float ) > -4
-          and ( states('!input sensor')|float - states('!input active_temp')|float ) < -2 -%}
-true
-{%- else -%}
-false
-{%- endif %}
+        and ( states('!input sensor')|float - states('!input active_temp')|float ) > -4
+        and ( states('!input sensor')|float - states('!input active_temp')|float ) < -2 -%}
+        true
+      {%- else -%}
+        false
+      {%- endif %}
+    for: '00:05:00'
   - id: sleep_cold
     platform: template
     value_template: >-
       {% if is_state('!input sleep','on')
-          and ( states('!input sensor')|float - states('!input sleep_temp')|float ) > -4
-          and ( states('!input sensor')|float - states('!input sleep_temp')|float ) < -2 -%}
-true
-{%- else -%}
-false
-{%- endif %}
+        and ( states('!input sensor')|float - states('!input sleep_temp')|float ) > -4
+        and ( states('!input sensor')|float - states('!input sleep_temp')|float ) < -2 -%}
+        true
+      {%- else -%}
+        false
+      {%- endif %}
+    for: '00:05:00'
   - id: active_very_hot
     platform: template
     value_template: >-
       {% if is_state('!input sleep','off')
-          and ( states('!input sensor')|float - states('!input active_temp')|float ) > 4 -%}
-true
-{%- else -%}
-false
-{%- endif %}
+        and ( states('!input sensor')|float - states('!input active_temp')|float ) > 4 -%}
+        true
+      {%- else -%}
+        false
+      {%- endif %}
+    for: '00:05:00'
   - id: sleep_very_hot
     platform: template
     value_template: >-
       {% if is_state('!input sleep','on')
-          and ( states('!input sensor')|float - states('!input sleep_temp')|float ) > 4 -%}
-true
-{%- else -%}
-false
-{%- endif %}
+        and ( states('!input sensor')|float - states('!input sleep_temp')|float ) > 4 -%}
+        true
+      {%- else -%}
+        false
+      {%- endif %}
+    for: '00:05:00'
   - id: active_very_cold
     platform: template
     value_template: >-
       {% if is_state('!input sleep','off')
-          and ( states('!input sensor')|float - states('!input active_temp')|float ) < -4 -%}
-true
-{%- else -%}
-false
-{%- endif %}
+        and ( states('!input sensor')|float - states('!input active_temp')|float ) < -4 -%}
+        true
+      {%- else -%}
+        false
+      {%- endif %}
+    for: '00:05:00'
   - id: sleep_very_cold
     platform: template
     value_template: >-
       {% if is_state('!input sleep','on')
-          and ( states('!input sensor')|float - states('!input sleep_temp')|float ) < -4 -%}
-true
-{%- else -%}
-false
-{%- endif %}
-    - id: unknown_1
-      platform: numeric_state
-      entity_id: !input sensor
-      below: 1
-      for: 00:05:00
-    - id: unknown_2
-      platform: numeric_state
-      entity_id: !input sensor
-      above: 50
-      for: 00:05:00
+        and ( states('!input sensor')|float - states('!input sleep_temp')|float ) < -4 -%}
+        true
+      {%- else -%}
+        false
+      {%- endif %}
+    for: '00:05:00'
+  - id: unknown_1
+    platform: numeric_state
+    entity_id: !input sensor
+    below: 1
+    for: 00:05:00
+  - id: unknown_2
+    platform: numeric_state
+    entity_id: !input sensor
+    above: 50
+    for: 00:05:00
 condition: []
 action:
   - choose:
