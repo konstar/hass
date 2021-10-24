@@ -19,7 +19,9 @@ blueprint:
           device_class: temperature
     sleep:
       name: Sleep helper
-      description: Helper boolean that captures whether someone is sleeping in the area.
+      description:
+        Helper boolean that captures whether someone is sleeping in the
+        area.
       selector:
         entity:
           domain: input_boolean
@@ -44,67 +46,61 @@ variables:
 trigger:
   - id: active_normal
     platform: template
-    value_template: >-
-      is_state("!input sleep",'off')
-      and ( states(sensor)|float - states(active_temp)|float ) > -2
-      and ( states(sensor)|float - states(active_temp)|float ) < 2
+    value_template:
+      is_state(sleep,'off') and ( states(sensor)|float - states(active_temp)|float
+      ) > -2 and ( states(sensor)|float - states(active_temp)|float ) < 2
   - id: sleep_normal
     platform: template
-    value_template: >-
-      is_state('!input sleep','on')
-      and ( states(sensor)|float - states(sleep_temp)|float ) > -2
-      and ( states(sensor)|float - states(sleep_temp)|float ) < 2
+    value_template:
+      is_state(sleep,'on') and ( states(sensor)|float - states(sleep_temp)|float
+      ) > -2 and ( states(sensor)|float - states(sleep_temp)|float ) < 2
   - id: active_hot
     platform: template
-    value_template: >-
-      is_state('!input sleep','off')
-      and ( states(sensor)|float - states(active_temp)|float ) > 2
-      and ( states(sensor)|float - states(active_temp)|float ) < 4
+    value_template:
+      is_state(sleep,'off') and ( states(sensor)|float - states(active_temp)|float
+      ) > 2 and ( states(sensor)|float - states(active_temp)|float ) < 4
   - id: sleep_hot
     platform: template
-    value_template: >-
-      is_state('!input sleep','on')
-      and ( states(sensor)|float - states(sleep_temp)|float ) > 2
-      and ( states(sensor)|float - states(sleep_temp)|float ) < 4
+    value_template:
+      is_state(sleep,'on') and ( states(sensor)|float - states(sleep_temp)|float
+      ) > 2 and ( states(sensor)|float - states(sleep_temp)|float ) < 4
   - id: active_cold
     platform: template
-    value_template: >-
-      is_state('!input sleep','off')
-      and ( states(sensor)|float - states(active_temp)|float ) > -4
-      and ( states(sensor)|float - states(active_temp)|float ) < -2
+    value_template:
+      is_state(sleep,'off') and ( states(sensor)|float - states(active_temp)|float
+      ) > -4 and ( states(sensor)|float - states(active_temp)|float ) < -2
   - id: sleep_cold
     platform: template
-    value_template: >-
-      is_state('!input sleep','on')
-      and ( states(sensor)|float - states(sleep_temp)|float ) > -4
-      and ( states(sensor)|float - states(sleep_temp)|float ) < -2
+    value_template:
+      is_state(sleep,'on') and ( states(sensor)|float - states(sleep_temp)|float
+      ) > -4 and ( states(sensor)|float - states(sleep_temp)|float ) < -2
   - id: active_very_hot
     platform: template
-    value_template: >-
-      is_state('!input sleep','off')
-      and ( states(sensor)|float - states(active_temp)|float ) > 4
+    value_template:
+      is_state(sleep,'off') and ( states(sensor)|float - states(active_temp)|float
+      ) > 4
   - id: sleep_very_hot
     platform: template
-    value_template: >-
-      is_state('!input sleep','on')
-      and ( states(sensor)|float - states(sleep_temp)|float ) > 4
+    value_template:
+      is_state(sleep,'on') and ( states(sensor)|float - states(sleep_temp)|float
+      ) > 4
   - id: active_very_cold
     platform: template
-    value_template: >-
-      is_state('!input sleep','off')
-      and ( states(sensor)|float - states(active_temp)|float ) < -4
+    value_template:
+      is_state(sleep,'off') and ( states(sensor)|float - states(active_temp)|float
+      ) < -4
   - id: sleep_very_cold
     platform: template
-    value_template: >-
-      is_state('!input sleep','on')
-      and ( states(sensor)|float - states(sleep_temp)|float ) < -4
+    value_template:
+      is_state(sleep,'on') and ( states(sensor)|float - states(sleep_temp)|float
+      ) < -4
   - id: unknown_1
     platform: numeric_state
-    entity_id: !input sensor
+    entity_id: !input "sensor"
     below: 1
   - id: unknown_2
     platform: numeric_state
-    entity_id: !input sensor
+    entity_id: !input "sensor"
     above: 50
 condition: []
 action:
@@ -119,9 +115,9 @@ action:
         sequence:
           - service: input_select.select_option
             target:
-              entity_id: !input output
+              entity_id: !input "output"
             data:
-              option: "normal"
+              option: normal
       - conditions:
           - condition: or
             conditions:
@@ -132,9 +128,9 @@ action:
         sequence:
           - service: input_select.select_option
             target:
-              entity_id: !input output
+              entity_id: !input "output"
             data:
-              option: "hot"
+              option: hot
       - conditions:
           - condition: or
             conditions:
@@ -145,9 +141,9 @@ action:
         sequence:
           - service: input_select.select_option
             target:
-              entity_id: !input output
+              entity_id: !input "output"
             data:
-              option: "cold"
+              option: cold
       - conditions:
           - condition: or
             conditions:
@@ -158,9 +154,9 @@ action:
         sequence:
           - service: input_select.select_option
             target:
-              entity_id: !input output
+              entity_id: !input "output"
             data:
-              option: "very_hot"
+              option: very_hot
       - conditions:
           - condition: or
             conditions:
@@ -171,9 +167,9 @@ action:
         sequence:
           - service: input_select.select_option
             target:
-              entity_id: !input output
+              entity_id: !input "output"
             data:
-              option: "very-cold"
+              option: very-cold
       - conditions:
           - condition: or
             conditions:
@@ -184,7 +180,7 @@ action:
         sequence:
           - service: input_select.select_option
             target:
-              entity_id: !input output
+              entity_id: !input "output"
             data:
-              option: "unknown"
+              option: unknown
 mode: single
