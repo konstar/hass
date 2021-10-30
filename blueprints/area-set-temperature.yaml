@@ -10,6 +10,12 @@ blueprint:
       selector:
         entity:
           domain: input_select
+    output:
+      name: Output helper
+      description: Helper that stores whether room is hot or cold, etc.
+      selector:
+        entity:
+          domain: input_select
     sensor:
       name: Temperature sensor
       description: Temperature sensor of the area.
@@ -41,88 +47,33 @@ blueprint:
       selector:
         entity:
           domain: input_number
-    output:
-      name: Output helper
-      description: Helper that stores whether room is hot or cold, etc.
-      selector:
-        entity:
-          domain: input_select
 variables:
   activity: !input "activity"
+  output: !input "output"
   sensor: !input "sensor"
   active_temp: !input "active_temp"
   change_temp: !input "change_temp"
   relax_temp: !input "relax_temp"
   sleep_temp: !input "sleep_temp"
-  output: !input "output"
 trigger:
-  - id: normal
-    platform: template
-    value_template:
-      ( is_state(activity,'active')
-        and (states(sensor)|float - states(active_temp)|float) > -2
-        and (states(sensor)|float - states(active_temp)|float) < 2 )
-      or ( is_state(activity,'change')
-        and (states(sensor)|float - states(change_temp)|float) > -2
-        and (states(sensor)|float - states(change_temp)|float) < 2 )
-      or ( is_state(activity,'relax')
-        and (states(sensor)|float - states(relax_temp)|float) > -2
-        and ( states(sensor)|float - states(relax_temp)|float ) < 2 )
-      or ( is_state(activity,'sleep')
-        and (states(sensor)|float - states(sleep_temp)|float) > -2
-        and (states(sensor)|float - states(sleep_temp)|float) < 2 )
-  - id: hot
-    platform: template
-    value_template:
-      ( is_state(activity,'active')
-        and (states(sensor)|float - states(active_temp)|float) > 2
-        and (states(sensor)|float - states(active_temp)|float) < 4 )
-      or ( is_state(activity,'change')
-        and (states(sensor)|float - states(change_temp)|float) > 2
-        and (states(sensor)|float - states(change_temp)|float) < 4 )
-      or ( is_state(activity,'relax')
-        and (states(sensor)|float - states(relax_temp)|float) > 2
-        and (states(sensor)|float - states(relax_temp)|float) < 4 )
-      or ( is_state(activity,'sleep')
-        and (states(sensor)|float - states(sleep_temp)|float) > 2
-        and (states(sensor)|float - states(sleep_temp)|float) < 4 )
-  - id: cold
-    platform: template
-    value_template:
-      ( is_state(activity,'active')
-        and (states(sensor)|float - states(active_temp)|float) > -4
-        and (states(sensor)|float - states(active_temp)|float) < -2 )
-      or ( is_state(activity,'change')
-        and (states(sensor)|float - states(change_temp)|float) > -4
-        and (states(sensor)|float - states(change_temp)|float) < -2 )
-      or ( is_state(activity,'relax')
-        and (states(sensor)|float - states(relax_temp)|float) > -4
-        and (states(sensor)|float - states(relax_temp)|float) < -2 )
-      or ( is_state(activity,'sleep')
-        and (states(sensor)|float - states(sleep_temp)|float) > -4
-        and (states(sensor)|float - states(sleep_temp)|float) < -2 )
-  - id: very_hot
-    platform: template
-    value_template:
-      ( is_state(activity,'active')
-        and (states(sensor)|float - states(active_temp)|float) > 4 )
-      or ( is_state(activity,'change')
-        and (states(sensor)|float - states(change_temp)|float) > 4 )
-      or ( is_state(activity,'relax')
-        and (states(sensor)|float - states(relax_temp)|float) > 4 )
-      or ( is_state(activity,'sleep')
-        and (states(sensor)|float - states(sleep_temp)|float) > 4 )
-  - id: very_cold
-    platform: template
-    value_template:
-      ( is_state(activity,'active')
-        and (states(sensor)|float - states(active_temp)|float) < -4 )
-      or ( is_state(activity,'change')
-        and (states(sensor)|float - states(change_temp)|float) < -4 )
-      or ( is_state(activity,'relax')
-        and (states(sensor)|float - states(relax_temp)|float) < -4 )
-      or ( is_state(activity,'sleep')
-        and (states(sensor)|float - states(sleep_temp)|float) < -4 )
+  - id: activity
+    platform: state
+    entity_id: !input activity
+  - id: sensor
+    platform: state
+    entity_id: !input sensor
+  - id: active_temp
+    platform: state
+    entity_id: !input active_temp
+  - id: change_temp
+    platform: state
+    entity_id: !input change_temp
+  - id: relax_temp
+    platform: state
+    entity_id: !input relax_temp
+  - id: sleep_temp
+    platform: state
+    entity_id: !input sleep_temp
   - id: unknown_1
     platform: numeric_state
     entity_id: !input "sensor"
@@ -135,8 +86,13 @@ condition: []
 action:
   - choose:
       - conditions:
-          - condition: trigger
-            id: normal
+          - alias: "Normal"
+            condition: or
+            conditions:
+              - "{{ is_state(activity,'active') and (states(sensor)|float - states(active_temp)|float) > -2 and (states(sensor)|float - states(active_temp)|float) < 2 }}"
+              - "{{ is_state(activity,'change') and (states(sensor)|float - states(change_temp)|float) > -2 and (states(sensor)|float - states(change_temp)|float) < 2 }}"
+              - "{{ is_state(activity,'relax') and (states(sensor)|float - states(relax_temp)|float) > -2 and ( states(sensor)|float - states(relax_temp)|float ) < 2 }}"
+              - "{{ is_state(activity,'sleep') and (states(sensor)|float - states(sleep_temp)|float) > -2 and (states(sensor)|float - states(sleep_temp)|float) < 2 }}"
         sequence:
           - service: input_select.select_option
             target:
@@ -144,8 +100,13 @@ action:
             data:
               option: normal
       - conditions:
-          - condition: trigger
-            id: hot
+          - alias: "Hot"
+            condition: or
+            conditions:
+              - "{{ is_state(activity,'active') and (states(sensor)|float - states(active_temp)|float) > 2 and (states(sensor)|float - states(active_temp)|float) < 4 }}"
+              - "{{ is_state(activity,'change') and (states(sensor)|float - states(change_temp)|float) > 2 and (states(sensor)|float - states(change_temp)|float) < 4 }}"
+              - "{{ is_state(activity,'relax') and (states(sensor)|float - states(relax_temp)|float) > 2 and ( states(sensor)|float - states(relax_temp)|float ) < 4 }}"
+              - "{{ is_state(activity,'sleep') and (states(sensor)|float - states(sleep_temp)|float) > 2 and (states(sensor)|float - states(sleep_temp)|float) < 4 }}"
         sequence:
           - service: input_select.select_option
             target:
@@ -153,8 +114,13 @@ action:
             data:
               option: hot
       - conditions:
-          - condition: trigger
-            id: cold
+          - alias: "Cold"
+            condition: or
+            conditions:
+              - "{{ is_state(activity,'active') and (states(sensor)|float - states(active_temp)|float) > -4 and (states(sensor)|float - states(active_temp)|float) < -2 }}"
+              - "{{ is_state(activity,'change') and (states(sensor)|float - states(change_temp)|float) > -4 and (states(sensor)|float - states(change_temp)|float) < -2 }}"
+              - "{{ is_state(activity,'relax') and (states(sensor)|float - states(relax_temp)|float) > -4 and ( states(sensor)|float - states(relax_temp)|float ) < -2 }}"
+              - "{{ is_state(activity,'sleep') and (states(sensor)|float - states(sleep_temp)|float) > -4 and (states(sensor)|float - states(sleep_temp)|float) < -2 }}"
         sequence:
           - service: input_select.select_option
             target:
@@ -162,17 +128,27 @@ action:
             data:
               option: cold
       - conditions:
-          - condition: trigger
-            id: very_hot
+          - alias: "Very Hot"
+            condition: or
+            conditions:
+              - "{{ is_state(activity,'active') and (states(sensor)|float - states(active_temp)|float) > 4 }}"
+              - "{{ is_state(activity,'change') and (states(sensor)|float - states(change_temp)|float) > 4 }}"
+              - "{{ is_state(activity,'relax') and (states(sensor)|float - states(relax_temp)|float) > 4 }}"
+              - "{{ is_state(activity,'sleep') and (states(sensor)|float - states(sleep_temp)|float) > 4 }}"
         sequence:
           - service: input_select.select_option
             target:
               entity_id: !input "output"
             data:
-              option: very_hot
+              option: very-hot
       - conditions:
-          - condition: trigger
-            id: very_cold
+          - alias: "Very Cold"
+            condition: or
+            conditions:
+              - "{{ is_state(activity,'active') and (states(sensor)|float - states(active_temp)|float) < -4 }}"
+              - "{{ is_state(activity,'change') and (states(sensor)|float - states(change_temp)|float) < -4 }}"
+              - "{{ is_state(activity,'relax') and (states(sensor)|float - states(relax_temp)|float) < -4 }}"
+              - "{{ is_state(activity,'sleep') and (states(sensor)|float - states(sleep_temp)|float) < -4 }}"
         sequence:
           - service: input_select.select_option
             target:
