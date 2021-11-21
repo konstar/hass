@@ -9,7 +9,7 @@ blueprint:
       description: Area motion sensor
       selector:
         entity:
-          domain: sensor
+          domain: binary_sensor
     sleep_helper:
       name: Sleep temperature helper
       description: Helper which manages the temperature of the room when sleeping.
