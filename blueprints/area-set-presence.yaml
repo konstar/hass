@@ -1,0 +1,180 @@
+blueprint:
+  name: AREA set presence
+  description: Set presence selection for the state of an area.
+  domain: automation
+  source_url: https://github.com/konstar/hass/blob/main/blueprints/area-set-presence.yaml
+  input:
+    motion_sensor:
+      name: Motion sensor
+      description: Area motion sensor
+      selector:
+        entity:
+          domain: sensor
+    sleep_helper:
+      name: Sleep temperature helper
+      description: Helper which manages the temperature of the room when sleeping.
+      selector:
+        entity:
+          domain: input_boolean
+    output:
+      name: Output helper
+      description: Helper that stores whether there is someone present in the room.
+      selector:
+        entity:
+          domain: input_select
+variables:
+  motion_sensor: !input "motion_sensor"
+  sleep_helper: !input "sleep_helper"
+  output: !input "output"
+trigger:
+  - platform: state
+    entity_id: !input "motion_sensor"
+    to: 'on'
+    id: motion
+  - platform: state
+    entity_id: !input "motion_sensor"
+    to: 'off'
+    for: '00:13:00'
+    id: no_motion
+  - platform: state
+    entity_id: !input "motion_sensor"
+    to: 'off'
+    for: '00:15:00'
+    id: left_room
+  - platform: state
+    entity_id: !input "output"
+    to: enter
+    for: '00:02:00'
+    id: maybe_stay_room
+  - platform: state
+    entity_id: !input "output"
+    to: leave
+    for: '00:02:00'
+    id: maybe_left_room
+  - platform: state
+    entity_id: !input "sleep_helper"
+    to: 'on'
+    id: sleep_on
+  - platform: state
+    entity_id: !input "sleep_helper"
+    to: 'off'
+    id: sleep_off
+condition: []
+action:
+  - choose:
+      - conditions:
+          - condition: state
+            entity_id: !input "sleep_helper"
+            state: 'on'
+        sequence:
+          - service: input_boolean.turn_on
+            entity_id: input_boolean.master_bedroom_occupied
+          - service: input_select.select_option
+            target:
+              entity_id: !input "output"
+            data:
+              option: present
+      - conditions:
+          - condition: trigger
+            id: motion
+          - condition: or
+            conditions:
+              - condition: state
+                entity_id: !input "output"
+                state: unknown
+              - condition: state
+                entity_id: !input "output"
+                state: absent
+        sequence:
+          - service: input_boolean.turn_on
+            entity_id: input_boolean.master_bedroom_occupied
+          - service: input_select.select_option
+            target:
+              entity_id: !input "output"
+            data:
+              option: enter
+      - conditions:
+          - condition: trigger
+            id: maybe_stay_room
+          - condition: state
+            entity_id: !input "motion_sensor"
+            state: 'on'
+        sequence:
+          - service: input_boolean.turn_on
+            entity_id: input_boolean.master_bedroom_occupied
+          - service: input_select.select_option
+            target:
+              entity_id: !input "output"
+            data:
+              option: present
+      - conditions:
+          - condition: trigger
+            id: maybe_stay_room
+          - condition: state
+            entity_id: !input "motion_sensor"
+            state: 'off'
+        sequence:
+          - service: input_boolean.turn_off
+            entity_id: input_boolean.master_bedroom_occupied
+          - service: input_select.select_option
+            target:
+              entity_id: !input "output"
+            data:
+              option: absent
+      - conditions:
+          - condition: trigger
+            id: left_room
+        sequence:
+          - service: input_boolean.turn_off
+            entity_id: input_boolean.master_bedroom_occupied
+          - service: input_select.select_option
+            target:
+              entity_id: !input "output"
+            data:
+              option: absent
+      - conditions:
+          - condition: state
+            entity_id: !input "output"
+            state: leave
+          - condition: state
+            entity_id: !input "motion_sensor"
+            state: 'off'
+            for: '00:02:00'
+        sequence:
+          - service: input_boolean.turn_off
+            entity_id: input_boolean.master_bedroom_occupied
+          - service: input_select.select_option
+            target:
+              entity_id: !input "output"
+            data:
+              option: absent
+      - conditions:
+          - condition: state
+            entity_id: !input "output"
+            state: leave
+          - condition: state
+            entity_id: !input "motion_sensor"
+            state: 'on'
+        sequence:
+          - service: input_boolean.turn_on
+            entity_id: input_boolean.master_bedroom_occupied
+          - service: input_select.select_option
+            target:
+              entity_id: !input "output"
+            data:
+              option: present
+      - conditions:
+          - condition: trigger
+            id: no_motion
+          - condition: state
+            entity_id: !input "output"
+            state: present
+        sequence:
+          - service: input_boolean.turn_on
+            entity_id: input_boolean.master_bedroom_occupied
+          - service: input_select.select_option
+            target:
+              entity_id: !input "output"
+            data:
+              option: leave
+mode: single
