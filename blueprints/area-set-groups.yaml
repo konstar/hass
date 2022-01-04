@@ -59,7 +59,7 @@ action:
         {% set entities = expand(area_entities(area)) | selectattr('attributes.device_class','eq','humidity') | selectattr('attributes.unit_of_measurement','eq','%') | selectattr('domain','eq','sensor') | selectattr('state','ne','unavailable') | map(attribute='entity_id') | list %}
         {% if entities|count > 0 %}
           {{ entities|join(',') }}
-        {% else %} {% endif %}
+        {% else %}[]{% endif %}
   - service: group.set
     data:
       object_id: !input "illuminance_group"
@@ -67,7 +67,7 @@ action:
         {% set entities = expand(area_entities(area)) | selectattr('attributes.device_class','eq','illuminance') | selectattr('attributes.unit_of_measurement','eq','lx') | selectattr('domain','eq','sensor') | selectattr('state','ne','unavailable') | map(attribute='entity_id') | list %}
         {% if entities|count > 0 %}
           {{ entities|join(',') }}
-        {% else %} {% endif %}
+        {% else %}[]{% endif %}
   - service: group.set
     data:
       object_id: !input "motion_group"
@@ -75,7 +75,7 @@ action:
         {% set entities = expand(area_entities(area)) | selectattr('attributes.device_class','match','motion|moving|occupancy|presence') | selectattr('domain','eq','binary_sensor') | selectattr('state','ne','unavailable') | map(attribute='entity_id') | list %}
         {% if entities|count > 0 %}
           {{ entities|join(',') }}
-        {% else %} {% endif %}
+        {% else %}[]{% endif %}
   - service: group.set
     data:
       object_id: !input "temperature_group"
@@ -83,5 +83,5 @@ action:
         {% set entities = expand(area_entities(area)) | selectattr('attributes.device_class','eq','temperature') | selectattr('attributes.unit_of_measurement','eq','°C') | selectattr('domain','eq','sensor') | selectattr('state','ne','unavailable') | map(attribute='entity_id') | list %}
         {% if entities|count > 0 %}
           {{ entities|join(',') }}
-        {% else %} {% endif %}
+        {% else %}[]{% endif %}
 mode: single
