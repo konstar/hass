@@ -1,0 +1,87 @@
+blueprint:
+  name: AREA set groups
+  description: Set entities within area based groups.
+  domain: automation
+  source_url: https://github.com/konstar/hass/blob/main/blueprints/area-set-groups.yaml
+  input:
+    area:
+      name: Area
+      description: Name of the Area this blueprint is for. E.g. "Deck"
+      selector:
+        text:
+    humidity_group:
+      name: Humidity group id
+      description: Group ID for humidity sensors. e.g. "deck_humidity"
+      selector:
+        text:
+    illuminance_group:
+      name: Illuminance group id
+      description: Group ID for illuminance sensors. e.g. "back_yard_illuminance"
+      selector:
+        text:
+    motion_group:
+      name: Motion group id
+      description: Group ID for motion binary sensors. e.g. "master_bedroom_motion"
+      selector:
+        text:
+    temperature_group:
+      name: Temperature group id
+      description: Group ID for temperature sensors. e.g. "lounge_temperature"
+      selector:
+        text:
+variables:
+  area: !input "area"
+  humidity_group: !input "humidity_group"
+  illuminance_group: !input "illuminance_group"
+  motion_group: !input "motion_group"
+  temperature_group: !input "temperature_group"
+trigger:
+  - platform: time_pattern
+    hours: /1
+  - platform: homeassistant
+    event: start
+  - platform: event
+    event_type: call_service
+    event_data:
+      domain: group
+      service: reload
+condition: []
+action:
+  - delay:
+      hours: 0
+      minutes: 1
+      seconds: 0
+      milliseconds: 0
+  - service: group.set
+    data:
+      object_id: !input "humidity_group"
+      entities: >-
+        {% set entities = expand(area_entities(area)) | selectattr('attributes.device_class','eq','humidity') | selectattr('attributes.unit_of_measurement','eq','%') | selectattr('domain','eq','sensor') | selectattr('state','ne','unavailable') | map(attribute='entity_id') | list %}
+        {% if entities|count > 0 %}
+          {{ entities|join(',') }}
+        {% else %} {% endif %}
+  - service: group.set
+    data:
+      object_id: !input "illuminance_group"
+      entities: >-
+        {% set entities = expand(area_entities(area)) | selectattr('attributes.device_class','eq','illuminance') | selectattr('attributes.unit_of_measurement','eq','lx') | selectattr('domain','eq','sensor') | selectattr('state','ne','unavailable') | map(attribute='entity_id') | list %}
+        {% if entities|count > 0 %}
+          {{ entities|join(',') }}
+        {% else %} {% endif %}
+  - service: group.set
+    data:
+      object_id: !input "motion_group"
+      entities: >-
+        {% set entities = expand(area_entities(area)) | selectattr('attributes.device_class','match','motion|moving|occupancy|presence') | selectattr('domain','eq','binary_sensor') | selectattr('state','ne','unavailable') | map(attribute='entity_id') | list %}
+        {% if entities|count > 0 %}
+          {{ entities|join(',') }}
+        {% else %} {% endif %}
+  - service: group.set
+    data:
+      object_id: !input "temperature_group"
+      entities: >-
+        {% set entities = expand(area_entities(area)) | selectattr('attributes.device_class','eq','temperature') | selectattr('attributes.unit_of_measurement','eq','°C') | selectattr('domain','eq','sensor') | selectattr('state','ne','unavailable') | map(attribute='entity_id') | list %}
+        {% if entities|count > 0 %}
+          {{ entities|join(',') }}
+        {% else %} {% endif %}
+mode: single
