@@ -78,4 +78,4 @@ action:
         target:
           entity_id: !input "activity_input"
 mode: single
-max_exeeded: silent
+max_exceeded: silent
