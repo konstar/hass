@@ -47,6 +47,17 @@ blueprint:
       selector:
         entity:
           domain: input_number
+    active_states:
+      name: Active states
+      description: list of activity states which should be classed as "active". E.g. 'work','play'
+      selector:
+        text:
+    relax_states:
+      name: Relax states
+      description: list of activity states which should be classed as "relaxed". E.g. 'read','media'
+      selector:
+        text:
+
 variables:
   activity: !input "activity"
   output: !input "output"
@@ -55,6 +66,8 @@ variables:
   change_temp: !input "change_temp"
   relax_temp: !input "relax_temp"
   sleep_temp: !input "sleep_temp"
+  active_states: !input "active_states"
+  relax_states: !input "relax_states"
 trigger:
   - id: activity
     platform: state
@@ -89,9 +102,9 @@ action:
           - alias: "Normal"
             condition: or
             conditions:
-              - "{{ is_state(activity,'active') and (states(sensor)|float - states(active_temp)|float) > -2 and (states(sensor)|float - states(active_temp)|float) < 2 }}"
+              - "{{ states(activity) in (active_states) and (states(sensor)|float - states(active_temp)|float) > -2 and (states(sensor)|float - states(active_temp)|float) < 2 }}"
+              - "{{ states(activity) in (relax_states) and (states(sensor)|float - states(relax_temp)|float) > -2 and ( states(sensor)|float - states(relax_temp)|float ) < 2 }}"
               - "{{ is_state(activity,'change') and (states(sensor)|float - states(change_temp)|float) > -2 and (states(sensor)|float - states(change_temp)|float) < 2 }}"
-              - "{{ is_state(activity,'relax') and (states(sensor)|float - states(relax_temp)|float) > -2 and ( states(sensor)|float - states(relax_temp)|float ) < 2 }}"
               - "{{ is_state(activity,'sleep') and (states(sensor)|float - states(sleep_temp)|float) > -2 and (states(sensor)|float - states(sleep_temp)|float) < 2 }}"
         sequence:
           - service: input_select.select_option
@@ -103,9 +116,9 @@ action:
           - alias: "Hot"
             condition: or
             conditions:
-              - "{{ is_state(activity,'active') and (states(sensor)|float - states(active_temp)|float) > 2 and (states(sensor)|float - states(active_temp)|float) < 4 }}"
+              - "{{ states(activity) in (active_states) and (states(sensor)|float - states(active_temp)|float) > 2 and (states(sensor)|float - states(active_temp)|float) < 4 }}"
+              - "{{ states(activity) in (relax_states) and (states(sensor)|float - states(relax_temp)|float) > 2 and ( states(sensor)|float - states(relax_temp)|float ) < 4 }}"
               - "{{ is_state(activity,'change') and (states(sensor)|float - states(change_temp)|float) > 2 and (states(sensor)|float - states(change_temp)|float) < 4 }}"
-              - "{{ is_state(activity,'relax') and (states(sensor)|float - states(relax_temp)|float) > 2 and ( states(sensor)|float - states(relax_temp)|float ) < 4 }}"
               - "{{ is_state(activity,'sleep') and (states(sensor)|float - states(sleep_temp)|float) > 2 and (states(sensor)|float - states(sleep_temp)|float) < 4 }}"
         sequence:
           - service: input_select.select_option
@@ -117,9 +130,9 @@ action:
           - alias: "Cold"
             condition: or
             conditions:
-              - "{{ is_state(activity,'active') and (states(sensor)|float - states(active_temp)|float) > -4 and (states(sensor)|float - states(active_temp)|float) < -2 }}"
+              - "{{ states(activity) in (active_states) and (states(sensor)|float - states(active_temp)|float) > -4 and (states(sensor)|float - states(active_temp)|float) < -2 }}"
+              - "{{ states(activity) in (relax_states) and (states(sensor)|float - states(relax_temp)|float) > -4 and ( states(sensor)|float - states(relax_temp)|float ) < -2 }}"
               - "{{ is_state(activity,'change') and (states(sensor)|float - states(change_temp)|float) > -4 and (states(sensor)|float - states(change_temp)|float) < -2 }}"
-              - "{{ is_state(activity,'relax') and (states(sensor)|float - states(relax_temp)|float) > -4 and ( states(sensor)|float - states(relax_temp)|float ) < -2 }}"
               - "{{ is_state(activity,'sleep') and (states(sensor)|float - states(sleep_temp)|float) > -4 and (states(sensor)|float - states(sleep_temp)|float) < -2 }}"
         sequence:
           - service: input_select.select_option
@@ -131,9 +144,9 @@ action:
           - alias: "Very Hot"
             condition: or
             conditions:
-              - "{{ is_state(activity,'active') and (states(sensor)|float - states(active_temp)|float) > 4 }}"
+              - "{{ states(activity) in (active_states) and (states(sensor)|float - states(active_temp)|float) > 4 }}"
+              - "{{ states(activity) in (relax_states) and (states(sensor)|float - states(relax_temp)|float) > 4 }}"
               - "{{ is_state(activity,'change') and (states(sensor)|float - states(change_temp)|float) > 4 }}"
-              - "{{ is_state(activity,'relax') and (states(sensor)|float - states(relax_temp)|float) > 4 }}"
               - "{{ is_state(activity,'sleep') and (states(sensor)|float - states(sleep_temp)|float) > 4 }}"
         sequence:
           - service: input_select.select_option
@@ -145,9 +158,9 @@ action:
           - alias: "Very Cold"
             condition: or
             conditions:
-              - "{{ is_state(activity,'active') and (states(sensor)|float - states(active_temp)|float) < -4 }}"
+              - "{{ states(activity) in (active_states) and (states(sensor)|float - states(active_temp)|float) < -4 }}"
+              - "{{ states(activity) in (relax_states) and (states(sensor)|float - states(relax_temp)|float) < -4 }}"
               - "{{ is_state(activity,'change') and (states(sensor)|float - states(change_temp)|float) < -4 }}"
-              - "{{ is_state(activity,'relax') and (states(sensor)|float - states(relax_temp)|float) < -4 }}"
               - "{{ is_state(activity,'sleep') and (states(sensor)|float - states(sleep_temp)|float) < -4 }}"
         sequence:
           - service: input_select.select_option
@@ -169,3 +182,4 @@ action:
             data:
               option: unknown
 mode: single
+max_exceeded: silent
