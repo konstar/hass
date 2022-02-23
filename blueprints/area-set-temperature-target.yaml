@@ -46,17 +46,17 @@ blueprint:
       selector:
         text:
     change_states:
-      name: Relax states
+      name: Change states
       description: List of states which you would class as "changing". E.g. 'change'
       selector:
         text:
     relax_states:
-      name: Active states
+      name: Relax states
       description: List of states which you would class as "relaxed". E.g. 'meditate','music','tv'
       selector:
         text:
     sleep_states:
-      name: Relax states
+      name: Sleep states
       description: list of activity states which you would class as "sleeping". E.g. 'sleep'
       selector:
         text:
@@ -95,7 +95,7 @@ action:
             condition: template
             value_template: "{{ states(activity) in (active_states) }}"
         sequence:
-          - service: input_select.select_number
+          - service: input_number.set_value
             target:
               entity_id: !input "target_temp"
             data:
@@ -105,7 +105,7 @@ action:
             condition: template
             value_template: "{{ states(activity) in (change_states) }}"
         sequence:
-          - service: input_select.select_number
+          - service: input_number.set_value
             target:
               entity_id: !input "target_temp"
             data:
@@ -115,7 +115,7 @@ action:
             condition: template
             value_template: "{{ states(activity) in (relax_states) }}"
         sequence:
-          - service: input_select.select_number
+          - service: input_number.set_value
             target:
               entity_id: !input "target_temp"
             data:
@@ -125,7 +125,7 @@ action:
             condition: template
             value_template: "{{ states(activity) in (sleep_states) }}"
         sequence:
-          - service: input_select.select_number
+          - service: input_number.set_value
             target:
               entity_id: !input "target_temp"
             data:
