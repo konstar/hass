@@ -64,7 +64,7 @@ action:
     data:
       object_id: !input "illuminance_group"
       entities: >-
-        {% set entities = expand(area_entities(area)) | selectattr('domain','eq','sensor') | selectattr('attributes.device_class','defined') | selectattr('attributes.device_class','eq','illuminance') | selectattr('attributes.unit_of_measurement','eq','lx') | map(attribute='entity_id') | list %}
+        {% set entities = expand(area_entities(area)) | selectattr('domain','eq','sensor') | selectattr('attributes.device_class','defined') | selectattr('attributes.device_class','eq','illuminance') | selectattr('attributes.unit_of_measurement','eq','lx') | rejectattr('entity_id','match','.*_mi_.*') | map(attribute='entity_id') | list %}
         {% if entities|count > 0 %}
           {{ entities|join(',') }}
         {% else %}[]{% endif %}
