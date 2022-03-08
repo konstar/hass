@@ -56,7 +56,7 @@ action:
     data:
       object_id: !input "humidity_group"
       entities: >-
-        {% set entities = expand(area_entities(area)) | selectattr('domain','eq','sensor') | selectattr('attributes.device_class','defined') | selectattr('attributes.device_class','eq','humidity') | selectattr('attributes.unit_of_measurement','eq','%') | map(attribute='entity_id') | list %}
+        {% set entities = expand(area_entities(area)) | selectattr('domain','eq','sensor') | selectattr('attributes.device_class','defined') | selectattr('attributes.device_class','eq','humidity') | selectattr('attributes.unit_of_measurement','eq','%') | select('ne','0')| map(attribute='entity_id') | list %}
         {% if entities|count > 0 %}
           {{ entities|join(',') }}
         {% else %}[]{% endif %}
@@ -80,7 +80,7 @@ action:
     data:
       object_id: !input "temperature_group"
       entities: >-
-        {% set entities = expand(area_entities(area)) | selectattr('domain','eq','sensor') | selectattr('attributes.device_class','defined') | selectattr('attributes.device_class','eq','temperature') | selectattr('attributes.unit_of_measurement','eq','°C') | map(attribute='entity_id') | list %}
+        {% set entities = expand(area_entities(area)) | selectattr('domain','eq','sensor') | selectattr('attributes.device_class','defined') | selectattr('attributes.device_class','eq','temperature') | selectattr('attributes.unit_of_measurement','eq','°C') | select('ne','0') | map(attribute='entity_id') | list %}
         {% if entities|count > 0 %}
           {{ entities|join(',') }}
         {% else %}[]{% endif %}
