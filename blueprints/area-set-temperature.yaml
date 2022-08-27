@@ -47,7 +47,7 @@ action:
   - choose:
       - conditions:
           - "{{ ( states(sensor)|float - states(target)|float ) > -2 and ( states(sensor)|float - states(target)|float ) < 2 }}"
-          sequence:
+        sequence:
             - service: input_select.select_option
               target:
                 entity_id: !input "output"
