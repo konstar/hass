@@ -124,7 +124,7 @@ action:
                     data:
                       temperature: >-
                         {{
-                        states('temperature_target')|float
+                        states(temperature_target)|float
                         }}
                       hvac_mode: heat_cool
               - conditions:
@@ -150,7 +150,7 @@ action:
                         data:
                           temperature: >-
                             {{
-                            states('temperature_target')|float
+                            states(temperature_target)|float
                             }}
                           hvac_mode: heat_cool
                     else:
@@ -181,7 +181,7 @@ action:
                         data:
                           temperature: >-
                             {{
-                            states('temperature_target')|float
+                            states(temperature_target)|float
                             }}
                           hvac_mode: heat_cool
                     else:
@@ -210,7 +210,7 @@ action:
                             data:
                               temperature: >-
                                 {{
-                                state_attr('air_con','current_temperature')|round|float
+                                state_attr(air_con,'current_temperature')|round|float
                                 + 1 }}
                               hvac_mode: heat_cool
                       - conditions:
@@ -228,7 +228,7 @@ action:
                             data:
                               temperature: >-
                                 {{
-                                state_attr('air_con','current_temperature')|round|float
+                                state_attr(air_con,'current_temperature')|round|float
                                 }}
                               hvac_mode: heat_cool
                       - conditions:
@@ -244,8 +244,9 @@ action:
                             target:
                               entity_id: !input air_con
                             data:
-                              temperature: {{
-                                state_attr('air_con','current_temperature')|round|float
+                              temperature: >-
+                                {{
+                                state_attr(air_con,'current_temperature')|round|float
                                 - 2 }}
                               hvac_mode: heat_cool
                     default:
