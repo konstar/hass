@@ -16,6 +16,7 @@ blueprint:
       selector:
         entity:
           domain: binary_sensor
+          device_class: door
     presence:
       name: Presence Helper
       description: Helper for presence of the area
@@ -58,6 +59,8 @@ trigger:
     platform: state
     entity_id: climate.home_air_con
     to: "off"
+    for:
+      minutes: 1
   - id: door_open
     platform: state
     entity_id: !input door
@@ -84,6 +87,8 @@ action:
           - condition: state
             entity_id: climate.home_air_con
             state: "off"
+            for:
+              minutes: 1
         sequence:
           - service: climate.turn_off
             target:
