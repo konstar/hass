@@ -1,5 +1,5 @@
 blueprint:
-  alias: AREA Air Con
+  name: AREA Air Con
   description: Control vents for ducted air conditioner
   domain: automation
   source_url: https://github.com/konstar/hass/blob/main/blueprints/area-air-con.yaml
