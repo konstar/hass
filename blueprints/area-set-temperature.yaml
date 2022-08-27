@@ -46,7 +46,8 @@ condition: []
 action:
   - choose:
       - conditions:
-          - "{{ ( states(sensor)|float - states(target)|float ) > -2 and ( states(sensor)|float - states(target)|float ) < 2 }}"
+          - condition: template
+            value_template: "{{ ( states(sensor)|float - states(target)|float ) > -2 and ( states(sensor)|float - states(target)|float ) < 2 }}"
         sequence:
             - service: input_select.select_option
               target:
