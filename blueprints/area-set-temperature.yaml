@@ -46,8 +46,7 @@ condition: []
 action:
   - choose:
       - conditions:
-          - alias: "Normal"
-            "{{ ( states(sensor)|float - states(target)|float ) > -2 and ( states(sensor)|float - states(target)|float ) < 2 }}"
+          - "{{ ( states(sensor)|float - states(target)|float ) > -2 and ( states(sensor)|float - states(target)|float ) < 2 }}"
           sequence:
             - service: input_select.select_option
               target:
@@ -55,8 +54,7 @@ action:
               data:
                 option: normal
       - conditions:
-          - alias: "Hot"
-            "{{ ( states(sensor)|float - states(target)|float ) > 2 and ( states(sensor)|float - states(target)|float ) < 4 }}"
+          - "{{ ( states(sensor)|float - states(target)|float ) > 2 and ( states(sensor)|float - states(target)|float ) < 4 }}"
         sequence:
           - service: input_select.select_option
             target:
@@ -64,8 +62,7 @@ action:
             data:
               option: hot
       - conditions:
-          - alias: "Cold"
-            "{{ ( states(sensor)|float - states(target)|float ) > -4 and ( states(sensor)|float - states(target)|float ) < -2 }}"
+          - "{{ ( states(sensor)|float - states(target)|float ) > -4 and ( states(sensor)|float - states(target)|float ) < -2 }}"
         sequence:
           - service: input_select.select_option
             target:
@@ -73,8 +70,7 @@ action:
             data:
               option: cold
       - conditions:
-          - alias: "Very Hot"
-            "{{ ( states(sensor)|float - states(target)|float ) > 4 }}"
+          - "{{ ( states(sensor)|float - states(target)|float ) > 4 }}"
         sequence:
           - service: input_select.select_option
             target:
@@ -82,10 +78,7 @@ action:
             data:
               option: very-hot
       - conditions:
-          - alias: "Very Cold"
-            condition: or
-            conditions:
-            "{{ ( states(sensor)|float - states(target)|float ) < -4 }}"
+          - "{{ ( states(sensor)|float - states(target)|float ) < -4 }}"
         sequence:
           - service: input_select.select_option
             target:
