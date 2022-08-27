@@ -1,0 +1,261 @@
+blueprint:
+  alias: AREA Air Con
+  description: Control vents for ducted air conditioner
+  domain: automation
+  source_url: https://github.com/konstar/hass/blob/main/blueprints/area-air-con.yaml
+  input:
+    air_con:
+      name: Air Conditioner
+      description: Air Conditioner for the area
+      selector:
+        entity:
+          domain: climate
+    door:
+      name: Door
+      description: Door sensor for the area
+      selector:
+        entity:
+          domain: binary_sensor
+    presence:
+      name: Presence Helper
+      description: Helper for presence of the area
+      selector:
+        entity:
+          domain: input_select
+    humidity:
+      name: Humidity Helper
+      description: Helper for the humidity of the area
+      selector:
+        entity:
+          domain: input_select
+    temperature:
+      name: Temperature Helper
+      description: Helper for the temperature of the area
+      selector:
+        entity:
+          domain: input_select
+    temperature_target:
+      name: Temperature Target Helper
+      description: Helper for the target temperature of the area
+      selector:
+        entity:
+          domain: input_number
+    climate_control:
+      name: Automatic Climate Control
+      description: Helper for the automatic climate control of the area
+      selector:
+        entity:
+          domain: input_boolean
+variables:
+  air_con: !input "air_con"
+  temperature_target: !input "temperature_target"
+trigger:
+  - id: air_con_on
+    platform: state
+    entity_id: climate.home_air_con
+    not_to: "off"
+  - id: air_con_off
+    platform: state
+    entity_id: climate.home_air_con
+    to: "off"
+  - id: door_open
+    platform: state
+    entity_id: !input door
+    to: "on"
+  - id: door_closed
+    platform: state
+    entity_id: !input door
+    to: "off"
+  - platform: state
+    entity_id: !input presence
+  - platform: state
+    entity_id: !input humidity
+  - platform: state
+    entity_id: !input temperature
+  - platform: state
+    entity_id: !input temperature_target
+condition:
+  - condition: state
+    entity_id: !input climate_control
+    state: "on"
+action:
+  - choose:
+      - conditions:
+          - condition: state
+            entity_id: climate.home_air_con
+            state: "off"
+        sequence:
+          - service: climate.turn_off
+            target:
+              entity_id: !input air_con
+            data: {}
+      - conditions:
+          - condition: or
+            conditions:
+              - alias: Door open
+                condition: state
+                entity_id: !input door
+                state: "on"
+              - alias: Door closed and present
+                condition: and
+                conditions:
+                  - condition: state
+                    entity_id: !input door
+                    state: "off"
+                  - condition: state
+                    entity_id: !input presence
+                    state:
+                      - enter
+                      - present
+        sequence:
+          - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: climate.home_air_con
+                    state: fan_only
+                sequence:
+                  - service: climate.turn_on
+                    target:
+                      entity_id: !input air_con
+                    data: {}
+                  - service: climate.set_temperature
+                    target:
+                      entity_id: !input air_con
+                    data:
+                      temperature: >-
+                        {{
+                        states('temperature_target')|float
+                        }}
+                      hvac_mode: heat_cool
+              - conditions:
+                  - condition: state
+                    entity_id: climate.home_air_con
+                    state: heat
+                sequence:
+                  - if:
+                      - condition: state
+                        entity_id: !input temperature
+                        state:
+                          - normal
+                          - cold
+                          - very-cold
+                    then:
+                      - service: climate.turn_on
+                        target:
+                          entity_id: !input air_con
+                        data: {}
+                      - service: climate.set_temperature
+                        target:
+                          entity_id: !input air_con
+                        data:
+                          temperature: >-
+                            {{
+                            states('temperature_target')|float
+                            }}
+                          hvac_mode: heat_cool
+                    else:
+                      - service: climate.turn_off
+                        target:
+                          entity_id: !input air_con
+                        data: {}
+              - conditions:
+                  - condition: state
+                    entity_id: climate.home_air_con
+                    state: cool
+                sequence:
+                  - if:
+                      - condition: state
+                        entity_id: !input temperature
+                        state:
+                          - normal
+                          - hot
+                          - very-hot
+                    then:
+                      - service: climate.turn_on
+                        target:
+                          entity_id: !input air_con
+                        data: {}
+                      - service: climate.set_temperature
+                        target:
+                          entity_id: !input air_con
+                        data:
+                          temperature: >-
+                            {{
+                            states('temperature_target')|float
+                            }}
+                          hvac_mode: heat_cool
+                    else:
+                      - service: climate.turn_off
+                        target:
+                          entity_id: !input air_con
+                        data: {}
+              - conditions:
+                  - condition: state
+                    entity_id: climate.home_air_con
+                    state: dry
+                sequence:
+                  - choose:
+                      - conditions:
+                          - condition: state
+                            entity_id: !input humidity
+                            state: normal
+                        sequence:
+                          - service: climate.turn_on
+                            target:
+                              entity_id: !input air_con
+                            data: {}
+                          - service: climate.set_temperature
+                            target:
+                              entity_id: !input air_con
+                            data:
+                              temperature: >-
+                                {{
+                                state_attr('air_con','current_temperature')|round|float
+                                + 1 }}
+                              hvac_mode: heat_cool
+                      - conditions:
+                          - condition: state
+                            entity_id: !input humidity
+                            state: humid
+                        sequence:
+                          - service: climate.turn_on
+                            target:
+                              entity_id: !input air_con
+                            data: {}
+                          - service: climate.set_temperature
+                            target:
+                              entity_id: !input air_con
+                            data:
+                              temperature: >-
+                                {{
+                                state_attr('air_con','current_temperature')|round|float
+                                }}
+                              hvac_mode: heat_cool
+                      - conditions:
+                          - condition: state
+                            entity_id: !input humidity
+                            state: very-humid
+                        sequence:
+                          - service: climate.turn_on
+                            target:
+                              entity_id: !input air_con
+                            data: {}
+                          - service: climate.set_temperature
+                            target:
+                              entity_id: !input air_con
+                            data:
+                              temperature: {{
+                                state_attr('air_con','current_temperature')|round|float
+                                - 2 }}
+                              hvac_mode: heat_cool
+                    default:
+                      - service: climate.turn_off
+                        target:
+                          entity_id: !input air_con
+                        data: {}
+    default:
+      - service: climate.turn_off
+        target:
+          entity_id: !input air_con
+        data: {}
+mode: single
