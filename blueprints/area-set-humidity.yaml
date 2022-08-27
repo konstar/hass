@@ -18,6 +18,8 @@ blueprint:
           domain: sensor
           device_class: humidity
 trigger:
+  - platform: homeassistant
+    event: start
   - platform: numeric_state
     entity_id: !input sensor
     below: 10
