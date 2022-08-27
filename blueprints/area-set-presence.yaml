@@ -10,54 +10,83 @@ blueprint:
       selector:
         entity:
           domain: binary_sensor
+          device_class: motion
     sleep_helper:
-      name: Sleep temperature helper
-      description: Helper which manages the temperature of the room when sleeping.
+      name: Sleep helper
+      description: Helper which records whether someone is sleeping in the room.
       selector:
         entity:
           domain: input_boolean
-    output:
-      name: Output helper
-      description: Helper that stores whether there is someone present in the room.
+    occupation_output:
+      name: Occupation helper
+      description: Helper that records whether the room is occupied or not (2 states).
+      selector:
+        entity:
+          domain: input_boolean
+    presence_output:
+      name: Presence helper
+      description: Helper that records whether there is someone present in the room or not (4 states).
       selector:
         entity:
           domain: input_select
+    enter_timeout:
+      name: Enter timeout
+      description: Duration in seconds until room is marked as present or absent.
+      default: 120
+      selector:
+        number:
+          min: 0
+          max: 600
+          unit_of_measurement: "seconds"
+    present_timeout:
+      name: Enter timeout
+      description: Duration in seconds until room is marked as left if there has been no motion.
+      default: 900
+      selector:
+        number:
+          min: 0
+          max: 1800
+          unit_of_measurement: "seconds"
+    leave_timeout:
+      name: Enter timeout
+      description: Duration in seconds until room is marked as absent if there has been no motion.
+      default: 120
+      selector:
+        number:
+          min: 0
+          max: 600
+          unit_of_measurement: "seconds"
 variables:
   motion_sensor: !input "motion_sensor"
   sleep_helper: !input "sleep_helper"
-  output: !input "output"
+  presence_output: !input "presence_output"
 trigger:
   - platform: state
     entity_id: !input "motion_sensor"
-    to: 'on'
+    to: "on"
     id: motion
   - platform: state
     entity_id: !input "motion_sensor"
-    to: 'off'
-    for: '00:13:00'
+    to: "off"
+    for: !input "present_timeout"
     id: no_motion
   - platform: state
-    entity_id: !input "motion_sensor"
-    to: 'off'
-    for: '00:15:00'
-    id: left_room
-  - platform: state
-    entity_id: !input "output"
+    entity_id: !input "presence_output"
     to: enter
-    for: '00:02:00'
+    for: !input "enter_timeout"
     id: maybe_stay_room
   - platform: state
-    entity_id: !input "output"
+    entity_id: !input "presence_output"
     to: leave
-    for: '00:02:00'
+    for: !input "leave_timeout"
     id: maybe_left_room
   - platform: state
     entity_id: !input "sleep_helper"
-    to: 'on'
+    to: "on"
     id: sleep_on
   - platform: state
     entity_id: !input "sleep_helper"
-    to: 'off'
+    to: "off"
     id: sleep_off
 condition: []
 action:
@@ -65,13 +94,13 @@ action:
       - conditions:
           - condition: state
             entity_id: !input "sleep_helper"
-            state: 'on'
+            state: "on"
         sequence:
           - service: input_boolean.turn_on
             entity_id: input_boolean.master_bedroom_occupied
           - service: input_select.select_option
             target:
-              entity_id: !input "output"
+              entity_id: !input "presence_output"
             data:
               option: present
       - conditions:
@@ -80,17 +109,17 @@ action:
           - condition: or
             conditions:
               - condition: state
-                entity_id: !input "output"
+                entity_id: !input "presence_output"
                 state: unknown
               - condition: state
-                entity_id: !input "output"
+                entity_id: !input "presence_output"
                 state: absent
         sequence:
           - service: input_boolean.turn_on
             entity_id: input_boolean.master_bedroom_occupied
           - service: input_select.select_option
             target:
-              entity_id: !input "output"
+              entity_id: !input "presence_output"
             data:
               option: enter
       - conditions:
@@ -98,13 +127,13 @@ action:
             id: maybe_stay_room
           - condition: state
             entity_id: !input "motion_sensor"
-            state: 'on'
+            state: "on"
         sequence:
           - service: input_boolean.turn_on
             entity_id: input_boolean.master_bedroom_occupied
           - service: input_select.select_option
             target:
-              entity_id: !input "output"
+              entity_id: !input "presence_output"
             data:
               option: present
       - conditions:
@@ -112,13 +141,13 @@ action:
             id: maybe_stay_room
           - condition: state
             entity_id: !input "motion_sensor"
-            state: 'off'
+            state: "off"
         sequence:
           - service: input_boolean.turn_off
             entity_id: input_boolean.master_bedroom_occupied
           - service: input_select.select_option
             target:
-              entity_id: !input "output"
+              entity_id: !input "presence_output"
             data:
               option: absent
       - conditions:
@@ -129,52 +158,52 @@ action:
             entity_id: input_boolean.master_bedroom_occupied
           - service: input_select.select_option
             target:
-              entity_id: !input "output"
+              entity_id: !input "presence_output"
             data:
               option: absent
       - conditions:
           - condition: state
-            entity_id: !input "output"
+            entity_id: !input "presence_output"
             state: leave
           - condition: state
             entity_id: !input "motion_sensor"
-            state: 'off'
-            for: '00:02:00'
+            state: "off"
+            for: 00:02:00
         sequence:
           - service: input_boolean.turn_off
             entity_id: input_boolean.master_bedroom_occupied
           - service: input_select.select_option
             target:
-              entity_id: !input "output"
+              entity_id: !input "presence_output"
             data:
               option: absent
       - conditions:
           - condition: state
-            entity_id: !input "output"
+            entity_id: !input "presence_output"
             state: leave
           - condition: state
             entity_id: !input "motion_sensor"
-            state: 'on'
+            state: "on"
         sequence:
           - service: input_boolean.turn_on
             entity_id: input_boolean.master_bedroom_occupied
           - service: input_select.select_option
             target:
-              entity_id: !input "output"
+              entity_id: !input "presence_output"
             data:
               option: present
       - conditions:
           - condition: trigger
             id: no_motion
           - condition: state
-            entity_id: !input "output"
+            entity_id: !input "presence_output"
             state: present
         sequence:
           - service: input_boolean.turn_on
             entity_id: input_boolean.master_bedroom_occupied
           - service: input_select.select_option
             target:
-              entity_id: !input "output"
+              entity_id: !input "presence_output"
             data:
               option: leave
 mode: single
