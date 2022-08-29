@@ -90,6 +90,11 @@ action:
             for:
               minutes: 1
         sequence:
+          - service: climate.set_temperature
+            data:
+              temperature: {{ states(temperature_target)|float }}
+            target:
+              entity_id: !input air_con
           - service: climate.turn_off
             target:
               entity_id: !input air_con
@@ -159,6 +164,11 @@ action:
                             }}
                           hvac_mode: heat_cool
                     else:
+                      - service: climate.set_temperature
+                        data:
+                          temperature: {{ states(temperature_target)|float }}
+                        target:
+                          entity_id: !input air_con
                       - service: climate.turn_off
                         target:
                           entity_id: !input air_con
@@ -190,6 +200,11 @@ action:
                             }}
                           hvac_mode: heat_cool
                     else:
+                      - service: climate.set_temperature
+                        data:
+                          temperature: {{ states(temperature_target)|float }}
+                        target:
+                          entity_id: !input air_con
                       - service: climate.turn_off
                         target:
                           entity_id: !input air_con
@@ -255,11 +270,21 @@ action:
                                 - 2 }}
                               hvac_mode: heat_cool
                     default:
+                      - service: climate.set_temperature
+                        data:
+                          temperature: {{ states(temperature_target)|float }}
+                        target:
+                          entity_id: !input air_con
                       - service: climate.turn_off
                         target:
                           entity_id: !input air_con
                         data: {}
     default:
+      - service: climate.set_temperature
+        data:
+          temperature: {{ states(temperature_target)|float }}
+        target:
+          entity_id: !input air_con
       - service: climate.turn_off
         target:
           entity_id: !input air_con
