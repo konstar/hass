@@ -241,7 +241,7 @@ action:
                             data:
                               temperature: >-
                                 {{
-                                state(temperature_target)
+                                states(temperature_target)
                                 }}
                               hvac_mode: heat_cool
                       - conditions:
