@@ -249,19 +249,10 @@ action:
                             entity_id: !input humidity
                             state: normal
                         sequence:
-                          - service: climate.turn_on
+                          - service: climate.turn_off
                             target:
                               entity_id: !input air_con
                             data: {}
-                          - service: climate.set_temperature
-                            target:
-                              entity_id: !input air_con
-                            data:
-                              temperature: >-
-                                {{
-                                state_attr(air_con,'current_temperature')|round|float
-                                + 1 }}
-                              hvac_mode: heat_cool
                       - conditions:
                           - condition: state
                             entity_id: !input humidity
@@ -277,7 +268,7 @@ action:
                             data:
                               temperature: >-
                                 {{
-                                state_attr(air_con,'current_temperature')|round|float
+                                state_attr(air_con,'current_temperature')|round - 1
                                 }}
                               hvac_mode: heat_cool
                       - conditions:
@@ -295,8 +286,8 @@ action:
                             data:
                               temperature: >-
                                 {{
-                                state_attr(air_con,'current_temperature')|round|float
-                                - 2 }}
+                                state_attr(air_con,'current_temperature')|round - 2
+                                }}
                               hvac_mode: heat_cool
                     default:
                       - service: climate.set_temperature
