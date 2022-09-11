@@ -17,9 +17,15 @@ blueprint:
         entity:
           domain: binary_sensor
           device_class: door
+    activity:
+      name: Activity Helper
+      description: Helper for the activity of the area
+      selector:
+        entity:
+          domain: input_select
     presence:
       name: Presence Helper
-      description: Helper for presence of the area
+      description: Helper for the presence of the area
       selector:
         entity:
           domain: input_select
@@ -41,12 +47,6 @@ blueprint:
       selector:
         entity:
           domain: input_number
-    climate_control:
-      name: Automatic Climate Control
-      description: Helper for the automatic climate control of the area
-      selector:
-        entity:
-          domain: input_boolean
 variables:
   air_con: !input "air_con"
   temperature_target: !input "temperature_target"
@@ -59,8 +59,6 @@ trigger:
     platform: state
     entity_id: climate.home_air_con
     to: "off"
-    for:
-      minutes: 1
   - id: door_open
     platform: state
     entity_id: !input door
@@ -70,6 +68,8 @@ trigger:
     entity_id: !input door
     to: "off"
   - platform: state
+    entity_id: !input activity
+  - platform: state
     entity_id: !input presence
   - platform: state
     entity_id: !input humidity
@@ -77,27 +77,21 @@ trigger:
     entity_id: !input temperature
   - platform: state
     entity_id: !input temperature_target
-condition:
-  - condition: state
-    entity_id: !input climate_control
-    state: "on"
+condition: []
 action:
   - choose:
       - conditions:
           - condition: state
             entity_id: climate.home_air_con
             state: "off"
-            for:
-              minutes: 1
         sequence:
           - service: climate.set_temperature
             data:
-              temperature: >-
-                {{
-                states(temperature_target)|round
-                }}
+              temperature: "{{ states(temperature_target)|round }}"
             target:
               entity_id: !input air_con
+          - delay:
+              minutes: 2
           - service: climate.turn_off
             target:
               entity_id: !input air_con
@@ -120,6 +114,23 @@ action:
                     state:
                       - enter
                       - present
+              - condition: and
+                conditions:
+                  - condition: state
+                    entity_id: !input presence
+                    state:
+                      - absent
+                  - condition: or
+                    conditions:
+                      - condition: state
+                        entity_id: !input temperature
+                        state:
+                          - very-hot
+                      - condition: state
+                        entity_id: !input humidity
+                        state:
+                          - very-humid
+                          - humid
         sequence:
           - choose:
               - conditions:
@@ -135,10 +146,7 @@ action:
                     target:
                       entity_id: !input air_con
                     data:
-                      temperature: >-
-                        {{
-                        states(temperature_target)|round
-                        }}
+                      temperature: "{{ states(temperature_target)|round }}"
                       hvac_mode: heat_cool
               - conditions:
                   - condition: state
@@ -161,18 +169,12 @@ action:
                         target:
                           entity_id: !input air_con
                         data:
-                          temperature: >-
-                            {{
-                            states(temperature_target)|round
-                            }}
+                          temperature: "{{ states(temperature_target)|round }}"
                           hvac_mode: heat_cool
                     else:
                       - service: climate.set_temperature
                         data:
-                          temperature: >-
-                            {{
-                            states(temperature_target)|round
-                            }}
+                          temperature: "{{ states(temperature_target)|round }}"
                         target:
                           entity_id: !input air_con
                       - service: climate.turn_off
@@ -200,18 +202,12 @@ action:
                         target:
                           entity_id: !input air_con
                         data:
-                          temperature: >-
-                            {{
-                            states(temperature_target)|round
-                            }}
+                          temperature: "{{ states(temperature_target)|round }}"
                           hvac_mode: heat_cool
                     else:
                       - service: climate.set_temperature
                         data:
-                          temperature: >-
-                            {{
-                            states(temperature_target)|round
-                            }}
+                          temperature: "{{ states(temperature_target)|round }}"
                         target:
                           entity_id: !input air_con
                       - service: climate.turn_off
@@ -239,16 +235,18 @@ action:
                             target:
                               entity_id: !input air_con
                             data:
-                              temperature: >-
-                                {{
-                                states(temperature_target)
-                                }}
+                              temperature: "{{ states(temperature_target)|round }}"
                               hvac_mode: heat_cool
                       - conditions:
                           - condition: state
                             entity_id: !input humidity
                             state: normal
                         sequence:
+                          - service: climate.set_temperature
+                            target:
+                              entity_id: !input air_con
+                            data:
+                              temperature: "{{ states(temperature_target)|round }}"
                           - service: climate.turn_off
                             target:
                               entity_id: !input air_con
@@ -266,10 +264,7 @@ action:
                             target:
                               entity_id: !input air_con
                             data:
-                              temperature: >-
-                                {{
-                                state_attr(air_con,'current_temperature')|round - 1
-                                }}
+                              temperature: "{{ states(temperature_target)|round - 1 }}"
                               hvac_mode: heat_cool
                       - conditions:
                           - condition: state
@@ -284,20 +279,16 @@ action:
                             target:
                               entity_id: !input air_con
                             data:
-                              temperature: >-
-                                {{
-                                state_attr(air_con,'current_temperature')|round - 2
-                                }}
+                              temperature: "{{ states(temperature_target)|round - 2 }}"
                               hvac_mode: heat_cool
                     default:
                       - service: climate.set_temperature
                         data:
-                          temperature: >-
-                            {{
-                            states(temperature_target)|round
-                            }}
+                          temperature: "{{ states(temperature_target)|round }}"
                         target:
                           entity_id: !input air_con
+                      - delay:
+                          minutes: 2
                       - service: climate.turn_off
                         target:
                           entity_id: !input air_con
@@ -305,12 +296,11 @@ action:
     default:
       - service: climate.set_temperature
         data:
-          temperature: >-
-            {{
-            states(temperature_target)|round
-            }}
+          temperature: "{{ states(temperature_target)|round }}"
         target:
           entity_id: !input air_con
+      - delay:
+          minutes: 2
       - service: climate.turn_off
         target:
           entity_id: !input air_con
