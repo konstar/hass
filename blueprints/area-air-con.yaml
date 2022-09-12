@@ -264,7 +264,7 @@ action:
                             target:
                               entity_id: !input air_con
                             data:
-                              temperature: "{{ states(temperature_target)|round - 1 }}"
+                              temperature: "{{ states(temperature)|round - 1 }}"
                               hvac_mode: heat_cool
                       - conditions:
                           - condition: state
@@ -279,7 +279,7 @@ action:
                             target:
                               entity_id: !input air_con
                             data:
-                              temperature: "{{ states(temperature_target)|round - 2 }}"
+                              temperature: "{{ states(temperature)|round - 2 }}"
                               hvac_mode: heat_cool
                     default:
                       - service: climate.set_temperature
