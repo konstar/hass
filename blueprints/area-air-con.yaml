@@ -48,8 +48,13 @@ blueprint:
         entity:
           domain: input_number
 variables:
-  air_con: !input "air_con"
-  temperature_target: !input "temperature_target"
+  air_con: !input air_con
+  door: !input door
+  activity: !input activity
+  presence: !input presence
+  humidity: !input humidity
+  temperature: !input temperature
+  temperature_target: !input temperature_target
 trigger:
   - id: air_con_on
     platform: state
