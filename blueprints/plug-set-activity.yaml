@@ -38,6 +38,10 @@ action:
       - conditions:
           - condition: state
             entity_id: !input "power_switch"
+            state: "unavailable"
+        sequence: []
+          - condition: state
+            entity_id: !input "power_switch"
             state: "off"
         sequence:
           - service: input_select.select_option
