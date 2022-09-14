@@ -46,7 +46,8 @@ blueprint:
       description: Temperature sensor of the room
       selector:
         entity:
-          domain: input_select
+          domain: sensor
+          device_class: temperature
     temperature_target:
       name: Temperature Target Helper
       description: Target temperature helper of the room
