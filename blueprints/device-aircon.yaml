@@ -6,44 +6,50 @@ blueprint:
   input:
     air_con:
       name: Air Conditioner
-      description: Air Conditioner for the area
+      description: Air Conditioner of the room
       selector:
         entity:
           domain: climate
     door:
       name: Door
-      description: Door sensor for the area
+      description: Door sensor for the room
       selector:
         entity:
           domain: binary_sensor
           device_class: door
     activity:
       name: Activity Helper
-      description: Helper for the activity of the area
+      description: Activity helper of the room
       selector:
         entity:
           domain: input_select
     presence:
       name: Presence Helper
-      description: Helper for the presence of the area
+      description: Presence helper of the room
       selector:
         entity:
           domain: input_select
     humidity:
       name: Humidity Helper
-      description: Helper for the humidity of the area
+      description: Humidity helper of the room
       selector:
         entity:
           domain: input_select
     temperature:
       name: Temperature Helper
-      description: Helper for the temperature of the area
+      description: Temperature helper of the room
+      selector:
+        entity:
+          domain: input_select
+    temperature_sensor:
+      name: Temperature Sensor
+      description: Temperature sensor of the room
       selector:
         entity:
           domain: input_select
     temperature_target:
       name: Temperature Target Helper
-      description: Helper for the target temperature of the area
+      description: Target temperature helper of the room
       selector:
         entity:
           domain: input_number
@@ -54,6 +60,7 @@ variables:
   presence: !input presence
   humidity: !input humidity
   temperature: !input temperature
+  temperature_sensor: !input temperature_sensor
   temperature_target: !input temperature_target
 trigger:
   - id: air_con_on
@@ -269,7 +276,7 @@ action:
                             target:
                               entity_id: !input air_con
                             data:
-                              temperature: "{{ states(temperature)|round - 1 }}"
+                              temperature: "{{ states(temperature_sensor)|round - 1 }}"
                               hvac_mode: heat_cool
                       - conditions:
                           - condition: state
@@ -284,7 +291,7 @@ action:
                             target:
                               entity_id: !input air_con
                             data:
-                              temperature: "{{ states(temperature)|round - 2 }}"
+                              temperature: "{{ states(temperature_sensor)|round - 2 }}"
                               hvac_mode: heat_cool
                     default:
                       - service: climate.set_temperature
