@@ -1,29 +1,20 @@
 blueprint:
-  name: AREA set presence
+  name: AREA set 2 state presence
   description: Set presence selection for the state of an area.
   domain: automation
-  source_url: https://github.com/konstar/hass/blob/main/blueprints/area-set-presence.yaml
+  source_url: https://github.com/konstar/hass/blob/main/blueprints/area-set-2-state-presence.yaml
   input:
-    motion_sensor:
-      name: Motion sensor
-      description: Area motion sensor
+    always_present_entity:
+      name: Entity always present
+      description: Entity which if active is always present. E.g. Sleep boolean
       selector:
         entity:
-          domain: binary_sensor
-          device_class: motion
-    sleep_helper:
-      name: Sleep helper
-      description: Helper which records whether someone is sleeping in the room.
+    always_present_state:
+      name: State always present
+      description: State of the entity which signifies active. E.g. "on" for Sleep boolean
       selector:
         entity:
-          domain: input_boolean
-    occupation_output:
-      name: Occupation helper
-      description: Helper that records whether the room is occupied or not (2 states).
-      selector:
-        entity:
-          domain: input_boolean
-    presence_output:
+    presence_:
       name: Presence helper
       description: Helper that records whether there is someone present in the room or not (4 states).
       selector:

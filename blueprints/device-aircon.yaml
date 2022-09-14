@@ -1,8 +1,8 @@
 blueprint:
-  name: AREA Air Con
-  description: Control vents for ducted air conditioner
+  name: DEVICE Air Con
+  description: Manages the ducted vents of an Air Conditioning system
   domain: automation
-  source_url: https://github.com/konstar/hass/blob/main/blueprints/area-air-con.yaml
+  source_url: https://github.com/konstar/hass/blob/main/blueprints/device-aircon.yaml
   input:
     air_con:
       name: Air Conditioner
