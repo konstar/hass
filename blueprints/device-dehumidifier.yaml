@@ -90,7 +90,7 @@ action:
                   - condition: state
                     entity_id: !input dehumidifier_activity
                     state: stopping
-                  - condition: numeric_state
+                  - condition: state
                     entity_id: !input humidity
                     state:
                       - normal
