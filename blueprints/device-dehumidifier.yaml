@@ -126,8 +126,9 @@ action:
           - condition: state
             entity_id: !input humidity
             state:
-              - humid
-              - very-humid
+              - normal
+              - dry
+              - very-dry
         sequence:
           - service: switch.turn_off
             entity_id: !input dehumidifier
