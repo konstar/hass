@@ -76,5 +76,5 @@ action:
           entity_id: !input area
         data:
           option: unknown
-mode: queue
+mode: queued
 max: 10
