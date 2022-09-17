@@ -318,5 +318,5 @@ action:
         target:
           entity_id: !input air_con
         data: {}
-mode: queue
+mode: queued
 max: 10
