@@ -145,7 +145,59 @@ action:
         sequence:
           - service: fan.turn_on
             data:
+              percentage: 50
+            target:
+              entity_id: !input ceiling_fan
+          - delay: "00:00:10"
+          - service: fan.set_direction
+            data:
+              direction: forward
+            target:
+              entity_id: !input ceiling_fan
+      - conditions:
+          - condition: state
+            entity_id: !input presence
+            state:
+              - enter
+              - present
+          - condition: state
+            entity_id: !input temperature
+            state:
+              - hot
+        sequence:
+          - service: fan.turn_on
+            data:
               percentage: 33
+            target:
+              entity_id: !input ceiling_fan
+          - delay: "00:00:10"
+          - service: fan.set_direction
+            data:
+              direction: forward
+            target:
+              entity_id: !input ceiling_fan
+      - conditions:
+          - condition: state
+            entity_id: !input presence
+            state:
+              - enter
+              - present
+          - condition: or
+            conditions:
+              - condition: state
+                entity_id: !input air_quality
+                state:
+                  - abnormal
+                  - very-abnormal
+              - condition: state
+                entity_id: !input humid
+                state:
+                  - humid
+                  - very-humid
+        sequence:
+          - service: fan.turn_on
+            data:
+              percentage: 16
             target:
               entity_id: !input ceiling_fan
           - delay: "00:00:10"
