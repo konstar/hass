@@ -161,6 +161,7 @@ action:
               - enter
               - present
           - condition: or
+            conditions:
               - condition: state
                 entity_id: !input temperature
                 state:
