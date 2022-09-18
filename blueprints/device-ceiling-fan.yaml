@@ -190,7 +190,7 @@ action:
                   - abnormal
                   - very-abnormal
               - condition: state
-                entity_id: !input humid
+                entity_id: !input humidity
                 state:
                   - humid
                   - very-humid
