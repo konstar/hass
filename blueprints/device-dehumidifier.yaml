@@ -6,7 +6,7 @@ blueprint:
   input:
     dehumidifier:
       name: Dehumidifier Switch
-      description: Switch to turn on/off the dehumidifer
+      description: Switch to turn on/off the dehumidifier
       selector:
         entity:
           domain: switch
@@ -31,7 +31,7 @@ blueprint:
           domain: binary_sensor
           device_class: door
 variables:
-  dehumidifer: !input dehumidifier
+  dehumidifier: !input dehumidifier
   dehumidifier_activity: !input dehumidifier_activity
   humidity: !input humidity
   door: !input door
@@ -110,7 +110,7 @@ action:
         sequence:
           - service: switch.turn_off
             entity_id: !input dehumidifier
-      - alias: Switch off the dehumidifer if we're in peak electricity time
+      - alias: Switch off the dehumidifier if we're in peak electricity time
         conditions:
           - condition: state
             entity_id: input_select.electricity_rate
@@ -118,7 +118,7 @@ action:
         sequence:
           - service: switch.turn_off
             entity_id: !input dehumidifier
-      - alias: Switch off the dehumidifer if we're in shoulder electrcity time and the room isn't humid
+      - alias: Switch off the dehumidifier if we're in shoulder electrcity time and the room isn't humid
         conditions:
           - condition: state
             entity_id: input_select.electricity_rate
@@ -132,7 +132,7 @@ action:
         sequence:
           - service: switch.turn_off
             entity_id: !input dehumidifier
-      - alias: Switch off the dehumidifer if the room is dry
+      - alias: Switch off the dehumidifier if the room is dry
         conditions:
           - condition: state
             entity_id: !input humidity
