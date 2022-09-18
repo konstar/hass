@@ -118,17 +118,16 @@ action:
         sequence:
           - service: switch.turn_off
             entity_id: !input dehumidifier
-      - alias: Switch off the dehumidifier if we're in shoulder electrcity time and the room isn't humid
+      - alias: Switch off the dehumidifier if the room isn't humid
         conditions:
-          - condition: state
-            entity_id: input_select.electricity_rate
-            state: shoulder
           - condition: state
             entity_id: !input humidity
             state:
               - normal
               - dry
               - very-dry
+            for:
+              minutes: 15
         sequence:
           - service: switch.turn_off
             entity_id: !input dehumidifier
