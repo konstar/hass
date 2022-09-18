@@ -1,0 +1,199 @@
+blueprint:
+  name: DEVICE Ceiling Fan
+  description: Manages a ceiling fan
+  domain: automation
+  source_url: https://github.com/konstar/hass/blob/main/blueprints/device-ceiling-fan.yaml
+  input:
+    ceiling_fan:
+      name: Ceiling Fan
+      description: Helper which records the state of the dehumidifier
+      selector:
+        entity:
+          domain: fan
+    ceiling_fan_switch:
+      name: Ceiling Fan Switch
+      description: Switch to turn on/off the ceiling fan
+      selector:
+        entity:
+          domain: switch
+          device_class: switch
+    air_quality:
+      name: Air Quality Helper
+      description: Helper which records the air quality of the room
+      selector:
+        entity:
+          domain: input_select
+    humidity:
+      name: Humidity Helper
+      description: Helper which records the humidity level of the room
+      selector:
+        entity:
+          domain: input_select
+    temperature:
+      name: Temperature Helper
+      description: Helper which records the temperature of the room
+      selector:
+        entity:
+          domain: input_select
+    door:
+      name: Door Sensor
+      description: Sensor which records the state of the door
+      selector:
+        entity:
+          domain: binary_sensor
+          device_class: door
+    presence:
+      name: Presence Helper
+      description: Helper which records if someone is in the room
+      selector:
+        entity:
+          domain: input_select
+    sleeping:
+      name: Sleeping Helper
+      description: Helper which records if someone is sleeping in the room
+      selector:
+        entity:
+          domain: input_boolean
+variables:
+  ceiling_fan: !input ceiling_fan
+  ceiling_fan_switch: !input ceiling_fan_switch
+  air_quality: !input air_quality
+  humidity: !input humidity
+  temperature: !input temperature
+  door: !input door
+  presence: !input presence
+  sleeping: !input sleeping
+trigger:
+  - platform: state
+    entity_id: !input sleeping
+  - platform: state
+    entity_id: !input humidity
+  - platform: state
+    entity_id: !input temperature
+  - platform: state
+    entity_id: !input air_quality
+  - platform: state
+    entity_id: !input presence
+  - platform: state
+    entity_id: climate.home_air_con
+condition: []
+action:
+  - choose:
+      - conditions:
+          - condition: state
+            entity_id: !input presence
+            state: absent
+          - condition: or
+            conditions:
+              - condition: state
+                entity_id: !input air_quality
+                state:
+                  - very-abnormal
+                  - abnormal
+              - condition: state
+                entity_id: !input humidity
+                state:
+                  - very-humid
+                  - humid
+              - condition: state
+                entity_id: !input temperature
+                state:
+                  - very-hot
+                  - hot
+        sequence:
+          - service: fan.turn_on
+            data:
+              percentage: 66
+            target:
+              entity_id: !input ceiling_fan
+          - delay: "00:00:10"
+          - service: fan.set_direction
+            data:
+              direction: forward
+            target:
+              entity_id: !input ceiling_fan
+      - conditions:
+          - condition: state
+            entity_id: !input presence
+            state: absent
+        sequence:
+          - service: fan.turn_on
+            data:
+              percentage: 33
+            target:
+              entity_id: !input ceiling_fan
+          - delay: "00:00:10"
+          - service: fan.set_direction
+            data:
+              direction: forward
+            target:
+              entity_id: !input ceiling_fan
+      - conditions:
+          - condition: state
+            entity_id: !input sleeping
+            state: "on"
+          - condition: state
+            entity_id: !input temperature
+            state:
+              - very-hot
+        sequence:
+          - service: fan.turn_on
+            data:
+              percentage: 33
+            target:
+              entity_id: !input ceiling_fan
+          - delay: "00:00:10"
+          - service: fan.set_direction
+            data:
+              direction: reverse
+            target:
+              entity_id: !input ceiling_fan
+      - conditions:
+          - condition: state
+            entity_id: !input presence
+            state:
+              - enter
+              - present
+          - condition: state
+            entity_id: !input temperature
+            state:
+              - very-hot
+        sequence:
+          - service: fan.turn_on
+            data:
+              percentage: 33
+            target:
+              entity_id: !input ceiling_fan
+          - delay: "00:00:10"
+          - service: fan.set_direction
+            data:
+              direction: forward
+            target:
+              entity_id: !input ceiling_fan
+      - conditions:
+          - condition: state
+            entity_id: !input presence
+            state:
+              - enter
+              - present
+          - condition: state
+            entity_id: !input temperature
+            state:
+              - cold
+              - very-cold
+        sequence:
+          - service: fan.turn_off
+            target:
+              entity_id: !input ceiling_fan
+    default:
+      - service: fan.turn_on
+        data:
+          percentage: 16
+        target:
+          entity_id: fan.study_ceiling_fan
+      - delay: "00:00:10"
+      - service: fan.set_direction
+        data:
+          direction: reverse
+        target:
+          entity_id: fan.study_ceiling_fan
