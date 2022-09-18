@@ -160,10 +160,15 @@ action:
             state:
               - enter
               - present
-          - condition: state
-            entity_id: !input temperature
-            state:
-              - hot
+          - condition: or
+              - condition: state
+                entity_id: !input temperature
+                state:
+                  - hot
+              - condition: state
+                entity_id: !input air_quality
+                state:
+                  - very-abnormal
         sequence:
           - service: fan.turn_on
             data:
@@ -188,7 +193,6 @@ action:
                 entity_id: !input air_quality
                 state:
                   - abnormal
-                  - very-abnormal
               - condition: state
                 entity_id: !input humidity
                 state:
