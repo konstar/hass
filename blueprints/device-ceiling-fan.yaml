@@ -10,13 +10,6 @@ blueprint:
       selector:
         entity:
           domain: fan
-    ceiling_fan_switch:
-      name: Ceiling Fan Switch
-      description: Switch to turn on/off the ceiling fan
-      selector:
-        entity:
-          domain: switch
-          device_class: switch
     air_quality:
       name: Air Quality Helper
       description: Helper which records the air quality of the room
@@ -35,13 +28,6 @@ blueprint:
       selector:
         entity:
           domain: input_select
-    door:
-      name: Door Sensor
-      description: Sensor which records the state of the door
-      selector:
-        entity:
-          domain: binary_sensor
-          device_class: door
     presence:
       name: Presence Helper
       description: Helper which records if someone is in the room
@@ -56,11 +42,9 @@ blueprint:
           domain: input_boolean
 variables:
   ceiling_fan: !input ceiling_fan
-  ceiling_fan_switch: !input ceiling_fan_switch
   air_quality: !input air_quality
   humidity: !input humidity
   temperature: !input temperature
-  door: !input door
   presence: !input presence
   sleeping: !input sleeping
 trigger:
