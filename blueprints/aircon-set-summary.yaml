@@ -1,5 +1,5 @@
 blueprint:
-  name: Air Con set summary
+  name: AIRCON set summary
   description: Manages the summary info of the device for presentation in Lovelace
   domain: automation
   source_url: https://github.com/konstar/hass/blob/main/blueprints/aircon-set-summary.yaml
