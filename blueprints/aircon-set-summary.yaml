@@ -48,3 +48,4 @@ action:
         {%- endif %}
     target:
       entity_id: !input summary
+mode: restart
