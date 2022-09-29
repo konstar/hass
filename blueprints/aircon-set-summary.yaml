@@ -1,0 +1,50 @@
+blueprint:
+  name: Air Con set summary
+  description: Manages the summary info of the device for presentation in Lovelace
+  domain: automation
+  source_url: https://github.com/konstar/hass/blob/main/blueprints/aircon-set-summary.yaml
+  input:
+    air_con:
+      name: Air Conditioner
+      description: Air Conditioner of the room
+      selector:
+        entity:
+          domain: climate
+    vent:
+      name: Air Conditioner vent
+      description: Vent of the Air Conditioner of the room
+      selector:
+        entity:
+          domain: sensor
+    summary:
+      name: Air Conditioner summary helper
+      description: Summary helper for the Air Conditioner
+      selector:
+        entity:
+          domain: input_text
+variables:
+  air_con: !input air_con
+  vent: !input vent
+  summary: !input summary
+trigger:
+  - platform: state
+    entity_id: climate.home_air_con
+  - platform: state
+    entity_id: !input air_con
+  - platform: state
+    entity_id: !input air_con
+    attribute: temperature
+  - platform: state
+    entity_id: !input vent
+condition: []
+action:
+  - service: input_text.set_value
+    data:
+      value: |-
+        {% if is_state(air_con,'off') -%}
+          Off
+        {%- elif is_state(air_con,'heat_cool') -%}
+          {{ states(vent) }}% {{ states('climate.home_air_con')|title }} {{ state_attr(air_con,'temperature')|int }}°C
+        {%- endif %}
+    target:
+      entity_id: !input summary
