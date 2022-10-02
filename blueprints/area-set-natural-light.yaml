@@ -1,6 +1,6 @@
 blueprint:
   name: AREA set natural light
-  description: Set natural light in an area.
+  description: Figure out whether there is sufficient natural light in a room, which will eventually trigger artificial light to be switched on or off automatically
   domain: automation
   source_url: https://github.com/konstar/hass/blob/main/blueprints/area-set-natural-light.yaml
   input:
@@ -23,12 +23,30 @@ blueprint:
         entity:
           domain: sensor
           device_class: illuminance
+    artifical_light_on:
+      name: Artificial light on helper
+      description: Helper which records the lux level to switch artificial light on, i.e. The level while artifical light is off and only natural light is present.
+      selector:
+        entity:
+          domain: input_number
+    artifical_light_off:
+      name: Artificial light off helper
+      description: Helper which records the lux level to switch artificial light off, i.e. The level while artifical light on, so it needs to consider the lux level while there is both natural and artifical light.
+      selector:
+        entity:
+          domain: input_number
+variables:
+  artifical_light_source: !input artifical_light_source
+  natural_light_helper: !input natural_light_helper
+  light_sensor: !input light_sensor
+  artifical_light_on: !input artifical_light_on
+  artifical_light_off: !input artifical_light_off
 trigger:
   - platform: state
     entity_id:
       - sun.sun
-      - input_number.artificial_light_on
-      - input_number.artificial_light_off
+      - !input artifical_light_on
+      - !input artifical_light_off
       - !input artifical_light_source
       - !input light_sensor
 condition: []
@@ -50,8 +68,36 @@ action:
             state: 'off'
           - condition: numeric_state
             entity_id: !input light_sensor
-            above: '0'
-            value_template: "{{ state.state|int - states('input_number.artificial_light_on')|int }}"
+            above: '5'
+            value_template: "{{ state.state|int - states(artifical_light_on)|int }}"
+        sequence:
+          - service: input_boolean.turn_on
+            entity_id: !input natural_light_helper
+      - conditions:
+          - condition: state
+            entity_id: sun.sun
+            state: above_horizon
+          - condition: state
+            entity_id: !input artifical_light_source
+            state: 'off'
+          - condition: numeric_state
+            entity_id: !input light_sensor
+            below: '-5'
+            value_template: "{{ state.state|int - states(artifical_light_on)|int }}"
+        sequence:
+          - service: input_boolean.turn_off
+            entity_id: !input natural_light_helper
+      - conditions:
+          - condition: state
+            entity_id: sun.sun
+            state: above_horizon
+          - condition: state
+            entity_id: !input artifical_light_source
+            state: 'on'
+          - condition: numeric_state
+            entity_id: !input light_sensor
+            above: '5'
+            value_template: "{{ state.state|int - states(artifical_light_off)|int }}"
         sequence:
           - service: input_boolean.turn_on
             entity_id: !input natural_light_helper
@@ -64,13 +110,10 @@ action:
             state: 'on'
           - condition: numeric_state
             entity_id: !input light_sensor
-            above: '0'
-            value_template: "{{ state.state|int - states('input_number.artificial_light_off')|int }}"
+            below: '-5'
+            value_template: "{{ state.state|int - states(artifical_light_off)|int }}"
         sequence:
-          - service: input_boolean.turn_on
+          - service: input_boolean.turn_off
             entity_id: !input natural_light_helper
-    default:
-      - service: input_boolean.turn_off
-        entity_id: !input natural_light_helper
-mode: single
-max_exceeded: silent
+    default: []
+mode: restart
