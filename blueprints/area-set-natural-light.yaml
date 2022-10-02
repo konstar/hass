@@ -48,8 +48,9 @@ trigger:
       - sun.sun
       - !input artifical_light_on
       - !input artifical_light_off
-      - !input artifical_light_source
       - !input light_sensor
+  - platform: state
+    entity_id: !input artifical_light_source
 condition: []
 action:
   - choose:
