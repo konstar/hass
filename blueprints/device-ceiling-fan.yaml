@@ -231,10 +231,10 @@ action:
         data:
           percentage: 16
         target:
-          entity_id: fan.study_ceiling_fan
+          entity_id: !input ceiling_fan
       - delay: "00:00:10"
       - service: fan.set_direction
         data:
           direction: reverse
         target:
-          entity_id: fan.study_ceiling_fan
+          entity_id: !input ceiling_fan
