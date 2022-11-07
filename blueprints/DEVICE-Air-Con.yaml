@@ -2,7 +2,7 @@ blueprint:
   name: DEVICE Air Con
   description: Manages the ducted vents of an Air Conditioning system
   domain: automation
-  source_url: https://github.com/konstar/hass/blob/main/blueprints/device-aircon.yaml
+  source_url: https://github.com/konstar/hass/blob/main/blueprints/DEVICE-Air-Con.yaml
   input:
     air_con:
       name: Air Conditioner
@@ -12,11 +12,10 @@ blueprint:
           domain: climate
     door:
       name: Door
-      description: Door sensor for the room
+      description: Door helper for the room
       selector:
         entity:
-          domain: binary_sensor
-          device_class: door
+          domain: input_boolean
     activity:
       name: Activity Helper
       description: Activity helper of the room
