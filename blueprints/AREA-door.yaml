@@ -1,0 +1,48 @@
+blueprint:
+  name: AREA door
+  description: Maintain door state when sensors are briefly offline. ON = door open, OFF = door closed
+  domain: automation
+  source_url: https://github.com/konstar/hass/blob/main/blueprints/area-door.yaml
+  input:
+    door:
+      name: Door helper
+      description: Toggle helper that will maintain the state of the door.
+      selector:
+        entity:
+          domain: input_boolean
+    sensor:
+      name: Door Sensor
+      description: Contact sensor of the door
+      selector:
+        entity:
+          domain: binary_sensor
+trigger:
+  - id: open
+    platform: state
+    entity_id: !input sensor
+    from: "off"
+    to: "on"
+  - id: close
+    platform: state
+    entity_id: !input sensor
+    from: "on"
+    to: "off"
+condition: []
+action:
+  - choose:
+      - conditions:
+          - condition: trigger
+            id: open
+        sequence:
+          - service: input_boolean.turn_on
+            target:
+              entity_id: !input door
+      - conditions:
+          - condition: trigger
+            id: close
+        sequence:
+          - service: input_boolean.turn_off
+            target:
+              entity_id: !input door
+    default: []
+mode: restart
