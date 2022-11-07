@@ -2,7 +2,7 @@ blueprint:
   name: AREA door
   description: Maintain door state when sensors are briefly offline. ON = door open, OFF = door closed
   domain: automation
-  source_url: https://github.com/konstar/hass/blob/main/blueprints/area-door.yaml
+  source_url: https://github.com/konstar/hass/blob/main/blueprints/AREA-door.yaml
   input:
     door:
       name: Door helper
