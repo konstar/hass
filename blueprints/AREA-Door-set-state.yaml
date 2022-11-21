@@ -22,11 +22,15 @@ trigger:
     entity_id: !input sensor
     from: "off"
     to: "on"
+    for:
+      minutes: 5
   - id: close
     platform: state
     entity_id: !input sensor
     from: "on"
     to: "off"
+    for:
+      minutes: 2
 condition: []
 action:
   - choose:
