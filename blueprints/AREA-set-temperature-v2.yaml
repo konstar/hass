@@ -17,33 +17,33 @@ blueprint:
         entity:
           domain: sensor
           device_class: temperature
-    target_low:
-      name: Low target temperature
-      description: Low target temperature of the area.
-      selector:
-        entity:
-          domain: input_number
     target_high:
       name: High target temperature
       description: High target temperature of the area.
       selector:
         entity:
           domain: input_number
+    target_low:
+      name: Low target temperature
+      description: Low target temperature of the area.
+      selector:
+        entity:
+          domain: input_number
 variables:
   output: !input "output"
   sensor: !input "sensor"
-  target_low: !input "target_low"
   target_high: !input "target_high"
+  target_low: !input "target_low"
 trigger:
   - id: sensor
     platform: state
     entity_id: !input sensor
   - id: target
     platform: state
-    entity_id: !input target_low
+    entity_id: !input target_high
   - id: target
     platform: state
-    entity_id: !input target_high
+    entity_id: !input target_low
   - id: unknown_1
     platform: numeric_state
     entity_id: !input sensor
@@ -56,7 +56,7 @@ condition: []
 action:
   - choose:
       - conditions:
-          - "{{ ( states(sensor)|float > states(target_low)|float )  and  ( states(sensor)|float < states(target_high)|float ) }}"
+          - "{{ ( states(sensor)|float - states(target_low)|float ) > 0 and ( states(sensor)|float - states(target_high)|float ) < 0 }}"
         sequence:
           - service: input_select.select_option
             target:
