@@ -56,6 +56,13 @@ condition: []
 action:
   - choose:
       - conditions:
+          - condition: state
+            entity_id: !input sensor
+            state: unknown
+        sequence:
+          - alias: "Stop here if the sensor is broken"
+            delay: 1
+      - conditions:
           - "{{ ( states(sensor)|float > states(target_low)|float ) and ( states(sensor)|float < states(target_high)|float ) }}"
         sequence:
           - service: input_select.select_option
