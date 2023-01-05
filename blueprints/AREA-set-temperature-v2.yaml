@@ -58,11 +58,11 @@ action:
       - conditions:
           - "{{ ( states(sensor)|float > states(target_low)|float )  and  ( states(sensor)|float < states(target_high)|float ) }}"
         sequence:
-            - service: input_select.select_option
-              target:
-                entity_id: !input "output"
-              data:
-                option: normal
+          - service: input_select.select_option
+            target:
+              entity_id: !input "output"
+            data:
+              option: normal
       - conditions:
           - "{{ ( states(sensor)|float > (states(target_high)|float )  and  ( states(sensor)|float < (states(target_high)|float + 2) ) }}"
         sequence:
@@ -96,8 +96,7 @@ action:
             data:
               option: very-cold
       - conditions:
-          - condition: or
-            conditions:
+          - or:
               - condition: trigger
                 id: unknown_1
               - condition: trigger
