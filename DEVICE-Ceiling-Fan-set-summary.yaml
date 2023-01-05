@@ -1,0 +1,47 @@
+blueprint:
+  name: DEVICE Ceiling Fan set summary
+  description: Manages the summary info of the device for presentation in Lovelace
+  domain: automation
+  source_url: https://github.com/konstar/hass/blob/main/blueprints/DEVICE-Ceiling-Fan-set-summary.yaml
+  input:
+    fan:
+      name: Ceiling Fan
+      description: Ceiling Fan in the room
+      selector:
+        entity:
+          domain: fan
+    summary:
+      name: Ceiling Fan summary helper
+      description: Summary helper for the Ceiling Fan
+      selector:
+        entity:
+          domain: input_text
+variables:
+  fan: !input fan
+  summary: !input summary
+trigger:
+  - platform: state
+    entity_id: !input fan
+  - platform: state
+    entity_id: !input fan
+    attribute: direction
+  - platform: state
+    entity_id: !input fan
+    attribute: percentage
+condition: []
+action:
+  - service: input_text.set_value
+    data:
+      value: |-
+        {% if is_state(fan,'off') -%}
+          Off
+        {%- elif is_state_attr(fan,'direction','forward') -%}
+          Down {{ state_attr(fan,'percentage')|int }}%
+        {%- elif is_state_attr(fan,'direction','reverse') -%}
+          Up {{ state_attr(fan,'percentage')|int }}%
+        {%- else -%}
+          Unknown
+        {%- endif %}
+    target:
+      entity_id: !input summary
+mode: restart
