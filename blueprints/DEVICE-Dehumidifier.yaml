@@ -121,6 +121,18 @@ action:
     sequence:
     - service: switch.turn_off
       entity_id: !input dehumidifier
+  - alias: There's no point dehumidifying the room if the house is open and the door
+      to the room is left open
+    conditions:
+    - condition: state
+      entity_id: input_boolean.home_open
+      state: 'on'
+    - condition: state
+      entity_id: !input door
+      state: 'on'
+    sequence:
+    - service: switch.turn_off
+      entity_id: !input dehumidifier
   - alias: Switch off the dehumidifier if we're in shoulder and it isn't very humid
     conditions:
     - condition: state
@@ -135,25 +147,12 @@ action:
     sequence:
     - service: switch.turn_off
       entity_id: !input dehumidifier
-  - alias: Switch off the dehumidifier if the room isn't humid
+  - alias: Switch off the dehumidifier if it is peak
     conditions:
     - condition: state
-      entity_id: !input humidity
-      state: normal
-      for:
-        minutes: 10
-    sequence:
-    - service: switch.turn_off
-      entity_id: !input dehumidifier
-  - alias: There's no point dehumidifying the room if the house is open and the door
-      to the room is left open
-    conditions:
-    - condition: state
-      entity_id: input_boolean.home_open
-      state: 'on'
-    - condition: state
-      entity_id: !input door
-      state: 'on'
+      entity_id: input_select.electricity_rate
+      state:
+        - peak
     sequence:
     - service: switch.turn_off
       entity_id: !input dehumidifier
