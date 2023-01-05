@@ -56,7 +56,7 @@ condition: []
 action:
   - choose:
       - conditions:
-          - "{{ ( states(sensor)|float - states(target_low)|float ) > 0 and ( states(sensor)|float - states(target_high)|float ) < 0 }}"
+          - "{{ ( states(sensor)|float > states(target_low)|float ) and ( states(sensor)|float < states(target_high)|float ) }}"
         sequence:
           - service: input_select.select_option
             target:
