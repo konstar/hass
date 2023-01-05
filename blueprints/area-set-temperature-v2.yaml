@@ -40,7 +40,10 @@ trigger:
     entity_id: !input sensor
   - id: target
     platform: state
-    entity_id: !input target
+    entity_id: !input target_low
+  - id: target
+    platform: state
+    entity_id: !input target_high
   - id: unknown_1
     platform: numeric_state
     entity_id: !input sensor
@@ -105,5 +108,4 @@ action:
               entity_id: !input "output"
             data:
               option: unknown
-mode: single
-max_exceeded: silent
+mode: restart
