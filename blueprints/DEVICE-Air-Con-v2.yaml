@@ -214,7 +214,7 @@ action:
                         target:
                           entity_id: !input air_con
                         data:
-                          temperature: "{{ (states(temperature_target_high)|float-1)round }}"
+                          temperature: "{{ (states(temperature_target_high)|float-1)|round }}"
                           hvac_mode: heat_cool
                     else:
                       - service: climate.set_temperature
