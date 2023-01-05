@@ -2,7 +2,7 @@ blueprint:
   name: AREA set temperature v2
   description: Set temperature selection for the state of an area.
   domain: automation
-  source_url: https://github.com/konstar/hass/blob/main/blueprints/area-set-temperature-v2.yaml
+  source_url: https://github.com/konstar/hass/blob/main/blueprints/AREA-set-temperature-v2.yaml
   input:
     output:
       name: Temperature helper
