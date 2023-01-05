@@ -1,8 +1,8 @@
 blueprint:
-  name: AIRCON set summary
+  name: DEVICE Air Con set summary
   description: Manages the summary info of the device for presentation in Lovelace
   domain: automation
-  source_url: https://github.com/konstar/hass/blob/main/blueprints/aircon-set-summary.yaml
+  source_url: https://github.com/konstar/hass/blob/main/blueprints/DEVICE-Air-Con-set-summary.yaml
   input:
     air_con:
       name: Air Conditioner
@@ -41,9 +41,13 @@ action:
   - service: input_text.set_value
     data:
       value: |-
-        {% if is_state(air_con,'off') -%}
+        {% if is_state('climate.home_air_con','off') or is_state(air_con,'off') -%}
           Off
-        {%- elif is_state(air_con,'heat_cool') -%}
+        {%- elif is_state('climate.home_air_con','fan_only') -%}
+          {{ states(vent) }}% Fan
+        {%- elif is_state('climate.home_air_con','dry') -%}
+          {{ states(vent) }}% Dry
+        {%- else -%}
           {{ states(vent) }}% {{ states('climate.home_air_con')|title }} {{ state_attr(air_con,'temperature')|int }}°C
         {%- endif %}
     target:
