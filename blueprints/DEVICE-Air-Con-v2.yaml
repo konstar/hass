@@ -172,6 +172,11 @@ action:
                           - normal
                           - cold
                           - very-cold
+                      - condition: state
+                        entity_id: !input presence
+                        state:
+                          - enter
+                          - present
                     then:
                       - service: climate.turn_on
                         target:
@@ -205,6 +210,11 @@ action:
                           - normal
                           - hot
                           - very-hot
+                      - condition: state
+                        entity_id: !input presence
+                        state:
+                          - enter
+                          - present
                     then:
                       - service: climate.turn_on
                         target:
@@ -238,6 +248,11 @@ action:
                             state:
                               - hot
                               - very-hot
+                          - condition: state
+                            entity_id: !input presence
+                            state:
+                              - enter
+                              - present
                         sequence:
                           - service: climate.turn_on
                             target:

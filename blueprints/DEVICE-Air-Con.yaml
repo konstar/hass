@@ -16,12 +16,6 @@ blueprint:
       selector:
         entity:
           domain: input_boolean
-    activity:
-      name: Activity Helper
-      description: Activity helper of the room
-      selector:
-        entity:
-          domain: input_select
     presence:
       name: Presence Helper
       description: Presence helper of the room
@@ -56,7 +50,6 @@ blueprint:
 variables:
   air_con: !input air_con
   door: !input door
-  activity: !input activity
   presence: !input presence
   humidity: !input humidity
   temperature: !input temperature
@@ -79,8 +72,6 @@ trigger:
     platform: state
     entity_id: !input door
     to: "off"
-  - platform: state
-    entity_id: !input activity
   - platform: state
     entity_id: !input presence
   - platform: state
@@ -172,6 +163,11 @@ action:
                           - normal
                           - cold
                           - very-cold
+                      - condition: state
+                        entity_id: !input presence
+                        state:
+                          - enter
+                          - present
                     then:
                       - service: climate.turn_on
                         target:
@@ -205,6 +201,11 @@ action:
                           - normal
                           - hot
                           - very-hot
+                      - condition: state
+                        entity_id: !input presence
+                        state:
+                          - enter
+                          - present
                     then:
                       - service: climate.turn_on
                         target:
@@ -238,6 +239,11 @@ action:
                             state:
                               - hot
                               - very-hot
+                          - condition: state
+                            entity_id: !input presence
+                            state:
+                              - enter
+                              - present
                         sequence:
                           - service: climate.turn_on
                             target:
@@ -252,7 +258,10 @@ action:
                       - conditions:
                           - condition: state
                             entity_id: !input humidity
-                            state: normal
+                            state:
+                              - normal
+                              - dry
+                              - very-dry
                         sequence:
                           - service: climate.set_temperature
                             target:
