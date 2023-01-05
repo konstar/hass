@@ -64,7 +64,7 @@ action:
             data:
               option: normal
       - conditions:
-          - "{{ ( states(sensor)|float > (states(target_high)|float )  and  ( states(sensor)|float < (states(target_high)|float + 2) ) }}"
+          - "{{ ( states(sensor)|float > states(target_high)|float )  and  ( states(sensor)|float < (states(target_high)|float + 2) ) }}"
         sequence:
           - service: input_select.select_option
             target:
