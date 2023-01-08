@@ -3,7 +3,6 @@ blueprint:
   description: Set humidity selection for the state of an area.
   domain: automation
   source_url: https://github.com/konstar/hass/blob/main/blueprints/AREA-set-humidity.yaml
-  # max, top, high, low, bottom, min
   input:
     area:
       name: Area input helper
