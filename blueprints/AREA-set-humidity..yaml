@@ -1,0 +1,224 @@
+blueprint:
+  name: AREA set humidity
+  description: Set humidity selection for the state of an area.
+  domain: automation
+  source_url: https://github.com/konstar/hass/blob/main/blueprints/AREA-set-humidity.yaml
+  # max, top, high, low, bottom, min
+  input:
+    area:
+      name: Area input helper
+      description: Dropdown helper associated with the humidity of an area.
+      selector:
+        entity:
+          domain: input_select
+    sensor:
+      name: Humidity Sensor
+      description: Humidity sensor of the area
+      selector:
+        entity:
+          domain: sensor
+          device_class: humidity
+trigger:
+  - id: reset
+    platform: homeassistant
+    event: start
+  - id: unknown
+    platform: numeric_state
+    entity_id: !input sensor
+    below: 10
+    for:
+      minutes: 5
+  - id: unknown
+    platform: numeric_state
+    entity_id: !input sensor
+    above: 99
+    for:
+      minutes: 5
+  - id: extremely-humid
+    platform: numeric_state
+    entity_id: !input sensor
+    above: input_number.humidity_max
+    for:
+      minutes: 5
+  - id: very-humid
+    platform: numeric_state
+    entity_id: !input sensor
+    below: input_number.humidity_max
+    above: input_number.humidity_top
+    for:
+      minutes: 5
+  - id: humid
+    platform: numeric_state
+    entity_id: !input sensor
+    below: input_number.humidity_top
+    above: input_number.humidity_high
+    for:
+      minutes: 5
+  - id: normal
+    platform: numeric_state
+    entity_id: !input sensor
+    below: input_number.humidity_high
+    above: input_number.humidity_low
+    for:
+      minutes: 5
+  - id: dry
+    platform: numeric_state
+    entity_id: !input sensor
+    below: input_number.humidity_low
+    above: input_number.humidity_bottom
+    for:
+      minutes: 5
+  - id: very-dry
+    platform: numeric_state
+    entity_id: !input sensor
+    below: input_number.humidity_bottom
+    above: input_number.humidity_min
+    for:
+      minutes: 5
+  - id: extremely-dry
+    platform: numeric_state
+    entity_id: !input sensor
+    below: input_number.humidity_min
+    for:
+      minutes: 5
+condition: []
+action:
+  - choose:
+      - conditions:
+          - or:
+              - condition: trigger
+                id: unknown
+              - and:
+                  - condition: trigger
+                    id: reset
+                  - or:
+                      - condition: numeric_state
+                        entity_id: !input sensor
+                        below: 10
+                      - condition: numeric_state
+                        entity_id: !input sensor
+                        above: 99
+        sequence:
+          - service: input_select.select_option
+            target:
+              entity_id: !input area
+            data:
+              option: unknown
+      - conditions:
+          - or:
+              - condition: trigger
+                id: extremely-humid
+              - and:
+                  - condition: trigger
+                    id: reset
+                  - condition: numeric_state
+                    entity_id: !input sensor
+                    above: input_number.humidity_max
+        sequence:
+          - service: input_select.select_option
+            target:
+              entity_id: !input area
+            data:
+              option: extremely-humid
+      - conditions:
+          - or:
+              - condition: trigger
+                id: very-humid
+              - and:
+                  - condition: trigger
+                    id: reset
+                  - condition: numeric_state
+                    entity_id: !input sensor
+                    below: input_number.humidity_max
+                    above: input_number.humidity_top
+        sequence:
+          - service: input_select.select_option
+            target:
+              entity_id: !input area
+            data:
+              option: very-humid
+      - conditions:
+          - or:
+              - condition: trigger
+                id: humid
+              - and:
+                  - condition: trigger
+                    id: reset
+                  - condition: numeric_state
+                    entity_id: !input sensor
+                    below: input_number.humidity_top
+                    above: input_number.humidity_high
+        sequence:
+          - service: input_select.select_option
+            target:
+              entity_id: !input area
+            data:
+              option: humid
+      - conditions:
+          - or:
+              - condition: trigger
+                id: normal
+              - and:
+                  - condition: trigger
+                    id: reset
+                  - condition: numeric_state
+                    entity_id: !input sensor
+                    below: input_number.humidity_high
+                    above: input_number.humidity_low
+        sequence:
+          - service: input_select.select_option
+            target:
+              entity_id: !input area
+            data:
+              option: normal
+      - conditions:
+          - or:
+              - condition: trigger
+                id: dry
+              - and:
+                  - condition: trigger
+                    id: reset
+                  - condition: numeric_state
+                    entity_id: !input sensor
+                    below: input_number.humidity_low
+                    above: input_number.humidity_bottom
+        sequence:
+          - service: input_select.select_option
+            target:
+              entity_id: !input area
+            data:
+              option: dry
+      - conditions:
+          - or:
+              - condition: trigger
+                id: very-dry
+              - and:
+                  - condition: trigger
+                    id: reset
+                  - condition: numeric_state
+                    entity_id: !input sensor
+                    below: input_number.humidity_bottom
+                    above: input_number.humidity_min
+        sequence:
+          - service: input_select.select_option
+            target:
+              entity_id: !input area
+            data:
+              option: very-dry
+      - conditions:
+          - or:
+              - condition: trigger
+                id: extremely-dry
+              - and:
+                  - condition: trigger
+                    id: reset
+                  - condition: numeric_state
+                    entity_id: !input sensor
+                    below: input_number.humidity_min
+        sequence:
+          - service: input_select.select_option
+            target:
+              entity_id: !input area
+            data:
+              option: extremely-dry
+mode: restart
