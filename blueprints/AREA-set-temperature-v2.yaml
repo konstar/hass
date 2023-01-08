@@ -58,12 +58,14 @@ action:
       - conditions:
           - condition: state
             entity_id: !input sensor
-            state: unknown
+            state:
+              - unknown
+              - unavailable
         sequence:
           - alias: "Stop here if the sensor is broken"
             delay: 1
       - conditions:
-          - "{{ ( states(sensor)|float > states(target_low)|float ) and ( states(sensor)|float < states(target_high)|float ) }}"
+          - "{{ ( states(sensor)|float > (states(target_low)|float - 0.5) ) and ( states(sensor)|float < (states(target_high)|float + 0.5) ) }}"
         sequence:
           - service: input_select.select_option
             target:
@@ -71,7 +73,7 @@ action:
             data:
               option: normal
       - conditions:
-          - "{{ ( states(sensor)|float > states(target_high)|float )  and  ( states(sensor)|float < (states(target_high)|float + 2) ) }}"
+          - "{{ ( states(sensor)|float > states(target_high)|float )  and  ( states(sensor)|float < (states(target_high)|float + 2.5) ) }}"
         sequence:
           - service: input_select.select_option
             target:
@@ -79,7 +81,7 @@ action:
             data:
               option: hot
       - conditions:
-          - "{{ ( states(sensor)|float < states(target_low)|float )  and  ( states(sensor)|float > (states(target_low)|float - 2) ) }}"
+          - "{{ ( states(sensor)|float < states(target_low)|float )  and  ( states(sensor)|float > (states(target_low)|float - 2.5) ) }}"
         sequence:
           - service: input_select.select_option
             target:
@@ -87,7 +89,7 @@ action:
             data:
               option: cold
       - conditions:
-          - "{{ states(sensor)|float > (states(target_high)|float + 2) }}"
+          - "{{ states(sensor)|float > (states(target_high)|float + 2.0) }}"
         sequence:
           - service: input_select.select_option
             target:
@@ -95,7 +97,7 @@ action:
             data:
               option: very-hot
       - conditions:
-          - "{{ states(sensor)|float < (states(target_low)|float - 2) }}"
+          - "{{ states(sensor)|float < (states(target_low)|float - 2.0) }}"
         sequence:
           - service: input_select.select_option
             target:
