@@ -18,9 +18,6 @@ blueprint:
           domain: sensor
           device_class: humidity
 trigger:
-  - id: reset
-    platform: homeassistant
-    event: start
   - id: unknown
     platform: numeric_state
     entity_id: !input sensor
@@ -84,19 +81,8 @@ condition: []
 action:
   - choose:
       - conditions:
-          - or:
-              - condition: trigger
-                id: unknown
-              - and:
-                  - condition: trigger
-                    id: reset
-                  - or:
-                      - condition: numeric_state
-                        entity_id: !input sensor
-                        below: 10
-                      - condition: numeric_state
-                        entity_id: !input sensor
-                        above: 99
+          - condition: trigger
+            id: unknown
         sequence:
           - service: input_select.select_option
             target:
@@ -104,15 +90,8 @@ action:
             data:
               option: unknown
       - conditions:
-          - or:
-              - condition: trigger
-                id: extremely-humid
-              - and:
-                  - condition: trigger
-                    id: reset
-                  - condition: numeric_state
-                    entity_id: !input sensor
-                    above: input_number.humidity_max
+          - condition: trigger
+            id: extremely-humid
         sequence:
           - service: input_select.select_option
             target:
@@ -120,16 +99,8 @@ action:
             data:
               option: extremely-humid
       - conditions:
-          - or:
-              - condition: trigger
-                id: very-humid
-              - and:
-                  - condition: trigger
-                    id: reset
-                  - condition: numeric_state
-                    entity_id: !input sensor
-                    below: input_number.humidity_max
-                    above: input_number.humidity_top
+          - condition: trigger
+            id: very-humid
         sequence:
           - service: input_select.select_option
             target:
@@ -137,16 +108,8 @@ action:
             data:
               option: very-humid
       - conditions:
-          - or:
-              - condition: trigger
-                id: humid
-              - and:
-                  - condition: trigger
-                    id: reset
-                  - condition: numeric_state
-                    entity_id: !input sensor
-                    below: input_number.humidity_top
-                    above: input_number.humidity_high
+          - condition: trigger
+            id: humid
         sequence:
           - service: input_select.select_option
             target:
@@ -154,16 +117,8 @@ action:
             data:
               option: humid
       - conditions:
-          - or:
-              - condition: trigger
-                id: normal
-              - and:
-                  - condition: trigger
-                    id: reset
-                  - condition: numeric_state
-                    entity_id: !input sensor
-                    below: input_number.humidity_high
-                    above: input_number.humidity_low
+          - condition: trigger
+            id: normal
         sequence:
           - service: input_select.select_option
             target:
@@ -171,16 +126,8 @@ action:
             data:
               option: normal
       - conditions:
-          - or:
-              - condition: trigger
-                id: dry
-              - and:
-                  - condition: trigger
-                    id: reset
-                  - condition: numeric_state
-                    entity_id: !input sensor
-                    below: input_number.humidity_low
-                    above: input_number.humidity_bottom
+          - condition: trigger
+            id: dry
         sequence:
           - service: input_select.select_option
             target:
@@ -188,16 +135,8 @@ action:
             data:
               option: dry
       - conditions:
-          - or:
-              - condition: trigger
-                id: very-dry
-              - and:
-                  - condition: trigger
-                    id: reset
-                  - condition: numeric_state
-                    entity_id: !input sensor
-                    below: input_number.humidity_bottom
-                    above: input_number.humidity_min
+          - condition: trigger
+            id: very-dry
         sequence:
           - service: input_select.select_option
             target:
@@ -205,15 +144,8 @@ action:
             data:
               option: very-dry
       - conditions:
-          - or:
-              - condition: trigger
-                id: extremely-dry
-              - and:
-                  - condition: trigger
-                    id: reset
-                  - condition: numeric_state
-                    entity_id: !input sensor
-                    below: input_number.humidity_min
+          - condition: trigger
+            id: extremely-dry
         sequence:
           - service: input_select.select_option
             target:
