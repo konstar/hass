@@ -1,0 +1,191 @@
+blueprint:
+  name: DEVICE Echo
+  description: Manages an Amazon Echo device.
+    Comma separate for multiple values, e.g. sleep,work,midnight,absent
+  domain: automation
+  source_url: https://github.com/konstar/hass/blob/main/blueprints/DEVICE-Echo.yaml
+  input:
+    entities:
+      name: Echo device(s)
+      description: Echo devices that this blueprint will apply to
+      selector:
+        entity:
+          domain: media_player
+          device_class: media_player
+          integration: alexa_media_player
+          multiple: true
+    activity:
+      name: Activity helper
+      description: Activity helper of the room
+      selector:
+        entity:
+          domain: input_select
+    presence:
+      name: Presence helper
+      description: Presence helper of the room
+      selector:
+        entity:
+          domain: input_select
+    time:
+      name: Time helper
+      description: Time selector of the room
+      selector:
+        entity:
+          domain: input_select
+    dnd:
+      name: DND
+      description: Which activities, presence levels or time periods place the Echo devices(s) on Do Not Disturb?
+      selector:
+        text:
+          type: text
+    mute:
+      name: Mute
+      description: Which activities, presence levels or time periods mute the Echo device(s)?
+      selector:
+        text:
+          type: text
+    10pct:
+      name: 10% volume
+      description: When should the Echo be set to 10% volume?
+      selector:
+        text:
+          type: text
+    20pct:
+      name: 20% volume
+      description: When should the Echo be set to 20% volume?
+      selector:
+        text:
+          type: text
+    30pct:
+      name: 30% volume
+      description: When should the Echo be set to 30% volume?
+      selector:
+        text:
+          type: text
+    40pct:
+      name: 40% volume
+      description: When should the Echo be set to 40% volume?
+      selector:
+        text:
+          type: text
+    50pct:
+      name: 50% volume
+      description: When should the Echo be set to 50% volume?
+      selector:
+        text:
+          type: text
+variables:
+  entities: !input entities
+  activity: !input activity
+  presence: !input presence
+  time: !input time
+  dnd: !input dnd
+  mute: !input mute
+  10pct: !input 10pct
+  20pct: !input 20pct
+  30pct: !input 30pct
+  40pct: !input 40pct
+  50pct: !input 50pct
+trigger:
+  - platform: state
+    entity_id:
+      - !input activity
+      - !input presence
+      - !input time
+condition: []
+action:
+  - if:
+      - condition: template
+        value_template: >-
+          {{ states.input_select
+          | selectattr('entity_id','in',entities)
+          | selectattr('state','in',dnd)
+          | list | count > 0
+          }}
+    then:
+      - service: switch.turn_on
+        entity_id: !input entities
+    else:
+      - service: switch.turn_off
+        entity_id: !input entities
+  - choose:
+      - conditions:
+          - condition: template
+            value_template: >-
+              {{ states.input_select
+              | selectattr('entity_id','in',entities)
+              | selectattr('state','in',50pct)
+              | list | count > 0
+              }}
+        sequence:
+          - service: media_player.volume_set
+            entity_id: !input entities
+            data:
+              volume_level: 0.5
+      - conditions:
+          - condition: template
+            value_template: >-
+              {{ states.input_select
+              | selectattr('entity_id','in',entities)
+              | selectattr('state','in',40pct)
+              | list | count > 0
+              }}
+        sequence:
+          - service: media_player.volume_set
+            entity_id: !input entities
+            data:
+              volume_level: 0.4
+      - conditions:
+          - condition: template
+            value_template: >-
+              {{ states.input_select
+              | selectattr('entity_id','in',entities)
+              | selectattr('state','in',30pct)
+              | list | count > 0
+              }}
+        sequence:
+          - service: media_player.volume_set
+            entity_id: !input entities
+            data:
+              volume_level: 0.3
+      - conditions:
+          - condition: template
+            value_template: >-
+              {{ states.input_select
+              | selectattr('entity_id','in',entities)
+              | selectattr('state','in',20pct)
+              | list | count > 0
+              }}
+        sequence:
+          - service: media_player.volume_set
+            entity_id: !input entities
+            data:
+              volume_level: 0.2
+      - conditions:
+          - condition: template
+            value_template: >-
+              {{ states.input_select
+              | selectattr('entity_id','in',entities)
+              | selectattr('state','in',10pct)
+              | list | count > 0
+              }}
+        sequence:
+          - service: media_player.volume_set
+            entity_id: !input entities
+            data:
+              volume_level: 0.1
+      - conditions:
+          - condition: template
+            value_template: >-
+              {{ states.input_select
+              | selectattr('entity_id','in',entities)
+              | selectattr('state','in',mute)
+              | list | count > 0
+              }}
+        sequence:
+          - service: media_player.volume_mute
+            entity_id: !input entities
+            data:
+              is_volume_muted: true
+    default: []
+mode: single
