@@ -95,10 +95,9 @@ action:
   - if:
       - condition: template
         value_template: >-
-          {{ expand([activity,presence,time])
-          | selectattr('state','in',dnd)
-          | list | count > 0
-          }}
+          {{ activity.state in dnd
+          or presence.state in dnd
+          or time.state     in dnd }}
     then:
       - service: switch.turn_on
         entity_id: !input entities
@@ -109,10 +108,9 @@ action:
       - conditions:
           - condition: template
             value_template: >-
-              {{ expand([activity,presence,time])
-              | selectattr('state','in',mute)
-              | list | count > 0
-              }}
+              {{ activity.state in mute
+              or presence.state in mute
+              or time.state     in mute }}
         sequence:
           - service: media_player.volume_mute
             entity_id: !input entities
@@ -121,10 +119,9 @@ action:
       - conditions:
           - condition: template
             value_template: >-
-              {{ expand([activity,presence,time])
-              | selectattr('state','in',pct10)
-              | list | count > 0
-              }}
+              {{ activity.state in pct10
+              or presence.state in pct10
+              or time.state     in pct10 }}
         sequence:
           - service: media_player.volume_set
             entity_id: !input entities
@@ -133,10 +130,9 @@ action:
       - conditions:
           - condition: template
             value_template: >-
-              {{ expand([activity,presence,time])
-              | selectattr('state','in',pct20)
-              | list | count > 0
-              }}
+              {{ activity.state in pct20
+              or presence.state in pct20
+              or time.state     in pct20 }}
         sequence:
           - service: media_player.volume_set
             entity_id: !input entities
@@ -145,10 +141,9 @@ action:
       - conditions:
           - condition: template
             value_template: >-
-              {{ expand([activity,presence,time])
-              | selectattr('state','in',pct30)
-              | list | count > 0
-              }}
+              {{ activity.state in pct30
+              or presence.state in pct30
+              or time.state     in pct30 }}
         sequence:
           - service: media_player.volume_set
             entity_id: !input entities
@@ -157,10 +152,9 @@ action:
       - conditions:
           - condition: template
             value_template: >-
-              {{ expand([activity,presence,time])
-              | selectattr('state','in',pct40)
-              | list | count > 0
-              }}
+              {{ activity.state in pct40
+              or presence.state in pct40
+              or time.state     in pct40 }}
         sequence:
           - service: media_player.volume_set
             entity_id: !input entities
@@ -169,10 +163,9 @@ action:
       - conditions:
           - condition: template
             value_template: >-
-              {{ expand([activity,presence,time])
-              | selectattr('state','in',pct50)
-              | list | count > 0
-              }}
+              {{ activity.state in pct50
+              or presence.state in pct50
+              or time.state     in pct50 }}
         sequence:
           - service: media_player.volume_set
             entity_id: !input entities
