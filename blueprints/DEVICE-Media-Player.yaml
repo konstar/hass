@@ -92,6 +92,21 @@ trigger:
       - !input time
 condition: []
 action:
+  - service: input_text.set_value
+    target:
+      entity_id: input_text.debug1
+    data:
+      value: "{{ entities }}"
+  - service: input_text.set_value
+    target:
+      entity_id: input_text.debug2
+    data:
+      value: "{{ dnd }}"
+  - service: input_text.set_value
+    target:
+      entity_id: input_text.debug2
+    data:
+      value: "{{ mute }}"
   - if:
       - condition: template
         value_template: >-
