@@ -98,7 +98,7 @@ condition: []
 action:
   - if:
       - condition: template
-        value_template: {{ entities in dnd }}
+        value_template: "{{ entities in dnd }}"
     then:
       - service: switch.turn_on
         entity_id: !input devices
@@ -108,7 +108,7 @@ action:
   - choose:
       - conditions:
           - condition: template
-            value_template: {{ entities in mute }}
+            value_template: "{{ entities in mute }}"
         sequence:
           - service: media_player.volume_mute
             entity_id: !input devices
@@ -116,7 +116,7 @@ action:
               is_volume_muted: true
       - conditions:
           - condition: template
-            value_template: {{ entities in pct10 }}
+            value_template: "{{ entities in pct10 }}"
         sequence:
           - service: media_player.volume_set
             entity_id: !input devices
@@ -124,7 +124,7 @@ action:
               volume_level: 0.1
       - conditions:
           - condition: template
-            value_template: {{ entities in pct20 }}
+            value_template: "{{ entities in pct20 }}"
         sequence:
           - service: media_player.volume_set
             entity_id: !input devices
@@ -132,7 +132,7 @@ action:
               volume_level: 0.2
       - conditions:
           - condition: template
-            value_template: {{ entities in pct30 }}
+            value_template: "{{ entities in pct30 }}"
         sequence:
           - service: media_player.volume_set
             entity_id: !input devices
@@ -140,7 +140,7 @@ action:
               volume_level: 0.3
       - conditions:
           - condition: template
-            value_template: {{ entities in pct40 }}
+            value_template: "{{ entities in pct40 }}"
         sequence:
           - service: media_player.volume_set
             entity_id: !input devices
@@ -148,7 +148,7 @@ action:
               volume_level: 0.4
       - conditions:
           - condition: template
-            value_template: {{ entities in pct50 }}
+            value_template: "{{ entities in pct50 }}"
         sequence:
           - service: media_player.volume_set
             entity_id: !input devices
