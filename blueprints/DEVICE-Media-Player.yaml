@@ -96,7 +96,7 @@ action:
     target:
       entity_id: input_text.debug1
     data:
-      value: "{{ entities }}"
+      value: "{{ [activity,presence,time] }}"
   - service: input_text.set_value
     target:
       entity_id: input_text.debug2
@@ -111,7 +111,7 @@ action:
       - condition: template
         value_template: >-
           {{ states.input_select
-          | selectattr('entity_id','in',entities)
+          | selectattr('entity_id','in',[activity,presence,time])
           | selectattr('state','in',dnd)
           | list | count > 0
           }}
@@ -126,7 +126,7 @@ action:
           - condition: template
             value_template: >-
               {{ states.input_select
-              | selectattr('entity_id','in',entities)
+              | selectattr('entity_id','in',[activity,presence,time])
               | selectattr('state','in',mute)
               | list | count > 0
               }}
@@ -139,7 +139,7 @@ action:
           - condition: template
             value_template: >-
               {{ states.input_select
-              | selectattr('entity_id','in',entities)
+              | selectattr('entity_id','in',[activity,presence,time])
               | selectattr('state','in',pct10)
               | list | count > 0
               }}
@@ -152,7 +152,7 @@ action:
           - condition: template
             value_template: >-
               {{ states.input_select
-              | selectattr('entity_id','in',entities)
+              | selectattr('entity_id','in',[activity,presence,time])
               | selectattr('state','in',pct20)
               | list | count > 0
               }}
@@ -165,7 +165,7 @@ action:
           - condition: template
             value_template: >-
               {{ states.input_select
-              | selectattr('entity_id','in',entities)
+              | selectattr('entity_id','in',[activity,presence,time])
               | selectattr('state','in',pct30)
               | list | count > 0
               }}
@@ -178,7 +178,7 @@ action:
           - condition: template
             value_template: >-
               {{ states.input_select
-              | selectattr('entity_id','in',entities)
+              | selectattr('entity_id','in',[activity,presence,time])
               | selectattr('state','in',pct40)
               | list | count > 0
               }}
@@ -191,7 +191,7 @@ action:
           - condition: template
             value_template: >-
               {{ states.input_select
-              | selectattr('entity_id','in',entities)
+              | selectattr('entity_id','in',[activity,presence,time])
               | selectattr('state','in',pct50)
               | list | count > 0
               }}
