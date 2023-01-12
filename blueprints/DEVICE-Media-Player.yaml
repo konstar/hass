@@ -95,8 +95,7 @@ action:
   - if:
       - condition: template
         value_template: >-
-          {{ [activity,presence,time]
-          | expand
+          {{ expand([activity,presence,time])
           | selectattr('state','in',dnd)
           | list | count > 0
           }}
@@ -110,8 +109,7 @@ action:
       - conditions:
           - condition: template
             value_template: >-
-              {{ [activity,presence,time]
-              | expand
+              {{ expand([activity,presence,time])
               | selectattr('state','in',mute)
               | list | count > 0
               }}
@@ -123,8 +121,7 @@ action:
       - conditions:
           - condition: template
             value_template: >-
-              {{ [activity,presence,time]
-              | expand
+              {{ expand([activity,presence,time])
               | selectattr('state','in',pct10)
               | list | count > 0
               }}
@@ -136,8 +133,7 @@ action:
       - conditions:
           - condition: template
             value_template: >-
-              {{ [activity,presence,time]
-              | expand
+              {{ expand([activity,presence,time])
               | selectattr('state','in',pct20)
               | list | count > 0
               }}
@@ -149,8 +145,7 @@ action:
       - conditions:
           - condition: template
             value_template: >-
-              {{ [activity,presence,time]
-              | expand
+              {{ expand([activity,presence,time])
               | selectattr('state','in',pct30)
               | list | count > 0
               }}
@@ -162,8 +157,7 @@ action:
       - conditions:
           - condition: template
             value_template: >-
-              {{ [activity,presence,time]
-              | expand
+              {{ expand([activity,presence,time])
               | selectattr('state','in',pct40)
               | list | count > 0
               }}
@@ -175,8 +169,7 @@ action:
       - conditions:
           - condition: template
             value_template: >-
-              {{ [activity,presence,time]
-              | expand
+              {{ expand([activity,presence,time])
               | selectattr('state','in',pct50)
               | list | count > 0
               }}
