@@ -5,7 +5,7 @@ blueprint:
   domain: automation
   source_url: https://github.com/konstar/hass/blob/main/blueprints/DEVICE-Media-Player.yaml
   input:
-    entities:
+    devices:
       name: Media device(s)
       description: Devices that this blueprint will apply to
       selector:
@@ -73,10 +73,14 @@ blueprint:
         text:
           type: text
 variables:
-  entities: !input entities
+  devices: !input devices
   activity: !input activity
   presence: !input presence
   time: !input time
+  entities: >-
+    {{ expand(activity+presence+time)
+    | map(attribute='state')
+    | list|string }}
   dnd: !input dnd
   mute: !input mute
   pct10: !input pct10
@@ -94,81 +98,60 @@ condition: []
 action:
   - if:
       - condition: template
-        value_template: >-
-          {{ activity.state in dnd
-          or presence.state in dnd
-          or time.state     in dnd }}
+        value_template: {{ entities in dnd }}
     then:
       - service: switch.turn_on
-        entity_id: !input entities
+        entity_id: !input devices
     else:
       - service: switch.turn_off
-        entity_id: !input entities
+        entity_id: !input devices
   - choose:
       - conditions:
           - condition: template
-            value_template: >-
-              {{ activity.state in mute
-              or presence.state in mute
-              or time.state     in mute }}
+            value_template: {{ entities in mute }}
         sequence:
           - service: media_player.volume_mute
-            entity_id: !input entities
+            entity_id: !input devices
             data:
               is_volume_muted: true
       - conditions:
           - condition: template
-            value_template: >-
-              {{ activity.state in pct10
-              or presence.state in pct10
-              or time.state     in pct10 }}
+            value_template: {{ entities in pct10 }}
         sequence:
           - service: media_player.volume_set
-            entity_id: !input entities
+            entity_id: !input devices
             data:
               volume_level: 0.1
       - conditions:
           - condition: template
-            value_template: >-
-              {{ activity.state in pct20
-              or presence.state in pct20
-              or time.state     in pct20 }}
+            value_template: {{ entities in pct20 }}
         sequence:
           - service: media_player.volume_set
-            entity_id: !input entities
+            entity_id: !input devices
             data:
               volume_level: 0.2
       - conditions:
           - condition: template
-            value_template: >-
-              {{ activity.state in pct30
-              or presence.state in pct30
-              or time.state     in pct30 }}
+            value_template: {{ entities in pct30 }}
         sequence:
           - service: media_player.volume_set
-            entity_id: !input entities
+            entity_id: !input devices
             data:
               volume_level: 0.3
       - conditions:
           - condition: template
-            value_template: >-
-              {{ activity.state in pct40
-              or presence.state in pct40
-              or time.state     in pct40 }}
+            value_template: {{ entities in pct40 }}
         sequence:
           - service: media_player.volume_set
-            entity_id: !input entities
+            entity_id: !input devices
             data:
               volume_level: 0.4
       - conditions:
           - condition: template
-            value_template: >-
-              {{ activity.state in pct50
-              or presence.state in pct50
-              or time.state     in pct50 }}
+            value_template: {{ entities in pct50 }}
         sequence:
           - service: media_player.volume_set
-            entity_id: !input entities
+            entity_id: !input devices
             data:
               volume_level: 0.5
     default: []
