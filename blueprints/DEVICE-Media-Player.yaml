@@ -1,18 +1,17 @@
 blueprint:
-  name: DEVICE Echo
-  description: Manages an Amazon Echo device.
+  name: DEVICE Media Player
+  description: Manages 1 or many Media Player devices
     Comma separate for multiple values, e.g. sleep,work,midnight,absent
   domain: automation
-  source_url: https://github.com/konstar/hass/blob/main/blueprints/DEVICE-Echo.yaml
+  source_url: https://github.com/konstar/hass/blob/main/blueprints/DEVICE-Media-Player.yaml
   input:
     entities:
-      name: Echo device(s)
-      description: Echo devices that this blueprint will apply to
+      name: Device(s)
+      description: Devices that this blueprint will apply to
       selector:
         entity:
           domain: media_player
           device_class: media_player
-          integration: alexa_media_player
           multiple: true
     activity:
       name: Activity helper
@@ -34,43 +33,43 @@ blueprint:
           domain: input_select
     dnd:
       name: DND
-      description: Which activities, presence levels or time periods place the Echo devices(s) on Do Not Disturb?
+      description: Which activities, presence levels or time periods place the devices(s) in Do Not Disturb mode?
       selector:
         text:
           type: text
     mute:
       name: Mute
-      description: Which activities, presence levels or time periods mute the Echo device(s)?
+      description: Which activities, presence levels or time periods mute the device(s)?
       selector:
         text:
           type: text
     10pct:
       name: 10% volume
-      description: When should the Echo be set to 10% volume?
+      description: When should the device be set to 10% volume?
       selector:
         text:
           type: text
     20pct:
       name: 20% volume
-      description: When should the Echo be set to 20% volume?
+      description: When should the device be set to 20% volume?
       selector:
         text:
           type: text
     30pct:
       name: 30% volume
-      description: When should the Echo be set to 30% volume?
+      description: When should the device be set to 30% volume?
       selector:
         text:
           type: text
     40pct:
       name: 40% volume
-      description: When should the Echo be set to 40% volume?
+      description: When should the device be set to 40% volume?
       selector:
         text:
           type: text
     50pct:
       name: 50% volume
-      description: When should the Echo be set to 50% volume?
+      description: When should the device be set to 50% volume?
       selector:
         text:
           type: text
