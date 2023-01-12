@@ -1,12 +1,12 @@
 blueprint:
   name: DEVICE Media Player
-  description: Manages 1 or many Media Player devices
-    Comma separate for multiple values, e.g. sleep,work,midnight,absent
+  description: Manage 1 or many media player devices.
+    Comma separate multiple values, to specify when devices should be set, e.g. sleep,work,midnight,absent
   domain: automation
   source_url: https://github.com/konstar/hass/blob/main/blueprints/DEVICE-Media-Player.yaml
   input:
     entities:
-      name: Device(s)
+      name: Media device(s)
       description: Devices that this blueprint will apply to
       selector:
         entity:
@@ -32,41 +32,41 @@ blueprint:
           domain: input_select
     dnd:
       name: DND
-      description: Which activities, presence levels or time periods place the devices(s) in Do Not Disturb mode?
+      description: When should devices be set to Do Not Disturb mode?
       selector:
         text:
           type: text
     mute:
       name: Mute
-      description: Which activities, presence levels or time periods mute the device(s)?
+      description: Which should device be muted?
       selector:
         text:
           type: text
-    10pct:
+    pct10:
       name: 10% volume
       description: When should the device be set to 10% volume?
       selector:
         text:
           type: text
-    20pct:
+    pct20:
       name: 20% volume
       description: When should the device be set to 20% volume?
       selector:
         text:
           type: text
-    30pct:
+    pct30:
       name: 30% volume
       description: When should the device be set to 30% volume?
       selector:
         text:
           type: text
-    40pct:
+    pct40:
       name: 40% volume
       description: When should the device be set to 40% volume?
       selector:
         text:
           type: text
-    50pct:
+    pct50:
       name: 50% volume
       description: When should the device be set to 50% volume?
       selector:
@@ -79,11 +79,11 @@ variables:
   time: !input time
   dnd: !input dnd
   mute: !input mute
-  10pct: !input 10pct
-  20pct: !input 20pct
-  30pct: !input 30pct
-  40pct: !input 40pct
-  50pct: !input 50pct
+  pct10: !input pct10
+  pct20: !input pct20
+  pct30: !input pct30
+  pct40: !input pct40
+  pct50: !input pct50
 trigger:
   - platform: state
     entity_id:
@@ -125,7 +125,7 @@ action:
             value_template: >-
               {{ states.input_select
               | selectattr('entity_id','in',entities)
-              | selectattr('state','in',10pct)
+              | selectattr('state','in',pct10)
               | list | count > 0
               }}
         sequence:
@@ -138,7 +138,7 @@ action:
             value_template: >-
               {{ states.input_select
               | selectattr('entity_id','in',entities)
-              | selectattr('state','in',20pct)
+              | selectattr('state','in',pct20)
               | list | count > 0
               }}
         sequence:
@@ -151,7 +151,7 @@ action:
             value_template: >-
               {{ states.input_select
               | selectattr('entity_id','in',entities)
-              | selectattr('state','in',30pct)
+              | selectattr('state','in',pct30)
               | list | count > 0
               }}
         sequence:
@@ -164,7 +164,7 @@ action:
             value_template: >-
               {{ states.input_select
               | selectattr('entity_id','in',entities)
-              | selectattr('state','in',40pct)
+              | selectattr('state','in',pct40)
               | list | count > 0
               }}
         sequence:
@@ -177,7 +177,7 @@ action:
             value_template: >-
               {{ states.input_select
               | selectattr('entity_id','in',entities)
-              | selectattr('state','in',50pct)
+              | selectattr('state','in',pct50)
               | list | count > 0
               }}
         sequence:
