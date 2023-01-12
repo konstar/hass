@@ -112,53 +112,14 @@ action:
             value_template: >-
               {{ states.input_select
               | selectattr('entity_id','in',entities)
-              | selectattr('state','in',50pct)
+              | selectattr('state','in',mute)
               | list | count > 0
               }}
         sequence:
-          - service: media_player.volume_set
+          - service: media_player.volume_mute
             entity_id: !input entities
             data:
-              volume_level: 0.5
-      - conditions:
-          - condition: template
-            value_template: >-
-              {{ states.input_select
-              | selectattr('entity_id','in',entities)
-              | selectattr('state','in',40pct)
-              | list | count > 0
-              }}
-        sequence:
-          - service: media_player.volume_set
-            entity_id: !input entities
-            data:
-              volume_level: 0.4
-      - conditions:
-          - condition: template
-            value_template: >-
-              {{ states.input_select
-              | selectattr('entity_id','in',entities)
-              | selectattr('state','in',30pct)
-              | list | count > 0
-              }}
-        sequence:
-          - service: media_player.volume_set
-            entity_id: !input entities
-            data:
-              volume_level: 0.3
-      - conditions:
-          - condition: template
-            value_template: >-
-              {{ states.input_select
-              | selectattr('entity_id','in',entities)
-              | selectattr('state','in',20pct)
-              | list | count > 0
-              }}
-        sequence:
-          - service: media_player.volume_set
-            entity_id: !input entities
-            data:
-              volume_level: 0.2
+              is_volume_muted: true
       - conditions:
           - condition: template
             value_template: >-
@@ -177,13 +138,52 @@ action:
             value_template: >-
               {{ states.input_select
               | selectattr('entity_id','in',entities)
-              | selectattr('state','in',mute)
+              | selectattr('state','in',20pct)
               | list | count > 0
               }}
         sequence:
-          - service: media_player.volume_mute
+          - service: media_player.volume_set
             entity_id: !input entities
             data:
-              is_volume_muted: true
+              volume_level: 0.2
+      - conditions:
+          - condition: template
+            value_template: >-
+              {{ states.input_select
+              | selectattr('entity_id','in',entities)
+              | selectattr('state','in',30pct)
+              | list | count > 0
+              }}
+        sequence:
+          - service: media_player.volume_set
+            entity_id: !input entities
+            data:
+              volume_level: 0.3
+      - conditions:
+          - condition: template
+            value_template: >-
+              {{ states.input_select
+              | selectattr('entity_id','in',entities)
+              | selectattr('state','in',40pct)
+              | list | count > 0
+              }}
+        sequence:
+          - service: media_player.volume_set
+            entity_id: !input entities
+            data:
+              volume_level: 0.4
+      - conditions:
+          - condition: template
+            value_template: >-
+              {{ states.input_select
+              | selectattr('entity_id','in',entities)
+              | selectattr('state','in',50pct)
+              | list | count > 0
+              }}
+        sequence:
+          - service: media_player.volume_set
+            entity_id: !input entities
+            data:
+              volume_level: 0.5
     default: []
 mode: single
