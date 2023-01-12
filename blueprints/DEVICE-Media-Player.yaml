@@ -77,10 +77,18 @@ variables:
   activity: !input activity
   presence: !input presence
   time: !input time
-  entities: >-
-    {{ expand(activity+presence+time)
+  activity_state: >-
+    {{ expand(activity)
     | map(attribute='state')
-    | list|string }}
+    }}
+  presence_state: >-
+    {{ expand(activity)
+    | map(attribute='state')
+    }}
+  time_state: >-
+    {{ expand(activity)
+    | map(attribute='state')
+    }}
   dnd: !input dnd
   mute: !input mute
   pct10: !input pct10
@@ -98,7 +106,10 @@ condition: []
 action:
   - if:
       - condition: template
-        value_template: "{{ entities in dnd }}"
+        value_template: >-
+          {{ activity_state in dnd
+          or presence_state in dnd
+          or time_state     in dnd }}
     then:
       - service: switch.turn_on
         entity_id: !input devices
@@ -108,7 +119,10 @@ action:
   - choose:
       - conditions:
           - condition: template
-            value_template: "{{ entities in mute }}"
+            value_template: >-
+              {{ activity_state in mute
+              or presence_state in mute
+              or time_state     in mute }}
         sequence:
           - service: media_player.volume_mute
             entity_id: !input devices
@@ -116,7 +130,10 @@ action:
               is_volume_muted: true
       - conditions:
           - condition: template
-            value_template: "{{ entities in pct10 }}"
+            value_template: >-
+              {{ activity_state in pct10
+              or presence_state in pct10
+              or time_state     in pct10 }}
         sequence:
           - service: media_player.volume_set
             entity_id: !input devices
@@ -124,7 +141,10 @@ action:
               volume_level: 0.1
       - conditions:
           - condition: template
-            value_template: "{{ entities in pct20 }}"
+            value_template: >-
+              {{ activity_state in pct20
+              or presence_state in pct20
+              or time_state     in pct20 }}
         sequence:
           - service: media_player.volume_set
             entity_id: !input devices
@@ -132,7 +152,10 @@ action:
               volume_level: 0.2
       - conditions:
           - condition: template
-            value_template: "{{ entities in pct30 }}"
+            value_template: >-
+              {{ activity_state in pct30
+              or presence_state in pct30
+              or time_state     in pct30 }}
         sequence:
           - service: media_player.volume_set
             entity_id: !input devices
@@ -140,7 +163,10 @@ action:
               volume_level: 0.3
       - conditions:
           - condition: template
-            value_template: "{{ entities in pct40 }}"
+            value_template: >-
+              {{ activity_state in pct40
+              or presence_state in pct40
+              or time_state     in pct40 }}
         sequence:
           - service: media_player.volume_set
             entity_id: !input devices
@@ -148,7 +174,10 @@ action:
               volume_level: 0.4
       - conditions:
           - condition: template
-            value_template: "{{ entities in pct50 }}"
+            value_template: >-
+              {{ activity_state in pct50
+              or presence_state in pct50
+              or time_state     in pct50 }}
         sequence:
           - service: media_player.volume_set
             entity_id: !input devices
