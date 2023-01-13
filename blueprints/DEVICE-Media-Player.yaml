@@ -85,7 +85,9 @@ variables:
   activity: !input activity
   activity_states: "{{ states[activity].state }}"
   presence: !input presence
+  presence_states: "{{ states[presence].state }}"
   time: !input time
+  time_states: "{{ states[time].state }}"
 # Keeping this here for now as I had to go through a lot of pain to figure this out
 #  entity_states: >-
 #    {{ [states[activity],states[presence],states[time]]
