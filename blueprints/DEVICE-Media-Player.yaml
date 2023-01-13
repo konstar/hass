@@ -134,7 +134,7 @@ action:
           - if:
               - not:
                   - condition: state
-                    entity_id: !devices
+                    entity_id: !input devices
                     attribute: is_volume_muted
                     state: true
             then:
@@ -151,7 +151,7 @@ action:
           - if:
               - not:
                   - condition: state
-                    entity_id: !devices
+                    entity_id: !input devices
                     attribute: volume_level
                     state: 0.1
             then:
@@ -168,7 +168,7 @@ action:
           - if:
               - not:
                   - condition: state
-                    entity_id: !devices
+                    entity_id: !input devices
                     attribute: volume_level
                     state: 0.2
             then:
@@ -185,7 +185,7 @@ action:
           - if:
               - not:
                   - condition: state
-                    entity_id: !devices
+                    entity_id: !input devices
                     attribute: volume_level
                     state: 0.3
             then:
@@ -202,7 +202,7 @@ action:
           - if:
               - not:
                   - condition: state
-                    entity_id: !devices
+                    entity_id: !input devices
                     attribute: volume_level
                     state: 0.4
             then:
@@ -219,7 +219,7 @@ action:
           - if:
               - not:
                   - condition: state
-                    entity_id: !devices
+                    entity_id: !input devices
                     attribute: volume_level
                     state: 0.5
             then:
