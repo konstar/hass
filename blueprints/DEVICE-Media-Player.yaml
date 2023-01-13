@@ -12,6 +12,13 @@ blueprint:
         entity:
           domain: media_player
           multiple: true
+    devices_dnd:
+      name: Media device(s) DND
+      description: Do-not-disturb switches that relate to the devices you have selected
+      selector:
+        entity:
+          domain: switch
+          multiple: true
     activity:
       name: Activity helper
       description: Activity helper of the room
@@ -74,12 +81,7 @@ blueprint:
           type: text
 variables:
   devices: !input devices
-  devices_dnd: >-
-    {{ devices
-    | map('regex_replace','$','_do_not_disturb')
-    | list
-    | replace('media_player','switch')
-    }}
+  devices_dnd: !input devices_dnd
   activity: !input activity
   activity_states: "{{ states[activity].state }}"
   presence: !input presence
@@ -111,21 +113,21 @@ action:
     then:
       - if:
           - condition: state
-            entity_id: "{{ devices_dnd }}"
+            entity_id: !input devices_dnd
             state: "off"
         then:
           - service: switch.turn_on
             target:
-              entity_id: "{{ devices_dnd }}"
+              entity_id: !input devices_dnd
     else:
       - if:
           - condition: state
-            entity_id: "{{ devices_dnd }}"
+            entity_id: !input devices_dnd
             state: "on"
         then:
           - service: switch.turn_off
             target:
-              entity_id: "{{ devices_dnd }}"
+              entity_id: !input devices_dnd
   - choose:
       - conditions:
           - or:
