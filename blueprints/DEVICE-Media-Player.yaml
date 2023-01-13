@@ -78,17 +78,11 @@ variables:
   presence: !input presence
   time: !input time
   activity_state: >-
-    {{ expand(activity)
-    | map(attribute='state')
-    }}
+    {{ states[activity].state }}
   presence_state: >-
-    {{ expand(activity)
-    | map(attribute='state')
-    }}
+    {{ states[presence].state }}
   time_state: >-
-    {{ expand(activity)
-    | map(attribute='state')
-    }}
+    {{ states[time].state }}
   dnd: !input dnd
   mute: !input mute
   pct10: !input pct10
