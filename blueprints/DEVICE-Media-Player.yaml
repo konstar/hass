@@ -111,19 +111,21 @@ action:
     then:
       - if:
           - condition: state
-            entity_id: !input devices_dnd
+            entity_id: "{{ devices_dnd }}"
             state: "off"
         then:
           - service: switch.turn_on
-            entity_id: !input devices_dnd
+            target:
+              entity_id: "{{ devices_dnd }}"
     else:
       - if:
           - condition: state
-            entity_id: !input devices_dnd
+            entity_id: "{{ devices_dnd }}"
             state: "on"
         then:
           - service: switch.turn_off
-            entity_id: !input devices_dnd
+            target:
+              entity_id: "{{ devices_dnd }}"
   - choose:
       - conditions:
           - or:
