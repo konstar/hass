@@ -114,18 +114,20 @@ action:
           - "{{ time_states     in dnd }}"
     then:
       - if:
-          - condition: state
-            entity_id: !input devices_dnd
-            state: "off"
+          - not:
+              - condition: state
+                entity_id: !input devices_dnd
+                state: "on"
         then:
           - service: switch.turn_on
             target:
               entity_id: !input devices_dnd
     else:
       - if:
-          - condition: state
-            entity_id: !input devices_dnd
-            state: "on"
+          - not:
+              - condition: state
+                entity_id: !input devices_dnd
+                state: "off"
         then:
           - service: switch.turn_off
             target:
