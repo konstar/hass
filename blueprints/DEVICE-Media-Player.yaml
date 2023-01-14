@@ -40,42 +40,49 @@ blueprint:
     dnd:
       name: DND
       description: When should devices be set to Do Not Disturb mode?
+      default: none
       selector:
         text:
           type: text
     mute:
       name: Mute
       description: Which should device be muted?
+      default: none
       selector:
         text:
           type: text
     pct10:
       name: 10% volume
       description: When should the device be set to 10% volume?
+      default: none
       selector:
         text:
           type: text
     pct20:
       name: 20% volume
       description: When should the device be set to 20% volume?
+      default: none
       selector:
         text:
           type: text
     pct30:
       name: 30% volume
       description: When should the device be set to 30% volume?
+      default: none
       selector:
         text:
           type: text
     pct40:
       name: 40% volume
       description: When should the device be set to 40% volume?
+      default: none
       selector:
         text:
           type: text
     pct50:
       name: 50% volume
       description: When should the device be set to 50% volume?
+      default: none
       selector:
         text:
           type: text
