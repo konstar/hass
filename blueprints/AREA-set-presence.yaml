@@ -4,15 +4,15 @@ blueprint:
   domain: automation
   source_url: https://github.com/konstar/hass/blob/main/blueprints/AREA-set-presence.yaml
   input:
-    presence_helper:
-      name: Presence helper
-      description: Helper that records whether someone is entering, present or leaving.
-      selector:
-        entity:
-          domain: input_select
     activity_helper:
       name: Activity helper
       description: Helper that records the activity state of an area.
+      selector:
+        entity:
+          domain: input_select
+    presence_helper:
+      name: Presence helper
+      description: Helper that records whether someone is entering, present or leaving.
       selector:
         entity:
           domain: input_select
@@ -28,6 +28,24 @@ blueprint:
       selector:
         entity:
           domain: group
+    occupation_helper:
+      name: Occuptation helper
+      description: Boolean helper that records the state of an occupation sensor. E.g. Amazon Echo
+      selector:
+        entity:
+          domain: input_boolean
+    door_helper:
+      name: Door helper
+      description: Boolean helper that records the state of a door sensor.
+      selector:
+        entity:
+          domain: input_boolean
+    lights:
+      name: Lights
+      description: Entity which records the state of lights in an area.
+      selector:
+        entity:
+          domain: light
     daytime_duration:
       name: Daytime presence duration
       description: Duration after last motion, area is marked as present during daytime.
@@ -55,81 +73,81 @@ blueprint:
           min: 0
           max: 1800
           unit_of_measurement: seconds
-    occupation_helper:
-      name: Occuptation helper
-      description: Boolean helper that records the state of an occupation sensor. E.g. Amazon Echo
-      selector:
-        entity:
-          domain: input_boolean
 variables:
   motion_sensor: !input motion_sensor
   presence_helper: !input presence_helper
   activity_helper: !input activity_helper
   time_helper: !input time_helper
 trigger:
-  - platform: state
+  - id: motion
+    platform: state
     entity_id: !input motion_sensor
     to: "on"
-    id: motion
-  - platform: state
+  - id: door_opened
+    platform: state
+    entity_id: !input door_helper
+    from: "off"
+    to: "on"
+  - id: lights_off
+    platform: state
+    entity_id: !input lights
+    from: "on"
+    to: "off"
+  - id: leave
+    platform: state
     entity_id: !input motion_sensor
     to: "off"
     for:
       seconds: !input daytime_duration
-    id: leave
-  - platform: state
+  - id: leave
+    platform: state
     entity_id: !input motion_sensor
     to: "off"
     for:
       seconds: !input evening_duration
-    id: leave
-  - platform: state
+  - id: leave
+    platform: state
     entity_id: !input motion_sensor
     to: "off"
     for:
       seconds: !input midnight_duration
-    id: leave
-  - platform: state
+  - id: enter_2mins
+    platform: state
     entity_id: !input presence_helper
     to: enter
     for:
       minutes: 2
-    id: enter_2mins
-  - platform: state
+  - id: leave_2mins
+    platform: state
     entity_id: !input presence_helper
     to: leave
     for:
       minutes: 2
-    id: leave_2mins
-  - platform: state
+  - id: sleep_on
+    platform: state
     entity_id: !input activity_helper
     to: sleep
-    id: sleep_on
-  - platform: state
+  - id: sleep_off
+    platform: state
     entity_id: !input activity_helper
     from: sleep
-    id: sleep_off
-  - platform: state
+  - id: occupation_started
+    platform: state
     entity_id: !input occupation_helper
     from: "off"
     to: "on"
-    id: occupation_motion
-  - platform: state
+  - id: occupation_ended
+    platform: state
     entity_id: !input occupation_helper
     from: "on"
     to: "off"
-    id: no_occupation
 condition: []
 action:
   - choose:
       - conditions:
-          - or:
-              - condition: state
-                entity_id: !input activity_helper
-                state: sleep
-              - condition: state
-                entity_id: !input occupation_helper
-                state: "on"
+          - condition: state
+            entity_id: !input activity_helper
+            state: sleep
         sequence:
           - service: input_select.select_option
             entity_id: !input presence_helper
@@ -138,18 +156,9 @@ action:
       - conditions:
           - condition: state
             entity_id: !input presence_helper
-            state: absent
-          - or:
-              - condition: trigger
-                id: motion
-              - condition: trigger
-                id: occupation_motion
-        sequence:
-          - service: input_select.select_option
-            entity_id: !input presence_helper
-            data:
-              option: enter
-      - conditions:
+            state:
+              - enter
+              - leave
           - or:
               - condition: trigger
                 id: enter_2mins
@@ -167,11 +176,21 @@ action:
             data:
               option: present
       - conditions:
+          - condition: state
+            entity_id: !input presence_helper
+            state:
+              - enter
+              - leave
           - or:
               - condition: trigger
                 id: enter_2mins
               - condition: trigger
                 id: leave_2mins
+          - condition: state
+            entity_id: !input motion_sensor
+            state: "off"
+            for:
+              minutes: 1
         sequence:
           - service: input_select.select_option
             entity_id: !input presence_helper
@@ -180,8 +199,28 @@ action:
       - conditions:
           - condition: state
             entity_id: !input presence_helper
+            state: absent
+          - or:
+              - condition: trigger
+                id: motion
+              - condition: trigger
+                id: occupation_started
+              - condition: trigger
+                id: door_opened
+        sequence:
+          - service: input_select.select_option
+            entity_id: !input presence_helper
+            data:
+              option: enter
+      - conditions:
+          - condition: state
+            entity_id: !input presence_helper
             state: present
           - or:
+              - condition: trigger
+                id: door_opened
+              - condition: trigger
+                id: lights_off
               - and:
                   - condition: state
                     entity_id: !input time_helper
@@ -191,6 +230,9 @@ action:
                     state: "off"
                     for:
                       seconds: !input daytime_duration
+                  - condition: state
+                    entity_id: !input occupation_helper
+                    state: "off"
               - and:
                   - condition: state
                     entity_id: !input time_helper
@@ -200,6 +242,9 @@ action:
                     state: "off"
                     for:
                       seconds: !input evening_duration
+                  - condition: state
+                    entity_id: !input occupation_helper
+                    state: "off"
               - and:
                   - condition: state
                     entity_id: !input time_helper
@@ -209,6 +254,9 @@ action:
                     state: "off"
                     for:
                       seconds: !input midnight_duration
+                  - condition: state
+                    entity_id: !input occupation_helper
+                    state: "off"
         sequence:
           - service: input_select.select_option
             target:
