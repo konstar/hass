@@ -28,24 +28,18 @@ blueprint:
       selector:
         entity:
           domain: group
-    occupation_helper:
-      name: Occuptation helper
-      description: Boolean helper that records the state of an occupation sensor. E.g. Amazon Echo
-      selector:
-        entity:
-          domain: input_boolean
     door_helper:
       name: Door helper
       description: Boolean helper that records the state of a door sensor.
       selector:
         entity:
           domain: input_boolean
-    lights:
-      name: Lights
-      description: Entity which records the state of lights in an area.
+    occupation_helper:
+      name: Occuptation helper
+      description: Boolean helper that records the state of an occupation sensor. E.g. Amazon Echo
       selector:
         entity:
-          domain: light
+          domain: input_boolean
     daytime_duration:
       name: Daytime presence duration
       description: Duration after last motion, area is marked as present during daytime.
@@ -88,11 +82,6 @@ trigger:
     entity_id: !input door_helper
     from: "off"
     to: "on"
-  - id: lights_off
-    platform: state
-    entity_id: !input lights
-    from: "on"
-    to: "off"
   - id: leave
     platform: state
     entity_id: !input motion_sensor
@@ -219,8 +208,6 @@ action:
           - or:
               - condition: trigger
                 id: door_opened
-              - condition: trigger
-                id: lights_off
               - and:
                   - condition: state
                     entity_id: !input time_helper
