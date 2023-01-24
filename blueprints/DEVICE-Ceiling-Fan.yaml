@@ -39,12 +39,12 @@ blueprint:
         entity:
           domain: input_select
           multiple: false
-    sleeping:
-      name: Sleeping Helper
+    activity:
+      name: Activity Helper
       description: Helper which records if someone is sleeping in the room
       selector:
         entity:
-          domain: input_boolean
+          domain: input_select
           multiple: false
 variables:
   ceiling_fan: !input ceiling_fan
@@ -52,18 +52,17 @@ variables:
   humidity: !input humidity
   temperature: !input temperature
   presence: !input presence
-  sleeping: !input sleeping
+  activity: !input activity
 trigger:
 - platform: state
-  entity_id: !input sleeping
+  entity_id:
+    - !input activity
+    - !input presence
 - platform: state
-  entity_id: !input humidity
-- platform: state
-  entity_id: !input temperature
-- platform: state
-  entity_id: !input air_quality
-- platform: state
-  entity_id: !input presence
+  entity_id:
+    - !input humidity
+    - !input temperature
+    - !input air_quality
 - platform: state
   entity_id: climate.home_air_con
 condition: []
@@ -120,8 +119,11 @@ action:
         entity_id: !input ceiling_fan
   - conditions:
     - condition: state
-      entity_id: !input sleeping
-      state: 'on'
+      entity_id: !input activity
+      state:
+        - wind-down
+        - sleep
+        - wake-up
     - condition: state
       entity_id: !input temperature
       state:
