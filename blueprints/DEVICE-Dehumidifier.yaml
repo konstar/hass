@@ -237,11 +237,11 @@ action:
             entity_id: input_select.electricity_rate
             state:
               - peak
-        - not:
-            - condition: state
-              entity_id: !input humidity
-              state:
-                - extremely-humid
+          - not:
+              - condition: state
+                entity_id: !input humidity
+                state:
+                  - extremely-humid
         sequence:
           - repeat:
               while:
