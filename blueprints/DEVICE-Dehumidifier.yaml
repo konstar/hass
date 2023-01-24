@@ -114,7 +114,7 @@ action:
                             - extremely-dry
                         - not:
                             - condition: state
-                              entity_id: !input dehumidifer
+                              entity_id: !input dehumidifier
                               state: "off"
                       sequence:
                         - service: switch.turn_off
@@ -140,7 +140,7 @@ action:
                     - extremely-dry
                 - not:
                     - condition: state
-                      entity_id: !input dehumidifer
+                      entity_id: !input dehumidifier
                       state: "off"
               sequence:
                 - service: switch.turn_off
@@ -163,7 +163,7 @@ action:
                     - normal
                 - not:
                     - condition: state
-                      entity_id: !input dehumidifer
+                      entity_id: !input dehumidifier
                       state: "off"
               sequence:
                 - service: switch.turn_off
@@ -190,7 +190,7 @@ action:
                   state: 'on'
                 - not:
                     - condition: state
-                      entity_id: !input dehumidifer
+                      entity_id: !input dehumidifier
                       state: "off"
               sequence:
                 - service: switch.turn_off
@@ -224,7 +224,7 @@ action:
                         - extremely-humid
                 - not:
                     - condition: state
-                      entity_id: !input dehumidifer
+                      entity_id: !input dehumidifier
                       state: "off"
               sequence:
                 - service: switch.turn_off
@@ -256,7 +256,7 @@ action:
                         - extremely-humid
                 - not:
                     - condition: state
-                      entity_id: !input dehumidifer
+                      entity_id: !input dehumidifier
                       state: "off"
               sequence:
                 - service: switch.turn_off
@@ -268,7 +268,7 @@ action:
           while:
             - not:
                 - condition: state
-                  entity_id: !input dehumidifer
+                  entity_id: !input dehumidifier
                   state: "on"
           sequence:
             - service: switch.turn_on
