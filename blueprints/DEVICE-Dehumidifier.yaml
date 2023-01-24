@@ -72,22 +72,22 @@ trigger:
 condition: []
 action:
 - choose:
-  - conditions:
-    - condition: trigger
-      id: maybe_full
-    sequence:
-    - delay:
-        minutes: 10
+    - conditions:
+        - condition: trigger
+          id: maybe_full
+      sequence:
+        - delay:
+            minutes: 10
     - choose:
-      - conditions:
-        - condition: state
-          entity_id: !input dehumidifier_activity
-          state: sleeping
-        sequence:
-        - service: script.notify
-          data:
-            message: The Dehumidifier in the {{ area_name(dehumidifier) }} is full.
-            short_message: '{{ state_attr(dehumidifier,''friendly_name'') }} is full'
+        - conditions:
+            - condition: state
+              entity_id: !input dehumidifier_activity
+              state: sleeping
+          sequence:
+            - service: script.notify
+              data:
+                message: The Dehumidifier in the {{ area_name(dehumidifier) }} is full.
+                short_message: '{{ state_attr(dehumidifier,''friendly_name'') }} is full'
       - conditions:
         - condition: state
           entity_id: !input dehumidifier_activity
@@ -95,32 +95,81 @@ action:
         - condition: state
           entity_id: !input humidity
           state:
-          - normal
-          - dry
-          - very-dry
+            - normal
+            - dry
+            - very-dry
+            - extremely-dry
         sequence:
-        - service: switch.turn_off
-          entity_id: !input dehumidifier
+          - repeat:
+              while:
+                - condition: state
+                  entity_id: !input dehumidifier_activity
+                  state: stopping
+                - condition: state
+                  entity_id: !input humidity
+                  state:
+                    - normal
+                    - dry
+                    - very-dry
+                    - extremely-dry
+                - not:
+                    - condition: state
+                      entity_id: !input dehumidifer
+                      state: "off"
+              sequence:
+                - service: switch.turn_off
+                  entity_id: !input dehumidifier
+                - delay:
+                    minutes: 1
   - alias: Switch off the dehumidifier if the room is dry
     conditions:
-    - condition: state
-      entity_id: !input humidity
-      state:
-      - dry
-      - very-dry
+      - condition: state
+        entity_id: !input humidity
+        state:
+          - dry
+          - very-dry
+          - extremely-dry
     sequence:
-    - service: switch.turn_off
-      entity_id: !input dehumidifier
+      - repeat:
+          while:
+            - condition: state
+              entity_id: !input humidity
+              state:
+                - dry
+                - very-dry
+                - extremely-dry
+            - not:
+                - condition: state
+                  entity_id: !input dehumidifer
+                  state: "off"
+          sequence:
+            - service: switch.turn_off
+              entity_id: !input dehumidifier
+            - delay:
+                minutes: 1
   - alias: Switch off the dehumidifier if the room isn't humid
     conditions:
-    - condition: state
-      entity_id: !input humidity
-      state: normal
-      for:
-        minutes: 10
+      - condition: state
+        entity_id: !input humidity
+        state: normal
+        for:
+          minutes: 10
     sequence:
-    - service: switch.turn_off
-      entity_id: !input dehumidifier
+      - repeat:
+          while:
+            - condition: state
+              entity_id: !input humidity
+              state:
+                - normal
+            - not:
+                - condition: state
+                  entity_id: !input dehumidifer
+                  state: "off"
+          sequence:
+            - service: switch.turn_off
+              entity_id: !input dehumidifier
+            - delay:
+                minutes: 1
   - alias: There's no point dehumidifying the room if the house is open and the door
       to the room is left open
     conditions:
@@ -131,8 +180,23 @@ action:
       entity_id: !input door
       state: 'on'
     sequence:
-    - service: switch.turn_off
-      entity_id: !input dehumidifier
+      - repeat:
+          while:
+            - condition: state
+              entity_id: input_boolean.home_open
+              state: 'on'
+            - condition: state
+              entity_id: !input door
+              state: 'on'
+            - not:
+                - condition: state
+                  entity_id: !input dehumidifer
+                  state: "off"
+          sequence:
+            - service: switch.turn_off
+              entity_id: !input dehumidifier
+            - delay:
+                minutes: 1
   - alias: Switch off the dehumidifier if we're in shoulder and it isn't very humid
     conditions:
     - condition: state
@@ -143,20 +207,72 @@ action:
         - condition: state
           entity_id: !input humidity
           state:
-          - very-humid
+            - very-humid
+            - extremely-humid
     sequence:
-    - service: switch.turn_off
-      entity_id: !input dehumidifier
-  - alias: Switch off the dehumidifier if it is peak
+      - repeat:
+          while:
+            - condition: state
+              entity_id: input_select.electricity_rate
+              state:
+                - shoulder
+            - not:
+                - condition: state
+                  entity_id: !input humidity
+                  state:
+                    - very-humid
+                    - extremely-humid
+            - not:
+                - condition: state
+                  entity_id: !input dehumidifer
+                  state: "off"
+          sequence:
+            - service: switch.turn_off
+              entity_id: !input dehumidifier
+            - delay:
+                minutes: 1
+  - alias: Switch off the dehumidifier if it is peak and not extremely humid
     conditions:
-    - condition: state
-      entity_id: input_select.electricity_rate
-      state:
-        - peak
+      - condition: state
+        entity_id: input_select.electricity_rate
+        state:
+          - peak
+    - not:
+        - condition: state
+          entity_id: !input humidity
+          state:
+            - extremely-humid
     sequence:
-    - service: switch.turn_off
-      entity_id: !input dehumidifier
+      - repeat:
+          while:
+            - condition: state
+              entity_id: input_select.electricity_rate
+              state:
+                - peak
+            - not:
+                - condition: state
+                  entity_id: !input humidity
+                  state:
+                    - extremely-humid
+            - not:
+                - condition: state
+                  entity_id: !input dehumidifer
+                  state: "off"
+          sequence:
+            - service: switch.turn_off
+              entity_id: !input dehumidifier
+            - delay:
+                minutes: 1
   default:
-  - service: switch.turn_on
-    entity_id: !input dehumidifier
+    - repeat:
+        while:
+          - not:
+              - condition: state
+                entity_id: !input dehumidifer
+                state: "on"
+        sequence:
+          - service: switch.turn_on
+            entity_id: !input dehumidifier
+          - delay:
+              minutes: 1
 mode: single
