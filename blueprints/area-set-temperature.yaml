@@ -2,7 +2,7 @@ blueprint:
   name: AREA set temperature
   description: Set temperature selection for the state of an area.
   domain: automation
-  source_url: https://github.com/konstar/hass/blob/main/blueprints/area-set-temperature.yaml
+  source_url: https://github.com/konstar/hass/blob/main/blueprints/AREA-set-temperature.yaml
   input:
     output:
       name: Temperature helper
@@ -17,36 +17,73 @@ blueprint:
         entity:
           domain: sensor
           device_class: temperature
-    target:
-      name: Temperature target
-      description: Target temperature of the area.
+    target_high:
+      name: High target temperature
+      description: High target temperature of the area.
+      selector:
+        entity:
+          domain: input_number
+    target_low:
+      name: Low target temperature
+      description: Low target temperature of the area.
       selector:
         entity:
           domain: input_number
 variables:
   output: !input "output"
   sensor: !input "sensor"
-  target: !input "target"
+  target_high: !input "target_high"
+  target_low: !input "target_low"
 trigger:
+  - id: extremely-cold
+    platform: numeric_state
+    entity_id: !input sensor
+    below: input_number.indoor_temperature_target_min
+  - id: extremely-hot
+    platform: numeric_state
+    entity_id: !input sensor
+    above: input_number.indoor_temperature_target_max
   - id: sensor
     platform: state
     entity_id: !input sensor
   - id: target
     platform: state
-    entity_id: !input target
-  - id: unknown_1
-    platform: numeric_state
-    entity_id: !input sensor
-    below: 1
-  - id: unknown_2
-    platform: numeric_state
-    entity_id: !input sensor
-    above: 50
+    entity_id: !input target_high
+  - id: target
+    platform: state
+    entity_id: !input target_low
 condition: []
 action:
   - choose:
       - conditions:
-          - "{{ ( states(sensor)|float - states(target)|float ) > -2 and ( states(sensor)|float - states(target)|float ) < 2 }}"
+          - condition: state
+            entity_id: !input sensor
+            state:
+              - unknown
+              - unavailable
+        sequence:
+          - alias: "Stop here if the sensor is broken"
+            delay: 1
+      - conditions:
+          - condition: trigger
+            id: extremely-cold
+        sequence:
+          - service: input_select.select_option
+            target:
+              entity_id: !input "output"
+            data:
+              option: extremely-cold
+      - conditions:
+          - condition: trigger
+            id: extremely-hot
+        sequence:
+          - service: input_select.select_option
+            target:
+              entity_id: !input "output"
+            data:
+              option: extremely-hot
+      - conditions:
+          - "{{ ( states(sensor)|float > (states(target_low)|float + 0.1) ) and ( states(sensor)|float < (states(target_high)|float - 0.1) ) }}"
         sequence:
           - service: input_select.select_option
             target:
@@ -54,7 +91,7 @@ action:
             data:
               option: normal
       - conditions:
-          - "{{ ( states(sensor)|float - states(target)|float ) > 2 and ( states(sensor)|float - states(target)|float ) < 4 }}"
+          - "{{ ( states(sensor)|float > (states(target_high)|float + 0.1) )  and  ( states(sensor)|float < (states(target_high)|float + 1.9) ) }}"
         sequence:
           - service: input_select.select_option
             target:
@@ -62,7 +99,7 @@ action:
             data:
               option: hot
       - conditions:
-          - "{{ ( states(sensor)|float - states(target)|float ) > -4 and ( states(sensor)|float - states(target)|float ) < -2 }}"
+          - "{{ ( states(sensor)|float < (states(target_low)|float - 0.1) )  and  ( states(sensor)|float > (states(target_low)|float - 1.9) ) }}"
         sequence:
           - service: input_select.select_option
             target:
@@ -70,7 +107,7 @@ action:
             data:
               option: cold
       - conditions:
-          - "{{ ( states(sensor)|float - states(target)|float ) > 4 }}"
+          - "{{ ( states(sensor)|float > (states(target_high)|float + 2.1) ) and ( states(sensor)|float < states('input_number.indoor_temperature_target_max')|float ) }}"
         sequence:
           - service: input_select.select_option
             target:
@@ -78,25 +115,11 @@ action:
             data:
               option: very-hot
       - conditions:
-          - "{{ ( states(sensor)|float - states(target)|float ) < -4 }}"
+          - "{{ ( states(sensor)|float < (states(target_low)|float - 2.1) ) and ( states(sensor)|float > states('input_number.indoor_temperature_target_min')|float ) }}"
         sequence:
           - service: input_select.select_option
             target:
               entity_id: !input "output"
             data:
               option: very-cold
-      - conditions:
-          - condition: or
-            conditions:
-              - condition: trigger
-                id: unknown_1
-              - condition: trigger
-                id: unknown_2
-        sequence:
-          - service: input_select.select_option
-            target:
-              entity_id: !input "output"
-            data:
-              option: unknown
-mode: single
-max_exceeded: silent
+mode: restart
