@@ -35,6 +35,14 @@ variables:
   target_high: !input "target_high"
   target_low: !input "target_low"
 trigger:
+  - id: extremely-cold
+    platform: numeric_state
+    entity_id: !input sensor
+    below: input_number.indoor_temperature_target_min
+  - id: extremely-hot
+    platform: numeric_state
+    entity_id: !input sensor
+    above: input_number.indoor_temperature_target_max
   - id: sensor
     platform: state
     entity_id: !input sensor
@@ -44,14 +52,6 @@ trigger:
   - id: target
     platform: state
     entity_id: !input target_low
-  - id: unknown_1
-    platform: numeric_state
-    entity_id: !input sensor
-    below: 2
-  - id: unknown_2
-    platform: numeric_state
-    entity_id: !input sensor
-    above: 50
 condition: []
 action:
   - choose:
@@ -65,7 +65,25 @@ action:
           - alias: "Stop here if the sensor is broken"
             delay: 1
       - conditions:
-          - "{{ ( states(sensor)|float > (states(target_low)|float - 0.5) ) and ( states(sensor)|float < (states(target_high)|float + 0.5) ) }}"
+          - condition: trigger
+            id: extremely-cold
+        sequence:
+          - service: input_select.select_option
+            target:
+              entity_id: !input "output"
+            data:
+              option: extremely-cold
+      - conditions:
+          - condition: trigger
+            id: extremely-hot
+        sequence:
+          - service: input_select.select_option
+            target:
+              entity_id: !input "output"
+            data:
+              option: extremely-hot
+      - conditions:
+          - "{{ ( states(sensor)|float > (states(target_low)|float + 0.1) ) and ( states(sensor)|float < (states(target_high)|float - 0.1) ) }}"
         sequence:
           - service: input_select.select_option
             target:
@@ -73,7 +91,7 @@ action:
             data:
               option: normal
       - conditions:
-          - "{{ ( states(sensor)|float > states(target_high)|float )  and  ( states(sensor)|float < (states(target_high)|float + 2.5) ) }}"
+          - "{{ ( states(sensor)|float > (states(target_high)|float + 0.1) )  and  ( states(sensor)|float < (states(target_high)|float + 1.9) ) }}"
         sequence:
           - service: input_select.select_option
             target:
@@ -81,7 +99,7 @@ action:
             data:
               option: hot
       - conditions:
-          - "{{ ( states(sensor)|float < states(target_low)|float )  and  ( states(sensor)|float > (states(target_low)|float - 2.5) ) }}"
+          - "{{ ( states(sensor)|float < (states(target_low)|float - 0.1) )  and  ( states(sensor)|float > (states(target_low)|float - 1.9) ) }}"
         sequence:
           - service: input_select.select_option
             target:
@@ -89,7 +107,7 @@ action:
             data:
               option: cold
       - conditions:
-          - "{{ states(sensor)|float > (states(target_high)|float + 2.0) }}"
+          - "{{ ( states(sensor)|float > (states(target_high)|float + 2.1) ) and ( states(sensor)|float < states('input_number.indoor_temperature_target_max')|float ) }}"
         sequence:
           - service: input_select.select_option
             target:
@@ -97,23 +115,11 @@ action:
             data:
               option: very-hot
       - conditions:
-          - "{{ states(sensor)|float < (states(target_low)|float - 2.0) }}"
+          - "{{ ( states(sensor)|float < (states(target_low)|float - 2.1) ) and ( states(sensor)|float > states('input_number.indoor_temperature_target_min')|float ) }}"
         sequence:
           - service: input_select.select_option
             target:
               entity_id: !input "output"
             data:
               option: very-cold
-      - conditions:
-          - or:
-              - condition: trigger
-                id: unknown_1
-              - condition: trigger
-                id: unknown_2
-        sequence:
-          - service: input_select.select_option
-            target:
-              entity_id: !input "output"
-            data:
-              option: unknown
 mode: restart
