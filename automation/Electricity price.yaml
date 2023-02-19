@@ -1,0 +1,40 @@
+alias: Electricity price
+description: ""
+trigger:
+  - platform: state
+    entity_id: input_select.electricity_rate
+condition: []
+action:
+  - choose:
+      - conditions:
+          - condition: state
+            entity_id: input_select.electricity_rate
+            state: offpeak
+        sequence:
+          - service: input_number.set_value
+            target:
+              entity_id: input_number.electricity_price
+            data:
+              value: 0.126
+      - conditions:
+          - condition: state
+            entity_id: input_select.electricity_rate
+            state: shoulder
+        sequence:
+          - service: input_number.set_value
+            target:
+              entity_id: input_number.electricity_price
+            data:
+              value: 0.187
+      - conditions:
+          - condition: state
+            entity_id: input_select.electricity_rate
+            state: peak
+        sequence:
+          - service: input_number.set_value
+            target:
+              entity_id: input_number.electricity_price
+            data:
+              value: 0.351
+    default: []
+mode: single
