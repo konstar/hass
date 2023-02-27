@@ -73,6 +73,8 @@ variables:
   activity_helper: !input activity_helper
   time_helper: !input time_helper
 trigger:
+  - platform: homeassistant
+    event: start
   - id: motion
     platform: state
     entity_id: !input motion_sensor
