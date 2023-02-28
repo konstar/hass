@@ -131,7 +131,7 @@ action:
     sequence:
     - service: fan.turn_on
       data:
-        percentage: 33
+        percentage: 50
       target:
         entity_id: !input ceiling_fan
     - delay: 00:00:10
