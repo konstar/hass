@@ -2,7 +2,7 @@ blueprint:
   name: DEVICE Ceiling Fan
   description: Manages a ceiling fan
   domain: automation
-  source_url: https://github.com/konstar/hass/blob/main/blueprints/device-ceiling-fan.yaml
+  source_url: https://github.com/konstar/hass/blob/main/blueprints/DEVICE-Ceiling-Fan.yaml
   input:
     ceiling_fan:
       name: Ceiling Fan
