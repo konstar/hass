@@ -1,0 +1,314 @@
+alias: SolarEdge set mode
+description: ""
+trigger:
+  - id: reset
+    platform: state
+    entity_id: select.solaredge_i1_storage_default_mode
+    to: Remote Control
+  - id: start_export
+    platform: numeric_state
+    entity_id: input_number.electricity_grid_export_price
+    above: 0.7
+    for:
+      minutes: 1
+  - id: start_export
+    platform: numeric_state
+    entity_id: sensor.solaredge_b1_state_of_energy
+    above: 35
+    for:
+      minutes: 1
+  - id: stop_export_now
+    platform: numeric_state
+    entity_id: input_number.electricity_grid_export_price
+    below: 0
+  - id: stop_export
+    platform: numeric_state
+    entity_id: input_number.electricity_grid_export_price
+    below: 0.7
+    for:
+      minutes: 1
+  - id: stop_export
+    platform: numeric_state
+    entity_id: sensor.solaredge_b1_state_of_energy
+    below: 30
+    for:
+      minutes: 1
+  - id: start_import_now
+    platform: numeric_state
+    entity_id: input_number.electricity_grid_import_price
+    below: 0
+  - id: start_import
+    platform: numeric_state
+    entity_id: input_number.electricity_grid_import_price
+    below: 0.2
+    for:
+      minutes: 1
+  - id: start_import
+    platform: numeric_state
+    entity_id: sensor.solaredge_b1_state_of_energy
+    below: 20
+    for:
+      minutes: 1
+  - id: stop_import
+    platform: numeric_state
+    entity_id: input_number.electricity_grid_import_price
+    above: 0.2
+    for:
+      minutes: 1
+  - id: stop_import
+    platform: numeric_state
+    entity_id: sensor.solaredge_b1_state_of_energy
+    above: 50
+    for:
+      minutes: 1
+  - id: stop_import
+    platform: numeric_state
+    entity_id: sensor.electricity_solar_generation
+    above: 2000
+    for:
+      minutes: 1
+condition: []
+action:
+  - choose:
+      - alias: >-
+          Stop export immediately if price < 0c/kWh. I.e. I will pay penalties
+          if I export electricity
+        conditions:
+          - condition: numeric_state
+            entity_id: input_number.electricity_grid_export_price
+            below: 0
+        sequence:
+          - if:
+              - condition: state
+                entity_id: select.solaredge_i1_storage_command_mode
+                state: Discharge to Maximize Export
+            then:
+              - service: select.select_option
+                data:
+                  option: Maximize Self Consumption
+                target:
+                  entity_id:
+                    - select.solaredge_i1_storage_default_mode
+                    - select.solaredge_i1_storage_command_mode
+          - if:
+              - condition: numeric_state
+                entity_id: number.solaredge_i1_site_limit
+                above: 0
+            then:
+              - service: number.set_value
+                data:
+                  value: 0
+                target:
+                  entity_id: number.solaredge_i1_site_limit
+          - service: script.notify
+            data:
+              message: >-
+                Exporting to the Grid has been stopped, as the price has fallen
+                below 0 cents per kilowatt hour.
+              short_message: Export price < 0c. Stopped grid export.
+      - alias: >-
+          Start import immediately if price < 0c/kWh. I.e. I will get paid to
+          take electricity off the grid
+        conditions:
+          - condition: numeric_state
+            entity_id: input_number.electricity_grid_import_price
+            below: 0
+        sequence:
+          - if:
+              - not:
+                  - condition: state
+                    entity_id: select.solaredge_i1_storage_command_mode
+                    state: Charge from Solar Power and Grid
+            then:
+              - service: select.select_option
+                data:
+                  option: Charge from Solar Power and Grid
+                target:
+                  entity_id:
+                    - select.solaredge_i1_storage_default_mode
+                    - select.solaredge_i1_storage_command_mode
+          - if:
+              - condition: numeric_state
+                entity_id: number.solaredge_i1_site_limit
+                below: 20000
+            then:
+              - service: number.set_value
+                data:
+                  value: 20000
+                target:
+                  entity_id: number.solaredge_i1_site_limit
+          - service: script.notify
+            data:
+              message: >-
+                Importing from the Grid has been started, as the price has
+                fallen below 0 cents per kilowatt hour.
+              short_message: Import price < 0c. Started grid import.
+      - alias: Start exporting electricity if price > 70c/kWh and battery > 35%
+        conditions:
+          - condition: numeric_state
+            entity_id: input_number.electricity_grid_export_price
+            above: 0.7
+          - condition: numeric_state
+            entity_id: sensor.solaredge_b1_state_of_energy
+            above: 35
+        sequence:
+          - service: select.select_option
+            data:
+              option: Discharge to Maximize Export
+            target:
+              entity_id:
+                - select.solaredge_i1_storage_default_mode
+                - select.solaredge_i1_storage_command_mode
+          - if:
+              - condition: numeric_state
+                entity_id: number.solaredge_i1_site_limit
+                below: 20000
+            then:
+              - service: number.set_value
+                data:
+                  value: 20000
+                target:
+                  entity_id: number.solaredge_i1_site_limit
+          - service: script.notify
+            data:
+              message: >-
+                Exporting to the Grid has been started, as the price is above 70
+                cents per kilowatt hour and battery is over 35%.
+              short_message: Export price > 70c and battery > 35%. Started grid export.
+      - alias: Stop exporting electricity if price < 70c/kWh or battery < 30%
+        conditions:
+          - condition: state
+            entity_id: select.solaredge_i1_storage_command_mode
+            state: Discharge to Maximize Export
+          - or:
+              - condition: numeric_state
+                entity_id: input_number.electricity_grid_export_price
+                below: 0.7
+              - condition: numeric_state
+                entity_id: sensor.solaredge_b1_state_of_energy
+                below: 30
+        sequence:
+          - service: select.select_option
+            data:
+              option: Maximize Self Consumption
+            target:
+              entity_id:
+                - select.solaredge_i1_storage_default_mode
+                - select.solaredge_i1_storage_command_mode
+          - if:
+              - condition: numeric_state
+                entity_id: number.solaredge_i1_site_limit
+                below: 20000
+            then:
+              - service: number.set_value
+                data:
+                  value: 20000
+                target:
+                  entity_id: number.solaredge_i1_site_limit
+          - service: script.notify
+            data:
+              message: >-
+                Exporting to the Grid has been stopped, as the price is {{
+                (states('input_number.electricity_grid_export_price')|float*100)|round(0)
+                }} cents per kilowatt hour and battery is {{
+                states('sensor.solaredge_b1_state_of_energy')|float|round(0)
+                }}%.
+              short_message: >-
+                Export price is {{
+                (states('input_number.electricity_grid_export_price')|float*100)|round(0)
+                }}c and battery is {{
+                states('sensor.solaredge_b1_state_of_energy')|float|round(0)
+                }}%. Started grid export.
+      - alias: Start importing electricity if price < 20c/kWh and battery < 20%
+        conditions:
+          - condition: numeric_state
+            entity_id: input_number.electricity_grid_import_price
+            below: 0.2
+          - condition: numeric_state
+            entity_id: sensor.solaredge_b1_state_of_energy
+            below: 20
+        sequence:
+          - if:
+              - not:
+                  - condition: state
+                    entity_id: select.solaredge_i1_storage_command_mode
+                    state: Charge from Solar Power and Grid
+            then:
+              - service: select.select_option
+                data:
+                  option: Charge from Solar Power and Grid
+                target:
+                  entity_id:
+                    - select.solaredge_i1_storage_default_mode
+                    - select.solaredge_i1_storage_command_mode
+          - if:
+              - condition: numeric_state
+                entity_id: number.solaredge_i1_site_limit
+                below: 20000
+            then:
+              - service: number.set_value
+                data:
+                  value: 20000
+                target:
+                  entity_id: number.solaredge_i1_site_limit
+          - service: script.notify
+            data:
+              message: >-
+                Importing from the Grid has been started, as the price is below
+                20 cents per kilowatt hour and battery is below 20%.
+              short_message: Import price < 20c and battery < 20%. Started grid import.
+      - alias: >-
+          Stop importing electricity if price > 20c/kWh or battery > 50% or
+          solar generation > 2kw
+        conditions:
+          - condition: state
+            entity_id: select.solaredge_i1_storage_command_mode
+            state: Charge from Solar Power and Grid
+          - or:
+              - condition: numeric_state
+                entity_id: input_number.electricity_grid_import_price
+                above: 0.2
+              - condition: numeric_state
+                entity_id: sensor.solaredge_b1_state_of_energy
+                above: 50
+              - condition: numeric_state
+                entity_id: sensor.electricity_solar_generation
+                above: 2000
+        sequence:
+          - service: select.select_option
+            data:
+              option: Maximize Self Consumption
+            target:
+              entity_id:
+                - select.solaredge_i1_storage_default_mode
+                - select.solaredge_i1_storage_command_mode
+          - if:
+              - condition: numeric_state
+                entity_id: number.solaredge_i1_site_limit
+                below: 20000
+            then:
+              - service: number.set_value
+                data:
+                  value: 20000
+                target:
+                  entity_id: number.solaredge_i1_site_limit
+          - service: script.notify
+            data:
+              message: >-
+                Importing from the Grid has been stopped, as the price is {{
+                (states('input_number.electricity_grid_import_price')|float*100)|round(0)
+                }} cents per kilowatt hour, battery is {{
+                states('sensor.solaredge_b1_state_of_energy')|float|round(0)
+                }}%, and solar generation is {{
+                (states('sensor.electricity_solar_generation')|float/1000)|round(1)
+                }} kilowatts.
+              short_message: >-
+                Import price is {{
+                (states('input_number.electricity_grid_import_price')|float*100)|round(0)
+                }}c, battery is {{
+                states('sensor.solaredge_b1_state_of_energy')|float|round(0)
+                }}%, solar generation is {{
+                (states('sensor.electricity_solar_generation')|float/1000)|round(1)
+                }}kW. Stopped grid import.
+    default: []
+mode: single

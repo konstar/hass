@@ -1,0 +1,1674 @@
+alias: SolarEdge enforce configuration
+description: ""
+trigger: []
+  - platform: state
+    entity_id:
+      - switch.solaredge_i1_negative_site_limit
+      - switch.solaredge_i1_external_production
+      - select.solaredge_i1_limit_control_mode
+      - select.solaredge_i1_limit_control
+      - number.solaredge_i1_site_limit
+      - select.solaredge_i1_storage_control_mode
+      - number.solaredge_i1_storage_charge_limit
+      - number.solaredge_i1_storage_discharge_limit
+condition:
+
+
+Need to have "- sensor" for each "- name" to reduce the trigger size
+Need to have groups for each power size
+Need to have automation to update the groups
+
+- sensor:
+    - name: "Back Yard Lights power"
+      device_class: power
+      state_class: measurement
+      unit_of_measurement: W
+      icon: >
+        {%- set entities =
+          expand('group.back_yard_lights_power')
+          | rejectattr('state','eq','unknown')
+          | rejectattr('state','eq','unavailable')
+          | map(attribute='entity_id')
+          | list -%}
+        {%- if entities|count > 0 -%}
+          mdi:lightbulb-group-outline
+        {%- else -%}
+          mdi:lightbulb-group-off-outline
+        {%- endif %}
+      availability: >
+        {%- set area = this.name[:-13] -%}
+        {%- set entities =
+          expand(area_entities(area))
+          | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+          | rejectattr('state','eq','unknown')
+          | rejectattr('state','eq','unavailable')
+          | map(attribute='entity_id')
+          | list -%}
+        {%- if entities|count > 0 -%}
+          true
+        {%- else -%}
+          false
+        {%- endif %}
+      state: >
+        {%- set area = this.name[:-13] -%}
+        {%- set values =
+          expand(area_entities(area))
+          | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+          | rejectattr('state','eq','unknown')
+          | rejectattr('state','eq','unavailable')
+          | map(attribute='state')
+          | map('float') | list -%}
+        {%- if values|count > 0 -%}
+          {{ values|sum|round(2) }}
+        {%- endif %}
+      attributes:
+        area: >
+          {%- set area =
+            this.name[:-13] -%}
+          {{ area }}
+        available_count: >-
+          {%- set area = this.name[:-13] -%}
+          {%- set entities =
+            expand(area_entities(area))
+            | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+            | rejectattr('state','eq','unknown')
+            | rejectattr('state','eq','unavailable')
+            | map(attribute='entity_id')
+            | list -%}
+          {{ entities|count }}
+        available_entities: >-
+          {%- set area = this.name[:-13] -%}
+          {%- set entities =
+            expand(area_entities(area))
+            | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+            | rejectattr('state','eq','unknown')
+            | rejectattr('state','eq','unavailable')
+            | map(attribute='entity_id')
+            | list -%}
+          {%- if entities|count > 0 -%}
+            {{ entities|join(',') }}
+          {%- endif %}
+        available_values: >-
+          {%- set area = this.name[:-13] -%}
+          {%- set values =
+            expand(area_entities(area))
+            | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+            | rejectattr('state','eq','unknown')
+            | rejectattr('state','eq','unavailable')
+            | map(attribute='state')
+            | map('float') | list -%}
+          {%- if values|count > 0 -%}
+            {{ values|join(',') }}
+          {%- endif %}
+        unavailable_count: >-
+          {%- set area = this.name[:-13] -%}
+          {%- set entities =
+            expand(area_entities(area))
+            | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+            | selectattr('state','eq','unavailable')
+            | map(attribute='entity_id')
+            | list -%}
+          {{ entities|count }}
+        unavailable_entities: >-
+          {%- set area = this.name[:-13] -%}
+          {%- set entities =
+            expand(area_entities(area))
+            | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+            | selectattr('state','eq','unavailable')
+            | map(attribute='entity_id')
+            | list -%}
+          {%- if entities|count > 0 -%}
+            {{ entities|join(',') }}
+          {%- endif %}
+
+    - name: "Bathroom Lights power"
+      device_class: power
+      state_class: measurement
+      unit_of_measurement: W
+      icon: >
+        {%- set area = this.name[:-13] -%}
+        {%- set entities =
+          expand(area_entities(area))
+          | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+          | selectattr('state','ne','unavailable')
+          | map(attribute='entity_id')
+          | list -%}
+        {%- if entities|count > 0 -%}
+          mdi:lightbulb-group-outline
+        {%- else -%}
+          mdi:lightbulb-group-off-outline
+        {%- endif %}
+      availability: >
+        {%- set area = this.name[:-13] -%}
+        {%- set entities =
+          expand(area_entities(area))
+          | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+          | rejectattr('state','eq','unknown')
+          | rejectattr('state','eq','unavailable')
+          | map(attribute='entity_id')
+          | list -%}
+        {%- if entities|count > 0 -%}
+          true
+        {%- else -%}
+          false
+        {%- endif %}
+      state: >
+        {%- set area = this.name[:-13] -%}
+        {%- set values =
+          expand(area_entities(area))
+          | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+          | rejectattr('state','eq','unknown')
+          | rejectattr('state','eq','unavailable')
+          | map(attribute='state')
+          | map('float') | list -%}
+        {%- if values|count > 0 -%}
+          {{ values|sum|round(2) }}
+        {%- endif %}
+      attributes:
+        area: >
+          {%- set area =
+            this.name[:-13] -%}
+          {{ area }}
+        available_count: >-
+          {%- set area = this.name[:-13] -%}
+          {%- set entities =
+            expand(area_entities(area))
+            | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+            | rejectattr('state','eq','unknown')
+            | rejectattr('state','eq','unavailable')
+            | map(attribute='entity_id')
+            | list -%}
+          {{ entities|count }}
+        available_entities: >-
+          {%- set area = this.name[:-13] -%}
+          {%- set entities =
+            expand(area_entities(area))
+            | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+            | rejectattr('state','eq','unknown')
+            | rejectattr('state','eq','unavailable')
+            | map(attribute='entity_id')
+            | list -%}
+          {%- if entities|count > 0 -%}
+            {{ entities|join(',') }}
+          {%- endif %}
+        available_values: >-
+          {%- set area = this.name[:-13] -%}
+          {%- set values =
+            expand(area_entities(area))
+            | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+            | rejectattr('state','eq','unknown')
+            | rejectattr('state','eq','unavailable')
+            | map(attribute='state')
+            | map('float') | list -%}
+          {%- if values|count > 0 -%}
+            {{ values|join(',') }}
+          {%- endif %}
+        unavailable_count: >-
+          {%- set area = this.name[:-13] -%}
+          {%- set entities =
+            expand(area_entities(area))
+            | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+            | selectattr('state','eq','unavailable')
+            | map(attribute='entity_id')
+            | list -%}
+          {{ entities|count }}
+        unavailable_entities: >-
+          {%- set area = this.name[:-13] -%}
+          {%- set entities =
+            expand(area_entities(area))
+            | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+            | selectattr('state','eq','unavailable')
+            | map(attribute='entity_id')
+            | list -%}
+          {%- if entities|count > 0 -%}
+            {{ entities|join(',') }}
+          {%- endif %}
+
+    - name: "Deck Lights power"
+      device_class: power
+      state_class: measurement
+      unit_of_measurement: W
+      icon: >
+        {%- set area = this.name[:-13] -%}
+        {%- set entities =
+          expand(area_entities(area))
+          | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+          | selectattr('state','ne','unavailable')
+          | map(attribute='entity_id')
+          | list -%}
+        {%- if entities|count > 0 -%}
+          mdi:lightbulb-group-outline
+        {%- else -%}
+          mdi:lightbulb-group-off-outline
+        {%- endif %}
+      availability: >
+        {%- set area = this.name[:-13] -%}
+        {%- set entities =
+          expand(area_entities(area))
+          | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+          | rejectattr('state','eq','unknown')
+          | rejectattr('state','eq','unavailable')
+          | map(attribute='entity_id')
+          | list -%}
+        {%- if entities|count > 0 -%}
+          true
+        {%- else -%}
+          false
+        {%- endif %}
+      state: >
+        {%- set area = this.name[:-13] -%}
+        {%- set values =
+          expand(area_entities(area))
+          | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+          | rejectattr('state','eq','unknown')
+          | rejectattr('state','eq','unavailable')
+          | map(attribute='state')
+          | map('float') | list -%}
+        {%- if values|count > 0 -%}
+          {{ values|sum|round(2) }}
+        {%- endif %}
+      attributes:
+        area: >
+          {%- set area =
+            this.name[:-13] -%}
+          {{ area }}
+        available_count: >-
+          {%- set area = this.name[:-13] -%}
+          {%- set entities =
+            expand(area_entities(area))
+            | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+            | rejectattr('state','eq','unknown')
+            | rejectattr('state','eq','unavailable')
+            | map(attribute='entity_id')
+            | list -%}
+          {{ entities|count }}
+        available_entities: >-
+          {%- set area = this.name[:-13] -%}
+          {%- set entities =
+            expand(area_entities(area))
+            | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+            | rejectattr('state','eq','unknown')
+            | rejectattr('state','eq','unavailable')
+            | map(attribute='entity_id')
+            | list -%}
+          {%- if entities|count > 0 -%}
+            {{ entities|join(',') }}
+          {%- endif %}
+        available_values: >-
+          {%- set area = this.name[:-13] -%}
+          {%- set values =
+            expand(area_entities(area))
+            | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+            | rejectattr('state','eq','unknown')
+            | rejectattr('state','eq','unavailable')
+            | map(attribute='state')
+            | map('float') | list -%}
+          {%- if values|count > 0 -%}
+            {{ values|join(',') }}
+          {%- endif %}
+        unavailable_count: >-
+          {%- set area = this.name[:-13] -%}
+          {%- set entities =
+            expand(area_entities(area))
+            | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+            | selectattr('state','eq','unavailable')
+            | map(attribute='entity_id')
+            | list -%}
+          {{ entities|count }}
+        unavailable_entities: >-
+          {%- set area = this.name[:-13] -%}
+          {%- set entities =
+            expand(area_entities(area))
+            | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+            | selectattr('state','eq','unavailable')
+            | map(attribute='entity_id')
+            | list -%}
+          {%- if entities|count > 0 -%}
+            {{ entities|join(',') }}
+          {%- endif %}
+
+    - name: "Driveway Lights power"
+      device_class: power
+      state_class: measurement
+      unit_of_measurement: W
+      icon: >
+        {%- set area = this.name[:-13] -%}
+        {%- set entities =
+          expand(area_entities(area))
+          | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+          | selectattr('state','ne','unavailable')
+          | map(attribute='entity_id')
+          | list -%}
+        {%- if entities|count > 0 -%}
+          mdi:lightbulb-group-outline
+        {%- else -%}
+          mdi:lightbulb-group-off-outline
+        {%- endif %}
+      availability: >
+        {%- set area = this.name[:-13] -%}
+        {%- set entities =
+          expand(area_entities(area))
+          | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+          | rejectattr('state','eq','unknown')
+          | rejectattr('state','eq','unavailable')
+          | map(attribute='entity_id')
+          | list -%}
+        {%- if entities|count > 0 -%}
+          true
+        {%- else -%}
+          false
+        {%- endif %}
+      state: >
+        {%- set area = this.name[:-13] -%}
+        {%- set values =
+          expand(area_entities(area))
+          | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+          | rejectattr('state','eq','unknown')
+          | rejectattr('state','eq','unavailable')
+          | map(attribute='state')
+          | map('float') | list -%}
+        {%- if values|count > 0 -%}
+          {{ values|sum|round(2) }}
+        {%- endif %}
+      attributes:
+        area: >
+          {%- set area =
+            this.name[:-13] -%}
+          {{ area }}
+        available_count: >-
+          {%- set area = this.name[:-13] -%}
+          {%- set entities =
+            expand(area_entities(area))
+            | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+            | rejectattr('state','eq','unknown')
+            | rejectattr('state','eq','unavailable')
+            | map(attribute='entity_id')
+            | list -%}
+          {{ entities|count }}
+        available_entities: >-
+          {%- set area = this.name[:-13] -%}
+          {%- set entities =
+            expand(area_entities(area))
+            | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+            | rejectattr('state','eq','unknown')
+            | rejectattr('state','eq','unavailable')
+            | map(attribute='entity_id')
+            | list -%}
+          {%- if entities|count > 0 -%}
+            {{ entities|join(',') }}
+          {%- endif %}
+        available_values: >-
+          {%- set area = this.name[:-13] -%}
+          {%- set values =
+            expand(area_entities(area))
+            | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+            | rejectattr('state','eq','unknown')
+            | rejectattr('state','eq','unavailable')
+            | map(attribute='state')
+            | map('float') | list -%}
+          {%- if values|count > 0 -%}
+            {{ values|join(',') }}
+          {%- endif %}
+        unavailable_count: >-
+          {%- set area = this.name[:-13] -%}
+          {%- set entities =
+            expand(area_entities(area))
+            | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+            | selectattr('state','eq','unavailable')
+            | map(attribute='entity_id')
+            | list -%}
+          {{ entities|count }}
+        unavailable_entities: >-
+          {%- set area = this.name[:-13] -%}
+          {%- set entities =
+            expand(area_entities(area))
+            | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+            | selectattr('state','eq','unavailable')
+            | map(attribute='entity_id')
+            | list -%}
+          {%- if entities|count > 0 -%}
+            {{ entities|join(',') }}
+          {%- endif %}
+
+    - name: "Entrance Lights power"
+      device_class: power
+      state_class: measurement
+      unit_of_measurement: W
+      icon: >
+        {%- set area = this.name[:-13] -%}
+        {%- set entities =
+          expand(area_entities(area))
+          | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+          | selectattr('state','ne','unavailable')
+          | map(attribute='entity_id')
+          | list -%}
+        {%- if entities|count > 0 -%}
+          mdi:lightbulb-group-outline
+        {%- else -%}
+          mdi:lightbulb-group-off-outline
+        {%- endif %}
+      availability: >
+        {%- set area = this.name[:-13] -%}
+        {%- set entities =
+          expand(area_entities(area))
+          | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+          | rejectattr('state','eq','unknown')
+          | rejectattr('state','eq','unavailable')
+          | map(attribute='entity_id')
+          | list -%}
+        {%- if entities|count > 0 -%}
+          true
+        {%- else -%}
+          false
+        {%- endif %}
+      state: >
+        {%- set area = this.name[:-13] -%}
+        {%- set values =
+          expand(area_entities(area))
+          | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+          | rejectattr('state','eq','unknown')
+          | rejectattr('state','eq','unavailable')
+          | map(attribute='state')
+          | map('float') | list -%}
+        {%- if values|count > 0 -%}
+          {{ values|sum|round(2) }}
+        {%- endif %}
+      attributes:
+        area: >
+          {%- set area =
+            this.name[:-13] -%}
+          {{ area }}
+        available_count: >-
+          {%- set area = this.name[:-13] -%}
+          {%- set entities =
+            expand(area_entities(area))
+            | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+            | rejectattr('state','eq','unknown')
+            | rejectattr('state','eq','unavailable')
+            | map(attribute='entity_id')
+            | list -%}
+          {{ entities|count }}
+        available_entities: >-
+          {%- set area = this.name[:-13] -%}
+          {%- set entities =
+            expand(area_entities(area))
+            | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+            | rejectattr('state','eq','unknown')
+            | rejectattr('state','eq','unavailable')
+            | map(attribute='entity_id')
+            | list -%}
+          {%- if entities|count > 0 -%}
+            {{ entities|join(',') }}
+          {%- endif %}
+        available_values: >-
+          {%- set area = this.name[:-13] -%}
+          {%- set values =
+            expand(area_entities(area))
+            | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+            | rejectattr('state','eq','unknown')
+            | rejectattr('state','eq','unavailable')
+            | map(attribute='state')
+            | map('float') | list -%}
+          {%- if values|count > 0 -%}
+            {{ values|join(',') }}
+          {%- endif %}
+        unavailable_count: >-
+          {%- set area = this.name[:-13] -%}
+          {%- set entities =
+            expand(area_entities(area))
+            | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+            | selectattr('state','eq','unavailable')
+            | map(attribute='entity_id')
+            | list -%}
+          {{ entities|count }}
+        unavailable_entities: >-
+          {%- set area = this.name[:-13] -%}
+          {%- set entities =
+            expand(area_entities(area))
+            | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+            | selectattr('state','eq','unavailable')
+            | map(attribute='entity_id')
+            | list -%}
+          {%- if entities|count > 0 -%}
+            {{ entities|join(',') }}
+          {%- endif %}
+
+    - name: "Family Room Lights power"
+      device_class: power
+      state_class: measurement
+      unit_of_measurement: W
+      icon: >
+        {%- set area = this.name[:-13] -%}
+        {%- set entities =
+          expand(area_entities(area))
+          | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+          | selectattr('state','ne','unavailable')
+          | map(attribute='entity_id')
+          | list -%}
+        {%- if entities|count > 0 -%}
+          mdi:lightbulb-group-outline
+        {%- else -%}
+          mdi:lightbulb-group-off-outline
+        {%- endif %}
+      availability: >
+        {%- set area = this.name[:-13] -%}
+        {%- set entities =
+          expand(area_entities(area))
+          | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+          | rejectattr('state','eq','unknown')
+          | rejectattr('state','eq','unavailable')
+          | map(attribute='entity_id')
+          | list -%}
+        {%- if entities|count > 0 -%}
+          true
+        {%- else -%}
+          false
+        {%- endif %}
+      state: >
+        {%- set area = this.name[:-13] -%}
+        {%- set values =
+          expand(area_entities(area))
+          | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+          | rejectattr('state','eq','unknown')
+          | rejectattr('state','eq','unavailable')
+          | map(attribute='state')
+          | map('float') | list -%}
+        {%- if values|count > 0 -%}
+          {{ values|sum|round(2) }}
+        {%- endif %}
+      attributes:
+        area: >
+          {%- set area =
+            this.name[:-13] -%}
+          {{ area }}
+        available_count: >-
+          {%- set area = this.name[:-13] -%}
+          {%- set entities =
+            expand(area_entities(area))
+            | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+            | rejectattr('state','eq','unknown')
+            | rejectattr('state','eq','unavailable')
+            | map(attribute='entity_id')
+            | list -%}
+          {{ entities|count }}
+        available_entities: >-
+          {%- set area = this.name[:-13] -%}
+          {%- set entities =
+            expand(area_entities(area))
+            | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+            | rejectattr('state','eq','unknown')
+            | rejectattr('state','eq','unavailable')
+            | map(attribute='entity_id')
+            | list -%}
+          {%- if entities|count > 0 -%}
+            {{ entities|join(',') }}
+          {%- endif %}
+        available_values: >-
+          {%- set area = this.name[:-13] -%}
+          {%- set values =
+            expand(area_entities(area))
+            | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+            | rejectattr('state','eq','unknown')
+            | rejectattr('state','eq','unavailable')
+            | map(attribute='state')
+            | map('float') | list -%}
+          {%- if values|count > 0 -%}
+            {{ values|join(',') }}
+          {%- endif %}
+        unavailable_count: >-
+          {%- set area = this.name[:-13] -%}
+          {%- set entities =
+            expand(area_entities(area))
+            | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+            | selectattr('state','eq','unavailable')
+            | map(attribute='entity_id')
+            | list -%}
+          {{ entities|count }}
+        unavailable_entities: >-
+          {%- set area = this.name[:-13] -%}
+          {%- set entities =
+            expand(area_entities(area))
+            | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+            | selectattr('state','eq','unavailable')
+            | map(attribute='entity_id')
+            | list -%}
+          {%- if entities|count > 0 -%}
+            {{ entities|join(',') }}
+          {%- endif %}
+
+    - name: "Front Yard power"
+      device_class: power
+      state_class: measurement
+      unit_of_measurement: W
+      icon: >
+        {%- set area = this.name[:-13] -%}
+        {%- set entities =
+          expand(area_entities(area))
+          | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+          | selectattr('state','ne','unavailable')
+          | map(attribute='entity_id')
+          | list -%}
+        {%- if entities|count > 0 -%}
+          mdi:lightbulb-group-outline
+        {%- else -%}
+          mdi:lightbulb-group-off-outline
+        {%- endif %}
+      availability: >
+        {%- set area = this.name[:-13] -%}
+        {%- set entities =
+          expand(area_entities(area))
+          | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+          | rejectattr('state','eq','unknown')
+          | rejectattr('state','eq','unavailable')
+          | map(attribute='entity_id')
+          | list -%}
+        {%- if entities|count > 0 -%}
+          true
+        {%- else -%}
+          false
+        {%- endif %}
+      state: >
+        {%- set area = this.name[:-13] -%}
+        {%- set values =
+          expand(area_entities(area))
+          | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+          | rejectattr('state','eq','unknown')
+          | rejectattr('state','eq','unavailable')
+          | map(attribute='state')
+          | map('float') | list -%}
+        {%- if values|count > 0 -%}
+          {{ values|sum|round(2) }}
+        {%- endif %}
+      attributes:
+        area: >
+          {%- set area =
+            this.name[:-13] -%}
+          {{ area }}
+        available_count: >-
+          {%- set area = this.name[:-13] -%}
+          {%- set entities =
+            expand(area_entities(area))
+            | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+            | rejectattr('state','eq','unknown')
+            | rejectattr('state','eq','unavailable')
+            | map(attribute='entity_id')
+            | list -%}
+          {{ entities|count }}
+        available_entities: >-
+          {%- set area = this.name[:-13] -%}
+          {%- set entities =
+            expand(area_entities(area))
+            | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+            | rejectattr('state','eq','unknown')
+            | rejectattr('state','eq','unavailable')
+            | map(attribute='entity_id')
+            | list -%}
+          {%- if entities|count > 0 -%}
+            {{ entities|join(',') }}
+          {%- endif %}
+        available_values: >-
+          {%- set area = this.name[:-13] -%}
+          {%- set values =
+            expand(area_entities(area))
+            | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+            | rejectattr('state','eq','unknown')
+            | rejectattr('state','eq','unavailable')
+            | map(attribute='state')
+            | map('float') | list -%}
+          {%- if values|count > 0 -%}
+            {{ values|join(',') }}
+          {%- endif %}
+        unavailable_count: >-
+          {%- set area = this.name[:-13] -%}
+          {%- set entities =
+            expand(area_entities(area))
+            | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+            | selectattr('state','eq','unavailable')
+            | map(attribute='entity_id')
+            | list -%}
+          {{ entities|count }}
+        unavailable_entities: >-
+          {%- set area = this.name[:-13] -%}
+          {%- set entities =
+            expand(area_entities(area))
+            | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+            | selectattr('state','eq','unavailable')
+            | map(attribute='entity_id')
+            | list -%}
+          {%- if entities|count > 0 -%}
+            {{ entities|join(',') }}
+          {%- endif %}
+
+    - name: "Guest Room Lights power"
+      device_class: power
+      state_class: measurement
+      unit_of_measurement: W
+      icon: >
+        {%- set area = this.name[:-13] -%}
+        {%- set entities =
+          expand(area_entities(area))
+          | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+          | selectattr('state','ne','unavailable')
+          | map(attribute='entity_id')
+          | list -%}
+        {%- if entities|count > 0 -%}
+          mdi:lightbulb-group-outline
+        {%- else -%}
+          mdi:lightbulb-group-off-outline
+        {%- endif %}
+      availability: >
+        {%- set area = this.name[:-13] -%}
+        {%- set entities =
+          expand(area_entities(area))
+          | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+          | rejectattr('state','eq','unknown')
+          | rejectattr('state','eq','unavailable')
+          | map(attribute='entity_id')
+          | list -%}
+        {%- if entities|count > 0 -%}
+          true
+        {%- else -%}
+          false
+        {%- endif %}
+      state: >
+        {%- set area = this.name[:-13] -%}
+        {%- set values =
+          expand(area_entities(area))
+          | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+          | rejectattr('state','eq','unknown')
+          | rejectattr('state','eq','unavailable')
+          | map(attribute='state')
+          | map('float') | list -%}
+        {%- if values|count > 0 -%}
+          {{ values|sum|round(2) }}
+        {%- endif %}
+      attributes:
+        area: >
+          {%- set area =
+            this.name[:-13] -%}
+          {{ area }}
+        available_count: >-
+          {%- set area = this.name[:-13] -%}
+          {%- set entities =
+            expand(area_entities(area))
+            | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+            | rejectattr('state','eq','unknown')
+            | rejectattr('state','eq','unavailable')
+            | map(attribute='entity_id')
+            | list -%}
+          {{ entities|count }}
+        available_entities: >-
+          {%- set area = this.name[:-13] -%}
+          {%- set entities =
+            expand(area_entities(area))
+            | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+            | rejectattr('state','eq','unknown')
+            | rejectattr('state','eq','unavailable')
+            | map(attribute='entity_id')
+            | list -%}
+          {%- if entities|count > 0 -%}
+            {{ entities|join(',') }}
+          {%- endif %}
+        available_values: >-
+          {%- set area = this.name[:-13] -%}
+          {%- set values =
+            expand(area_entities(area))
+            | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+            | rejectattr('state','eq','unknown')
+            | rejectattr('state','eq','unavailable')
+            | map(attribute='state')
+            | map('float') | list -%}
+          {%- if values|count > 0 -%}
+            {{ values|join(',') }}
+          {%- endif %}
+        unavailable_count: >-
+          {%- set area = this.name[:-13] -%}
+          {%- set entities =
+            expand(area_entities(area))
+            | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+            | selectattr('state','eq','unavailable')
+            | map(attribute='entity_id')
+            | list -%}
+          {{ entities|count }}
+        unavailable_entities: >-
+          {%- set area = this.name[:-13] -%}
+          {%- set entities =
+            expand(area_entities(area))
+            | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+            | selectattr('state','eq','unavailable')
+            | map(attribute='entity_id')
+            | list -%}
+          {%- if entities|count > 0 -%}
+            {{ entities|join(',') }}
+          {%- endif %}
+
+    - name: "Hallway Lights power"
+      device_class: power
+      state_class: measurement
+      unit_of_measurement: W
+      icon: >
+        {%- set area = this.name[:-13] -%}
+        {%- set entities =
+          expand(area_entities(area))
+          | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+          | selectattr('state','ne','unavailable')
+          | map(attribute='entity_id')
+          | list -%}
+        {%- if entities|count > 0 -%}
+          mdi:lightbulb-group-outline
+        {%- else -%}
+          mdi:lightbulb-group-off-outline
+        {%- endif %}
+      availability: >
+        {%- set area = this.name[:-13] -%}
+        {%- set entities =
+          expand(area_entities(area))
+          | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+          | rejectattr('state','eq','unknown')
+          | rejectattr('state','eq','unavailable')
+          | map(attribute='entity_id')
+          | list -%}
+        {%- if entities|count > 0 -%}
+          true
+        {%- else -%}
+          false
+        {%- endif %}
+      state: >
+        {%- set area = this.name[:-13] -%}
+        {%- set values =
+          expand(area_entities(area))
+          | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+          | rejectattr('state','eq','unknown')
+          | rejectattr('state','eq','unavailable')
+          | map(attribute='state')
+          | map('float') | list -%}
+        {%- if values|count > 0 -%}
+          {{ values|sum|round(2) }}
+        {%- endif %}
+      attributes:
+        area: >
+          {%- set area =
+            this.name[:-13] -%}
+          {{ area }}
+        available_count: >-
+          {%- set area = this.name[:-13] -%}
+          {%- set entities =
+            expand(area_entities(area))
+            | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+            | rejectattr('state','eq','unknown')
+            | rejectattr('state','eq','unavailable')
+            | map(attribute='entity_id')
+            | list -%}
+          {{ entities|count }}
+        available_entities: >-
+          {%- set area = this.name[:-13] -%}
+          {%- set entities =
+            expand(area_entities(area))
+            | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+            | rejectattr('state','eq','unknown')
+            | rejectattr('state','eq','unavailable')
+            | map(attribute='entity_id')
+            | list -%}
+          {%- if entities|count > 0 -%}
+            {{ entities|join(',') }}
+          {%- endif %}
+        available_values: >-
+          {%- set area = this.name[:-13] -%}
+          {%- set values =
+            expand(area_entities(area))
+            | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+            | rejectattr('state','eq','unknown')
+            | rejectattr('state','eq','unavailable')
+            | map(attribute='state')
+            | map('float') | list -%}
+          {%- if values|count > 0 -%}
+            {{ values|join(',') }}
+          {%- endif %}
+        unavailable_count: >-
+          {%- set area = this.name[:-13] -%}
+          {%- set entities =
+            expand(area_entities(area))
+            | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+            | selectattr('state','eq','unavailable')
+            | map(attribute='entity_id')
+            | list -%}
+          {{ entities|count }}
+        unavailable_entities: >-
+          {%- set area = this.name[:-13] -%}
+          {%- set entities =
+            expand(area_entities(area))
+            | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+            | selectattr('state','eq','unavailable')
+            | map(attribute='entity_id')
+            | list -%}
+          {%- if entities|count > 0 -%}
+            {{ entities|join(',') }}
+          {%- endif %}
+
+    - name: "Jaydens Room Lights power"
+      device_class: power
+      state_class: measurement
+      unit_of_measurement: W
+      icon: >
+        {%- set entities =
+          expand(area_entities('Jaydens Room'))
+          | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+          | selectattr('state','ne','unavailable')
+          | map(attribute='entity_id')
+          | list -%}
+        {%- if entities|count > 0 -%}
+          mdi:lightbulb-group-outline
+        {%- else -%}
+          mdi:lightbulb-group-off-outline
+        {%- endif %}
+      availability: >
+        {%- set entities =
+          expand(area_entities('Jaydens Room'))
+          | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+          | rejectattr('state','eq','unknown')
+          | rejectattr('state','eq','unavailable')
+          | map(attribute='entity_id')
+          | list -%}
+        {%- if entities|count > 0 -%}
+          true
+        {%- else -%}
+          false
+        {%- endif %}
+      state: >
+        {%- set values =
+          expand(area_entities('Jaydens Room'))
+          | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+          | rejectattr('state','eq','unknown')
+          | rejectattr('state','eq','unavailable')
+          | map(attribute='state')
+          | map('float') | list -%}
+        {%- if values|count > 0 -%}
+          {{ values|sum|round(2) }}
+        {%- endif %}
+      attributes:
+        available_count: >-
+          {%- set entities =
+            expand(area_entities('Jaydens Room'))
+            | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+            | rejectattr('state','eq','unknown')
+            | rejectattr('state','eq','unavailable')
+            | map(attribute='entity_id')
+            | list -%}
+          {{ entities|count }}
+        available_entities: >-
+          {%- set entities =
+            expand(area_entities('Jaydens Room'))
+            | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+            | rejectattr('state','eq','unknown')
+            | rejectattr('state','eq','unavailable')
+            | map(attribute='entity_id')
+            | list -%}
+          {%- if entities|count > 0 -%}
+            {{ entities|join(',') }}
+          {%- endif %}
+        available_values: >-
+          {%- set values =
+            expand(area_entities('Jaydens Room'))
+            | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+            | rejectattr('state','eq','unknown')
+            | rejectattr('state','eq','unavailable')
+            | map(attribute='state')
+            | map('float') | list -%}
+          {%- if values|count > 0 -%}
+            {{ values|join(',') }}
+          {%- endif %}
+        unavailable_count: >-
+          {%- set entities =
+            expand(area_entities('Jaydens Room'))
+            | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+            | selectattr('state','eq','unavailable')
+            | map(attribute='entity_id')
+            | list -%}
+          {{ entities|count }}
+        unavailable_entities: >-
+          {%- set entities =
+            expand(area_entities('Jaydens Room'))
+            | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+            | selectattr('state','eq','unavailable')
+            | map(attribute='entity_id')
+            | list -%}
+          {%- if entities|count > 0 -%}
+            {{ entities|join(',') }}
+          {%- endif %}
+
+    - name: "Kitchen Lights power"
+      device_class: power
+      state_class: measurement
+      unit_of_measurement: W
+      icon: >
+        {%- set entities =
+          expand(area_entities('Kitchen'))
+          | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+          | selectattr('state','ne','unavailable')
+          | map(attribute='entity_id')
+          | list -%}
+        {%- if entities|count > 0 -%}
+          mdi:lightbulb-group-outline
+        {%- else -%}
+          mdi:lightbulb-group-off-outline
+        {%- endif %}
+      availability: >
+        {%- set entities =
+          expand(area_entities('Kitchen'))
+          | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+          | rejectattr('state','eq','unknown')
+          | rejectattr('state','eq','unavailable')
+          | map(attribute='entity_id')
+          | list -%}
+        {%- if entities|count > 0 -%}
+          true
+        {%- else -%}
+          false
+        {%- endif %}
+      state: >
+        {%- set values =
+          expand(area_entities('Kitchen'))
+          | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+          | rejectattr('state','eq','unknown')
+          | rejectattr('state','eq','unavailable')
+          | map(attribute='state')
+          | map('float') | list -%}
+        {%- if values|count > 0 -%}
+          {{ values|sum|round(2) }}
+        {%- endif %}
+      attributes:
+        available_count: >-
+          {%- set entities =
+            expand(area_entities('Kitchen'))
+            | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+            | rejectattr('state','eq','unknown')
+            | rejectattr('state','eq','unavailable')
+            | map(attribute='entity_id')
+            | list -%}
+          {{ entities|count }}
+        available_entities: >-
+          {%- set entities =
+            expand(area_entities('Kitchen'))
+            | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+            | rejectattr('state','eq','unknown')
+            | rejectattr('state','eq','unavailable')
+            | map(attribute='entity_id')
+            | list -%}
+          {%- if entities|count > 0 -%}
+            {{ entities|join(',') }}
+          {%- endif %}
+        available_values: >-
+          {%- set values =
+            expand(area_entities('Kitchen'))
+            | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+            | rejectattr('state','eq','unknown')
+            | rejectattr('state','eq','unavailable')
+            | map(attribute='state')
+            | map('float') | list -%}
+          {%- if values|count > 0 -%}
+            {{ values|join(',') }}
+          {%- endif %}
+        unavailable_count: >-
+          {%- set entities =
+            expand(area_entities('Kitchen'))
+            | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+            | selectattr('state','eq','unavailable')
+            | map(attribute='entity_id')
+            | list -%}
+          {{ entities|count }}
+        unavailable_entities: >-
+          {%- set entities =
+            expand(area_entities('Kitchen'))
+            | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+            | selectattr('state','eq','unavailable')
+            | map(attribute='entity_id')
+            | list -%}
+          {%- if entities|count > 0 -%}
+            {{ entities|join(',') }}
+          {%- endif %}
+
+    - name: "Laundry Lights power"
+      device_class: power
+      state_class: measurement
+      unit_of_measurement: W
+      icon: >
+        {%- set entities =
+          expand(area_entities('Laundry'))
+          | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+          | selectattr('state','ne','unavailable')
+          | map(attribute='entity_id')
+          | list -%}
+        {%- if entities|count > 0 -%}
+          mdi:lightbulb-group-outline
+        {%- else -%}
+          mdi:lightbulb-group-off-outline
+        {%- endif %}
+      availability: >
+        {%- set entities =
+          expand(area_entities('Laundry'))
+          | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+          | rejectattr('state','eq','unknown')
+          | rejectattr('state','eq','unavailable')
+          | map(attribute='entity_id')
+          | list -%}
+        {%- if entities|count > 0 -%}
+          true
+        {%- else -%}
+          false
+        {%- endif %}
+      state: >
+        {%- set values =
+          expand(area_entities('Laundry'))
+          | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+          | rejectattr('state','eq','unknown')
+          | rejectattr('state','eq','unavailable')
+          | map(attribute='state')
+          | map('float') | list -%}
+        {%- if values|count > 0 -%}
+          {{ values|sum|round(2) }}
+        {%- endif %}
+      attributes:
+        available_count: >-
+          {%- set entities =
+            expand(area_entities('Laundry'))
+            | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+            | rejectattr('state','eq','unknown')
+            | rejectattr('state','eq','unavailable')
+            | map(attribute='entity_id')
+            | list -%}
+          {{ entities|count }}
+        available_entities: >-
+          {%- set entities =
+            expand(area_entities('Laundry'))
+            | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+            | rejectattr('state','eq','unknown')
+            | rejectattr('state','eq','unavailable')
+            | map(attribute='entity_id')
+            | list -%}
+          {%- if entities|count > 0 -%}
+            {{ entities|join(',') }}
+          {%- endif %}
+        available_values: >-
+          {%- set values =
+            expand(area_entities('Laundry'))
+            | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+            | rejectattr('state','eq','unknown')
+            | rejectattr('state','eq','unavailable')
+            | map(attribute='state')
+            | map('float') | list -%}
+          {%- if values|count > 0 -%}
+            {{ values|join(',') }}
+          {%- endif %}
+        unavailable_count: >-
+          {%- set entities =
+            expand(area_entities('Laundry'))
+            | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+            | selectattr('state','eq','unavailable')
+            | map(attribute='entity_id')
+            | list -%}
+          {{ entities|count }}
+        unavailable_entities: >-
+          {%- set entities =
+            expand(area_entities('Laundry'))
+            | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+            | selectattr('state','eq','unavailable')
+            | map(attribute='entity_id')
+            | list -%}
+          {%- if entities|count > 0 -%}
+            {{ entities|join(',') }}
+          {%- endif %}
+
+    - name: "Lounge Lights power"
+      device_class: power
+      state_class: measurement
+      unit_of_measurement: W
+      icon: >
+        {%- set entities =
+          expand(area_entities('Lounge'))
+          | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+          | selectattr('state','ne','unavailable')
+          | map(attribute='entity_id')
+          | list -%}
+        {%- if entities|count > 0 -%}
+          mdi:lightbulb-group-outline
+        {%- else -%}
+          mdi:lightbulb-group-off-outline
+        {%- endif %}
+      availability: >
+        {%- set entities =
+          expand(area_entities('Lounge'))
+          | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+          | rejectattr('state','eq','unknown')
+          | rejectattr('state','eq','unavailable')
+          | map(attribute='entity_id')
+          | list -%}
+        {%- if entities|count > 0 -%}
+          true
+        {%- else -%}
+          false
+        {%- endif %}
+      state: >
+        {%- set values =
+          expand(area_entities('Lounge'))
+          | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+          | rejectattr('state','eq','unknown')
+          | rejectattr('state','eq','unavailable')
+          | map(attribute='state')
+          | map('float') | list -%}
+        {%- if values|count > 0 -%}
+          {{ values|sum|round(2) }}
+        {%- endif %}
+      attributes:
+        available_count: >-
+          {%- set entities =
+            expand(area_entities('Lounge'))
+            | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+            | rejectattr('state','eq','unknown')
+            | rejectattr('state','eq','unavailable')
+            | map(attribute='entity_id')
+            | list -%}
+          {{ entities|count }}
+        available_entities: >-
+          {%- set entities =
+            expand(area_entities('Lounge'))
+            | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+            | rejectattr('state','eq','unknown')
+            | rejectattr('state','eq','unavailable')
+            | map(attribute='entity_id')
+            | list -%}
+          {%- if entities|count > 0 -%}
+            {{ entities|join(',') }}
+          {%- endif %}
+        available_values: >-
+          {%- set entities =
+            expand(area_entities('Lounge'))
+            | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+            | rejectattr('state','eq','unknown')
+            | rejectattr('state','eq','unavailable')
+            | map(attribute='state')
+            | map('float') | list -%}
+          {%- if values|count > 0 -%}
+            {{ values|join(',') }}
+          {%- endif %}
+        unavailable_count: >-
+          {%- set entities =
+            expand(area_entities('Lounge'))
+            | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+            | selectattr('state','eq','unavailable')
+            | map(attribute='entity_id')
+            | list -%}
+          {{ entities|count }}
+        unavailable_entities: >-
+          {%- set entities =
+            expand(area_entities('Lounge'))
+            | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+            | selectattr('state','eq','unavailable')
+            | map(attribute='entity_id')
+            | list -%}
+          {%- if entities|count > 0 -%}
+            {{ entities|join(',') }}
+          {%- endif %}
+
+    - name: "Master Bedroom Lights power"
+      device_class: power
+      state_class: measurement
+      unit_of_measurement: W
+      icon: >
+        {%- set entities =
+          expand(area_entities('Master Bedroom'))
+          | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+          | selectattr('state','ne','unavailable')
+          | map(attribute='entity_id')
+          | list -%}
+        {%- if entities|count > 0 -%}
+          mdi:lightbulb-group-outline
+        {%- else -%}
+          mdi:lightbulb-group-off-outline
+        {%- endif %}
+      availability: >
+        {%- set entities =
+          expand(area_entities('Master Bedroom'))
+          | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+          | rejectattr('state','eq','unknown')
+          | rejectattr('state','eq','unavailable')
+          | map(attribute='entity_id')
+          | list -%}
+        {%- if entities|count > 0 -%}
+          true
+        {%- else -%}
+          false
+        {%- endif %}
+      state: >
+        {%- set values =
+          expand(area_entities('Master Bedroom'))
+          | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+          | rejectattr('state','eq','unknown')
+          | rejectattr('state','eq','unavailable')
+          | map(attribute='state')
+          | map('float') | list -%}
+        {%- if values|count > 0 -%}
+          {{ values|sum|round(2) }}
+        {%- endif %}
+      attributes:
+        available_count: >-
+          {%- set entities =
+            expand(area_entities('Master Bedroom'))
+            | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+            | rejectattr('state','eq','unknown')
+            | rejectattr('state','eq','unavailable')
+            | map(attribute='entity_id')
+            | list -%}
+          {{ entities|count }}
+        available_entities: >-
+          {%- set entities =
+            expand(area_entities('Master Bedroom'))
+            | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+            | rejectattr('state','eq','unknown')
+            | rejectattr('state','eq','unavailable')
+            | map(attribute='entity_id')
+            | list -%}
+          {%- if entities|count > 0 -%}
+            {{ entities|join(',') }}
+          {%- endif %}
+        available_values: >-
+          {%- set values =
+            expand(area_entities('Master Bedroom'))
+            | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+            | rejectattr('state','eq','unknown')
+            | rejectattr('state','eq','unavailable')
+            | map(attribute='state')
+            | map('float') | list -%}
+          {%- if values|count > 0 -%}
+            {{ values|join(',') }}
+          {%- endif %}
+        unavailable_count: >-
+          {%- set entities =
+            expand(area_entities('Master Bedroom'))
+            | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+            | selectattr('state','eq','unavailable')
+            | map(attribute='entity_id')
+            | list -%}
+          {{ entities|count }}
+        unavailable_entities: >-
+          {%- set entities =
+            expand(area_entities('Master Bedroom'))
+            | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+            | selectattr('state','eq','unavailable')
+            | map(attribute='entity_id')
+            | list -%}
+          {%- if entities|count > 0 -%}
+            {{ entities|join(',') }}
+          {%- endif %}
+
+    - name: "Study Lights power"
+      device_class: power
+      state_class: measurement
+      unit_of_measurement: W
+      icon: >
+        {%- set entities =
+          expand(area_entities('Study'))
+          | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+          | selectattr('state','ne','unavailable')
+          | map(attribute='entity_id')
+          | list -%}
+        {%- if entities|count > 0 -%}
+          mdi:lightbulb-group-outline
+        {%- else -%}
+          mdi:lightbulb-group-off-outline
+        {%- endif %}
+      availability: >
+        {%- set entities =
+          expand(area_entities('Study'))
+          | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+          | rejectattr('state','eq','unknown')
+          | rejectattr('state','eq','unavailable')
+          | map(attribute='entity_id')
+          | list -%}
+        {%- if entities|count > 0 -%}
+          true
+        {%- else -%}
+          false
+        {%- endif %}
+      state: >
+        {%- set values =
+          expand(area_entities('Study'))
+          | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+          | rejectattr('state','eq','unknown')
+          | rejectattr('state','eq','unavailable')
+          | map(attribute='state')
+          | map('float') | list -%}
+        {%- if values|count > 0 -%}
+          {{ values|sum|round(2) }}
+        {%- endif %}
+      attributes:
+        available_count: >-
+          {%- set entities =
+            expand(area_entities('Study'))
+            | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+            | rejectattr('state','eq','unknown')
+            | rejectattr('state','eq','unavailable')
+            | map(attribute='entity_id')
+            | list -%}
+          {{ entities|count }}
+        available_entities: >-
+          {%- set entities =
+            expand(area_entities('Study'))
+            | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+            | rejectattr('state','eq','unknown')
+            | rejectattr('state','eq','unavailable')
+            | map(attribute='entity_id')
+            | list -%}
+          {%- if entities|count > 0 -%}
+            {{ entities|join(',') }}
+          {%- endif %}
+        available_values: >-
+          {%- set values =
+            expand(area_entities('Study'))
+            | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+            | rejectattr('state','eq','unknown')
+            | rejectattr('state','eq','unavailable')
+            | map(attribute='state')
+            | map('float') | list -%}
+          {%- if values|count > 0 -%}
+            {{ values|join(',') }}
+          {%- endif %}
+        unavailable_count: >-
+          {%- set entities =
+            expand(area_entities('Study'))
+            | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+            | selectattr('state','eq','unavailable')
+            | map(attribute='entity_id')
+            | list -%}
+          {{ entities|count }}
+        unavailable_entities: >-
+          {%- set entities =
+            expand(area_entities('Study'))
+            | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+            | selectattr('state','eq','unavailable')
+            | map(attribute='entity_id')
+            | list -%}
+          {%- if entities|count > 0 -%}
+            {{ entities|join(',') }}
+          {%- endif %}
+
+    - name: "Toilet Lights power"
+      device_class: power
+      state_class: measurement
+      unit_of_measurement: W
+      icon: >
+        {%- set entities =
+          expand(area_entities('Toilet'))
+          | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+          | selectattr('state','ne','unavailable')
+          | map(attribute='entity_id')
+          | list -%}
+        {%- if entities|count > 0 -%}
+          mdi:lightbulb-group-outline
+        {%- else -%}
+          mdi:lightbulb-group-off-outline
+        {%- endif %}
+      availability: >
+        {%- set entities =
+          expand(area_entities('Toilet'))
+          | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+          | rejectattr('state','eq','unknown')
+          | rejectattr('state','eq','unavailable')
+          | map(attribute='entity_id')
+          | list -%}
+        {%- if entities|count > 0 -%}
+          true
+        {%- else -%}
+          false
+        {%- endif %}
+      state: >
+        {%- set values =
+          expand(area_entities('Toilet'))
+          | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+          | rejectattr('state','eq','unknown')
+          | rejectattr('state','eq','unavailable')
+          | map(attribute='state')
+          | map('float') | list -%}
+        {%- if values|count > 0 -%}
+          {{ values|sum|round(2) }}
+        {%- endif %}
+      attributes:
+        available_count: >-
+          {%- set entities =
+            expand(area_entities('Toilet'))
+            | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+            | rejectattr('state','eq','unknown')
+            | rejectattr('state','eq','unavailable')
+            | map(attribute='entity_id')
+            | list -%}
+          {{ entities|count }}
+        available_entities: >-
+          {%- set entities =
+            expand(area_entities('Toilet'))
+            | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+            | rejectattr('state','eq','unknown')
+            | rejectattr('state','eq','unavailable')
+            | map(attribute='entity_id')
+            | list -%}
+          {%- if entities|count > 0 -%}
+            {{ entities|join(',') }}
+          {%- endif %}
+        available_values: >-
+          {%- set values =
+            expand(area_entities('Toilet'))
+            | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+            | rejectattr('state','eq','unknown')
+            | rejectattr('state','eq','unavailable')
+            | map(attribute='state')
+            | map('float') | list -%}
+          {%- if values|count > 0 -%}
+            {{ values|join(',') }}
+          {%- endif %}
+        unavailable_count: >-
+          {%- set entities =
+            expand(area_entities('Toilet'))
+            | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+            | selectattr('state','eq','unavailable')
+            | map(attribute='entity_id')
+            | list -%}
+          {{ entities|count }}
+        unavailable_entities: >-
+          {%- set entities =
+            expand(area_entities('Toilet'))
+            | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+            | selectattr('state','eq','unavailable')
+            | map(attribute='entity_id')
+            | list -%}
+          {%- if entities|count > 0 -%}
+            {{ entities|join(',') }}
+          {%- endif %}
+
+    - name: "Toolshed Lights power"
+      device_class: power
+      state_class: measurement
+      unit_of_measurement: W
+      icon: >
+        {%- set entities =
+          expand(area_entities('Toolshed'))
+          | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+          | selectattr('state','ne','unavailable')
+          | map(attribute='entity_id')
+          | list -%}
+        {%- if entities|count > 0 -%}
+          mdi:lightbulb-group-outline
+        {%- else -%}
+          mdi:lightbulb-group-off-outline
+        {%- endif %}
+      availability: >
+        {%- set entities =
+          expand(area_entities('Toolshed'))
+          | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+          | rejectattr('state','eq','unknown')
+          | rejectattr('state','eq','unavailable')
+          | map(attribute='entity_id')
+          | list -%}
+        {%- if entities|count > 0 -%}
+          true
+        {%- else -%}
+          false
+        {%- endif %}
+      state: >
+        {%- set values =
+          expand(area_entities('Toolshed'))
+          | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+          | rejectattr('state','eq','unknown')
+          | rejectattr('state','eq','unavailable')
+          | map(attribute='state')
+          | map('float') | list -%}
+        {%- if values|count > 0 -%}
+          {{ values|sum|round(2) }}
+        {%- endif %}
+      attributes:
+        available_count: >-
+          {%- set entities =
+            expand(area_entities('Toolshed'))
+            | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+            | rejectattr('state','eq','unknown')
+            | rejectattr('state','eq','unavailable')
+            | map(attribute='entity_id')
+            | list -%}
+          {{ entities|count }}
+        available_entities: >-
+          {%- set entities =
+            expand(area_entities('Toolshed'))
+            | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+            | rejectattr('state','eq','unknown')
+            | rejectattr('state','eq','unavailable')
+            | map(attribute='entity_id')
+            | list -%}
+          {%- if entities|count > 0 -%}
+            {{ entities|join(',') }}
+          {%- endif %}
+        available_values: >-
+          {%- set values =
+            expand(area_entities('Toolshed'))
+            | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+            | rejectattr('state','eq','unknown')
+            | rejectattr('state','eq','unavailable')
+            | map(attribute='state')
+            | map('float') | list -%}
+          {%- if values|count > 0 -%}
+            {{ values|join(',') }}
+          {%- endif %}
+        unavailable_count: >-
+          {%- set entities =
+            expand(area_entities('Toolshed'))
+            | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+            | selectattr('state','eq','unavailable')
+            | map(attribute='entity_id')
+            | list -%}
+          {{ entities|count }}
+        unavailable_entities: >-
+          {%- set entities =
+            expand(area_entities('Toolshed'))
+            | selectattr('entity_id','match','sensor\..*(lamp|light).*_power')
+            | selectattr('state','eq','unavailable')
+            | map(attribute='entity_id')
+            | list -%}
+          {%- if entities|count > 0 -%}
+            {{ entities|join(',') }}
+          {%- endif %}

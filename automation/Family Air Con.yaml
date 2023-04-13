@@ -1,0 +1,291 @@
+alias: Family Air Con
+description: ""
+trigger:
+  - platform: state
+    entity_id:
+      - input_select.family_room_time
+      - input_select.family_room_activity
+      - input_select.family_room_presence
+  - platform: state
+    entity_id:
+      - input_select.family_room_humidity
+      - input_select.family_room_air_quality
+      - input_select.family_room_temperature
+  - platform: state
+    entity_id:
+      - input_select.electricity_rate
+  - platform: state
+    entity_id:
+      - input_boolean.deck_door
+  - platform: state
+    entity_id:
+      - input_number.family_room_temperature_target_low
+      - input_number.family_room_temperature_target_high
+condition: []
+action:
+  - choose:
+      - alias: Set the air con to something if it doesn't cost us anything
+        conditions:
+          - condition: state
+            entity_id: input_select.electricity_rate
+            state: free
+        sequence:
+          - choose:
+              - alias: Heat fast if cold
+                conditions:
+                  - condition: state
+                    entity_id: input_select.family_room_temperature
+                    state:
+                      - cold
+                      - very-cold
+                      - extremely-cold
+                sequence:
+                  - service: script.family_air_con_heat_fast
+                    data: {}
+              - alias: Cool fast if hot
+                conditions:
+                  - condition: state
+                    entity_id: input_select.family_room_temperature
+                    state:
+                      - hot
+                      - very-hot
+                      - extremely-hot
+                sequence:
+                  - service: script.family_air_con_cool_fast
+                    data: {}
+              - alias: Dehumidify fast if absent and extremely-humid, very-humid or humid
+                conditions:
+                  - condition: state
+                    entity_id: input_select.family_room_temperature
+                    state:
+                      - extremely-humid
+                      - very-humid
+                      - humid
+                  - condition: state
+                    entity_id: input_select.family_room_presence
+                    state: absent
+                sequence:
+                  - service: script.family_air_con_dehumidify_fast
+                    data: {}
+              - alias: Dehumidify if present and extremely-humid or very-humid
+                conditions:
+                  - condition: state
+                    entity_id: input_select.family_room_temperature
+                    state:
+                      - extremely-humid
+                      - very-humid
+                  - condition: state
+                    entity_id: input_select.family_room_presence
+                    state: present
+                sequence:
+                  - service: script.family_air_con_dehumidify
+                    data: {}
+              - alias: Dehumidify quiently if present and just humid
+                conditions:
+                  - condition: state
+                    entity_id: input_select.family_room_temperature
+                    state:
+                      - humid
+                  - condition: state
+                    entity_id: input_select.family_room_presence
+                    state: present
+                sequence:
+                  - service: script.family_air_con_dehumidify_quietly
+                    data: {}
+            default:
+              - service: script.family_air_con_clean_air
+                data: {}
+      - alias: Fan cool if deck door opened and its hot or humid and not cold
+        conditions:
+          - condition: state
+            entity_id: input_boolean.deck_door
+            state: "on"
+        sequence:
+          - choose:
+              - alias: Eco cool if hot or extremely-humid or very-humid
+                conditions:
+                  - or:
+                      - condition: state
+                        entity_id: input_select.family_room_temperature
+                        state:
+                          - hot
+                          - very-hot
+                          - extremely-hot
+                      - and:
+                          - condition: state
+                            entity_id: input_select.family_room_temperature
+                            state:
+                              - normal
+                          - condition: state
+                            entity_id: input_select.family_room_humidity
+                            state:
+                              - very-humid
+                              - extremely_humid
+                sequence:
+                  - service: script.family_air_con_eco_cool
+                    data: {}
+              - alias: Eco dehumidify if very-humid
+                conditions:
+                  - condition: state
+                    entity_id: input_select.family_room_temperature
+                    state:
+                      - normal
+                  - condition: state
+                    entity_id: input_select.family_room_humidity
+                    state:
+                      - humid
+                sequence:
+                  - service: script.family_air_con_eco_dehumidify
+                    data: {}
+            default:
+              - service: script.family_air_con_off
+                data: {}
+      - alias: Dehumidify fast if absent and extremely-humid
+        conditions:
+          - condition: state
+            entity_id: input_select.family_room_presence
+            state: absent
+          - condition: state
+            entity_id: input_select.family_room_humidity
+            state:
+              - extremely-humid
+        sequence:
+          - service: script.family_air_con_dehumidify_fast
+            data: {}
+      - alias: (Eco)dehumidify if absent, very-humid and cheap electricity or not
+        conditions:
+          - condition: state
+            entity_id: input_select.family_room_presence
+            state: absent
+          - condition: state
+            entity_id: input_select.family_room_humidity
+            state:
+              - very-humid
+        sequence:
+          - if:
+              - condition: state
+                entity_id: input_select.electricity_rate
+                state:
+                  - free
+                  - offpeak
+                  - shoulder
+            then:
+              - service: script.family_air_con_dehumidify
+                data: {}
+            else:
+              - service: script.family_air_con_eco_dehumidify
+                data: {}
+      - conditions:
+          - condition: state
+            entity_id: input_select.family_room_presence
+            state: absent
+          - condition: state
+            entity_id: input_select.family_room_humidity
+            state:
+              - humid
+        sequence:
+          - if:
+              - condition: state
+                entity_id: input_select.electricity_rate
+                state: offpeak
+            then:
+              - service: script.family_air_con_dehumidify
+                data: {}
+            else:
+              - service: script.family_air_con_eco_dehumidify
+                data: {}
+      - conditions:
+          - condition: state
+            entity_id: input_select.family_room_presence
+            state:
+              - present
+              - leave
+          - condition: state
+            entity_id: input_select.family_room_temperature
+            state:
+              - extremely-hot
+              - very-hot
+        sequence:
+          - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: input_select.electricity_rate
+                    state: offpeak
+                sequence:
+                  - service: script.family_air_con_cool_fast
+                    data: {}
+              - conditions:
+                  - condition: state
+                    entity_id: input_select.electricity_rate
+                    state: shoulder
+                sequence:
+                  - service: script.family_air_con_cool
+                    data: {}
+              - conditions:
+                  - condition: state
+                    entity_id: input_select.electricity_rate
+                    state: peak
+                sequence:
+                  - service: script.family_air_con_eco_cool
+                    data: {}
+      - conditions:
+          - condition: state
+            entity_id: input_select.family_room_presence
+            state:
+              - present
+              - leave
+          - condition: state
+            entity_id: input_select.family_room_temperature
+            state:
+              - hot
+        sequence:
+          - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: input_select.electricity_rate
+                    state: offpeak
+                sequence:
+                  - service: script.family_air_con_cool
+                    data: {}
+              - conditions:
+                  - condition: state
+                    entity_id: input_select.electricity_rate
+                    state:
+                      - shoulder
+                      - peak
+                sequence:
+                  - service: script.family_air_con_eco_cool
+                    data: {}
+      - conditions:
+          - condition: state
+            entity_id: input_select.family_room_presence
+            state:
+              - present
+              - leave
+          - condition: state
+            entity_id: input_select.family_room_humidity
+            state:
+              - very-humid
+              - humid
+        sequence:
+          - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: input_select.electricity_rate
+                    state: offpeak
+                sequence:
+                  - service: script.family_air_con_dehumidify
+                    data: {}
+              - conditions:
+                  - condition: state
+                    entity_id: input_select.electricity_rate
+                    state:
+                      - shoulder
+                      - peak
+                sequence:
+                  - service: script.family_air_con_eco_dehumidify
+                    data: {}
+    default:
+      - service: script.family_air_con_off
+        data: {}
+mode: restart
