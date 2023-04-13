@@ -5,12 +5,11 @@ blueprint:
   source_url: https://github.com/konstar/hass/blob/main/blueprints/DEVICE-Dehumidifier.yaml
   input:
     dehumidifier:
-      name: Dehumidifier Switch
-      description: Switch to turn on/off the dehumidifier
+      name: Dehumidifier
+      description: Entity that controls the dehumidifier
       selector:
         entity:
-          domain: switch
-          device_class: switch
+          domain: fan
           multiple: false
     dehumidifier_activity:
       name: Dehumidifier Activity Helper
@@ -117,7 +116,7 @@ action:
                               entity_id: !input dehumidifier
                               state: "off"
                       sequence:
-                        - service: switch.turn_off
+                        - service: fan.turn_off
                           entity_id: !input dehumidifier
                         - delay:
                             minutes: 1
@@ -143,7 +142,7 @@ action:
                       entity_id: !input dehumidifier
                       state: "off"
               sequence:
-                - service: switch.turn_off
+                - service: fan.turn_off
                   entity_id: !input dehumidifier
                 - delay:
                     minutes: 1
@@ -166,7 +165,7 @@ action:
                       entity_id: !input dehumidifier
                       state: "off"
               sequence:
-                - service: switch.turn_off
+                - service: fan.turn_off
                   entity_id: !input dehumidifier
                 - delay:
                     minutes: 1
@@ -193,7 +192,7 @@ action:
                       entity_id: !input dehumidifier
                       state: "off"
               sequence:
-                - service: switch.turn_off
+                - service: fan.turn_off
                   entity_id: !input dehumidifier
                 - delay:
                     minutes: 1
@@ -227,7 +226,7 @@ action:
                       entity_id: !input dehumidifier
                       state: "off"
               sequence:
-                - service: switch.turn_off
+                - service: fan.turn_off
                   entity_id: !input dehumidifier
                 - delay:
                     minutes: 1
@@ -259,7 +258,29 @@ action:
                       entity_id: !input dehumidifier
                       state: "off"
               sequence:
-                - service: switch.turn_off
+                - service: fan.turn_off
+                  entity_id: !input dehumidifier
+                - delay:
+                    minutes: 1
+      - alias: Switch off the dehumidifier if we are offgrid
+        conditions:
+          - condition: state
+            entity_id: input_select.electricity_rate
+            state:
+              - offgrid
+        sequence:
+          - repeat:
+              while:
+                - condition: state
+                  entity_id: input_select.electricity_rate
+                  state:
+                    - offgrid
+                - not:
+                    - condition: state
+                      entity_id: !input dehumidifier
+                      state: "off"
+              sequence:
+                - service: fan.turn_off
                   entity_id: !input dehumidifier
                 - delay:
                     minutes: 1
@@ -271,7 +292,7 @@ action:
                   entity_id: !input dehumidifier
                   state: "on"
           sequence:
-            - service: switch.turn_on
+            - service: fan.turn_on
               entity_id: !input dehumidifier
             - delay:
                 minutes: 1
