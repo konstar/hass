@@ -89,7 +89,10 @@ trigger:
     entity_id:
       - !input temperature_target_high
       - !input temperature_target_low
-condition: []
+condition:
+  - condition: state
+    entity_id: input_boolean.grid_connected
+    state: "on"
 action:
   - choose:
       - conditions:
@@ -137,10 +140,12 @@ action:
                       - condition: state
                         entity_id: !input temperature
                         state:
+                          - extremely-hot
                           - very-hot
                       - condition: state
                         entity_id: !input humidity
                         state:
+                          - extremely-humid
                           - very-humid
                           - humid
         sequence:
@@ -172,6 +177,7 @@ action:
                           - normal
                           - cold
                           - very-cold
+                          - extremely-cold
                       - condition: state
                         entity_id: !input presence
                         state:
@@ -204,17 +210,24 @@ action:
                     state: cool
                 sequence:
                   - if:
-                      - condition: state
-                        entity_id: !input temperature
-                        state:
-                          - normal
-                          - hot
-                          - very-hot
-                      - condition: state
-                        entity_id: !input presence
-                        state:
-                          - enter
-                          - present
+                      - or:
+                          - and:
+                              - condition: state
+                                entity_id: !input temperature
+                                state:
+                                  - extremely-hot
+                          - and:
+                              - condition: state
+                                entity_id: !input temperature
+                                state:
+                                  - normal
+                                  - hot
+                                  - very-hot
+                              - condition: state
+                                entity_id: !input presence
+                                state:
+                                  - enter
+                                  - present
                     then:
                       - service: climate.turn_on
                         target:
@@ -243,16 +256,23 @@ action:
                 sequence:
                   - choose:
                       - conditions:
-                          - condition: state
-                            entity_id: !input temperature
-                            state:
-                              - hot
-                              - very-hot
-                          - condition: state
-                            entity_id: !input presence
-                            state:
-                              - enter
-                              - present
+                          - or:
+                              - and:
+                                  - condition: state
+                                    entity_id: !input temperature
+                                    state:
+                                      - extremely-hot
+x                             - and:
+                                  - condition: state
+                                    entity_id: !input temperature
+                                    state:
+                                      - hot
+                                      - very-hot
+x                                 - condition: state
+                                    entity_id: !input presence
+                                    state:
+                                      - enter
+                                      - present
                         sequence:
                           - service: climate.turn_on
                             target:
@@ -296,7 +316,9 @@ action:
                       - conditions:
                           - condition: state
                             entity_id: !input humidity
-                            state: very-humid
+                            state:
+                              - very-humid
+                              - extremely-humid
                         sequence:
                           - service: climate.turn_on
                             target:
