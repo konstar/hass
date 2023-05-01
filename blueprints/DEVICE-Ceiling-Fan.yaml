@@ -65,6 +65,10 @@ trigger:
     - !input air_quality
 - platform: state
   entity_id: climate.home_air_con
+- platform: state
+  entoty_id: input_boolean.home_connected
+  from: "off"
+  to: "on"
 condition: []
 action:
 - choose:
