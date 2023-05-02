@@ -171,18 +171,24 @@ action:
                     state: heat
                 sequence:
                   - if:
-                      - condition: state
-                        entity_id: !input temperature
-                        state:
-                          - normal
-                          - cold
-                          - very-cold
-                          - extremely-cold
-                      - condition: state
-                        entity_id: !input presence
-                        state:
-                          - enter
-                          - present
+                      - or:
+                          - and:
+                              - condition: state
+                                entity_id: !input temperature
+                                state:
+                                  - extremely-cold
+                          - and:
+                              - condition: state
+                                entity_id: !input temperature
+                                state:
+                                  - normal
+                                  - cold
+                                  - very-cold
+                              - condition: state
+                                entity_id: !input presence
+                                state:
+                                  - enter
+                                  - present
                     then:
                       - service: climate.turn_on
                         target:
@@ -262,13 +268,13 @@ action:
                                     entity_id: !input temperature
                                     state:
                                       - extremely-hot
-x                             - and:
+                              - and:
                                   - condition: state
                                     entity_id: !input temperature
                                     state:
                                       - hot
                                       - very-hot
-x                                 - condition: state
+                                  - condition: state
                                     entity_id: !input presence
                                     state:
                                       - enter
