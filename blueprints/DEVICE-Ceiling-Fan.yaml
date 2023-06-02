@@ -69,6 +69,8 @@ trigger:
   entity_id: input_boolean.home_connected
   from: "off"
   to: "on"
+  for:
+    minutes: 5
 condition: []
 action:
 - choose:
