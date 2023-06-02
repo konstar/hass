@@ -89,10 +89,7 @@ trigger:
     entity_id:
       - !input temperature_target_high
       - !input temperature_target_low
-condition:
-  - condition: state
-    entity_id: input_boolean.grid_connected
-    state: "on"
+condition: []
 action:
   - choose:
       - conditions:
