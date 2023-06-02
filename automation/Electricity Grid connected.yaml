@@ -1,0 +1,131 @@
+alias: Electricity Grid connected
+description: ""
+trigger:
+  - id: inverter_fault
+    platform: state
+    entity_id: sensor.solaredge_i1_status
+    to: I_STATUS_FAULT
+  - id: disconnected
+    platform: numeric_state
+    entity_id: sensor.electricity_grid_export
+    below: 5
+    for:
+      minutes: 5
+  - id: disconnected
+    platform: numeric_state
+    entity_id: sensor.electricity_grid_import
+    below: 5
+    for:
+      minutes: 5
+  - id: disconnected
+    platform: numeric_state
+    entity_id: sensor.grid_export
+    below: 5
+    for:
+      minutes: 5
+  - id: disconnected
+    platform: state
+    entity_id: sensor.grid_export
+    to: unavailable
+    for:
+      minutes: 5
+  - id: disconnected
+    platform: numeric_state
+    entity_id: sensor.grid_import
+    below: 5
+    for:
+      minutes: 5
+  - id: disconnected
+    platform: state
+    entity_id: sensor.grid_import
+    to: unavailable
+    for:
+      minutes: 5
+  - id: connected
+    platform: numeric_state
+    entity_id: sensor.electricity_grid_export
+    above: 5
+    for:
+      minutes: 2
+  - id: connected
+    platform: numeric_state
+    entity_id: sensor.electricity_grid_import
+    above: 5
+    for:
+      minutes: 2
+  - id: connected
+    platform: numeric_state
+    entity_id: sensor.grid_export
+    above: 5
+    for:
+      minutes: 2
+  - id: connected
+    platform: numeric_state
+    entity_id: sensor.grid_import
+    above: 5
+    for:
+      minutes: 2
+condition: []
+action:
+  - choose:
+      - conditions:
+          - condition: trigger
+            id: inverter_fault
+        sequence:
+          - service: input_boolean.turn_off
+            data: {}
+            target:
+              entity_id: input_boolean.electricity_grid_connected
+      - conditions:
+          - condition: trigger
+            id: disconnected
+          - condition: numeric_state
+            entity_id: sensor.electricity_grid_export
+            below: 5
+          - condition: numeric_state
+            entity_id: sensor.electricity_grid_import
+            below: 5
+          - or:
+              - and:
+                  - condition: numeric_state
+                    entity_id: sensor.grid_export
+                    below: 5
+                  - condition: numeric_state
+                    entity_id: sensor.grid_import
+                    below: 5
+              - and:
+                  - condition: state
+                    entity_id: sensor.grid_export
+                    state: unavailable
+                  - condition: state
+                    entity_id: sensor.grid_import
+                    state: unavailable
+        sequence:
+          - service: input_boolean.turn_off
+            data: {}
+            target:
+              entity_id: input_boolean.electricity_grid_connected
+      - conditions:
+          - condition: trigger
+            id: connected
+          - or:
+              - and:
+                  - condition: numeric_state
+                    entity_id: sensor.electricity_grid_export
+                    above: 10
+                  - condition: numeric_state
+                    entity_id: sensor.grid_export
+                    above: 10
+              - and:
+                  - condition: numeric_state
+                    entity_id: sensor.electricity_grid_import
+                    above: 10
+                  - condition: numeric_state
+                    entity_id: sensor.grid_import
+                    above: 10
+        sequence:
+          - service: input_boolean.turn_on
+            data: {}
+            target:
+              entity_id: input_boolean.electricity_grid_connected
+mode: single
