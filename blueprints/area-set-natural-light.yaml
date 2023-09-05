@@ -1,8 +1,8 @@
 blueprint:
-  name: AREA set natural light
+  name: AREA set natural light (blue)
   description: Figure out whether there is sufficient natural light in a room, which will eventually trigger artificial light to be switched on or off automatically
   domain: automation
-  source_url: https://github.com/konstar/hass/blob/main/blueprints/area-set-natural-light.yaml
+  source_url: https://github.com/konstar/hass/blob/main/blueprints/area-set-natural-light-blue.yaml
   input:
     artifical_light_source:
       name: Artifical light source
@@ -63,8 +63,12 @@ action:
             entity_id: !input natural_light_helper
       - conditions:
           - condition: state
-            entity_id: sun.sun
-            state: above_horizon
+            entity_id: !input light_sensor
+            state: unavailable
+        sequence:
+          - service: input_boolean.turn_on
+            entity_id: !input natural_light_helper
+      - conditions:
           - condition: state
             entity_id: !input artifical_light_source
             state: 'off'
@@ -76,9 +80,6 @@ action:
           - service: input_boolean.turn_on
             entity_id: !input natural_light_helper
       - conditions:
-          - condition: state
-            entity_id: sun.sun
-            state: above_horizon
           - condition: state
             entity_id: !input artifical_light_source
             state: 'off'
@@ -91,9 +92,6 @@ action:
             entity_id: !input natural_light_helper
       - conditions:
           - condition: state
-            entity_id: sun.sun
-            state: above_horizon
-          - condition: state
             entity_id: !input artifical_light_source
             state: 'on'
             match: any
@@ -105,9 +103,6 @@ action:
           - service: input_boolean.turn_on
             entity_id: !input natural_light_helper
       - conditions:
-          - condition: state
-            entity_id: sun.sun
-            state: above_horizon
           - condition: state
             entity_id: !input artifical_light_source
             state: 'on'
