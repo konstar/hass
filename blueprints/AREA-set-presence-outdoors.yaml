@@ -1,8 +1,8 @@
 blueprint:
-  name: AREA set presence
-  description: Set presence helper for the state of an area.
+  name: AREA set presence outdoors
+  description: Set presence helper for the state of an outdoor area
   domain: automation
-  source_url: https://github.com/konstar/hass/blob/main/blueprints/AREA-set-presence.yaml
+  source_url: https://github.com/konstar/hass/blob/main/blueprints/AREA-set-presence-outdoors.yaml
   input:
     activity_helper:
       name: Activity helper
@@ -43,7 +43,7 @@ blueprint:
     daytime_duration:
       name: Daytime presence duration
       description: Duration after last motion, area is marked as present during daytime.
-      default: 900
+      default: 600
       selector:
         number:
           min: 0
@@ -52,7 +52,7 @@ blueprint:
     evening_duration:
       name: Evening presence duration
       description: Duration after last motion, area is marked as present during evening.
-      default: 600
+      default: 300
       selector:
         number:
           min: 0
@@ -61,7 +61,7 @@ blueprint:
     midnight_duration:
       name: Midnight presence duration
       description: Duration after last motion, area is marked as present during midnight.
-      default: 300
+      default: 60
       selector:
         number:
           min: 0
@@ -102,18 +102,18 @@ trigger:
     to: "off"
     for:
       seconds: !input midnight_duration
-  - id: enter_2mins
+  - id: enter_to_
     platform: state
     entity_id: !input presence_helper
     to: enter
     for:
-      minutes: 2
-  - id: leave_2mins
+      seconds: 200
+  - id: leave_to_
     platform: state
     entity_id: !input presence_helper
     to: leave
     for:
-      minutes: 2
+      seconds: 200
   - id: sleep_on
     platform: state
     entity_id: !input activity_helper
@@ -135,15 +135,7 @@ trigger:
   - id: started
     platform: homeassistant
     event: start
-condition:
-  - not:
-      - and:
-          - condition: state
-            entity_id: input_boolean.home_presence
-            state: "off"
-          - condition: state
-            entity_id: vacuum.deebot
-            state: cleaning
+condition: []
 action:
   - choose:
       - conditions:
@@ -162,7 +154,7 @@ action:
               - enter
               - leave
             for:
-              minutes: 2
+              seconds: 200
           - not:
               - condition: state
                 entity_id: !input motion_sensor
@@ -181,7 +173,7 @@ action:
               - enter
               - leave
             for:
-              minutes: 2
+              seconds: 200
           - condition: state
             entity_id: !input motion_sensor
             state: "off"
