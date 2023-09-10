@@ -2,7 +2,7 @@ blueprint:
   name: AREA set air quality
   description: Set air quality selection for the state of an area.
   domain: automation
-  source_url: https://github.com/konstar/hass/blob/main/blueprints/area-set-air-quality.yaml
+  source_url: https://github.com/konstar/hass/blob/main/blueprints/AREA-set-air-quality.yaml
   input:
     area:
       name: Area input helper

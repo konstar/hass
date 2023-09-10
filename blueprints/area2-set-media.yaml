@@ -2,7 +2,7 @@ blueprint:
   name: AREA set media
   description: Set media player in an area to recieve announcements, play music or sleep.
   domain: automation
-  source_url: https://github.com/konstar/hass/blob/main/blueprints/area-set-media.yaml
+  source_url: https://github.com/konstar/hass/blob/main/blueprints/AREA-set-media.yaml
   input:
     area_activity:
       name: Area input helper for activity

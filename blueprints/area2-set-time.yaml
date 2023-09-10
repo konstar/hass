@@ -2,7 +2,7 @@ blueprint:
   name: AREA set time
   description: Set time selection for the state of an area.
   domain: automation
-  source_url: https://github.com/konstar/hass/blob/main/blueprints/area-set-time.yaml
+  source_url: https://github.com/konstar/hass/blob/main/blueprints/AREA-set-time.yaml
   input:
     area:
       name: Area input helper

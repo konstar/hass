@@ -1,8 +1,8 @@
 blueprint:
-  name: AREA Door set state
+  name: DEVICE Door set state
   description: Maintain door state when sensors are briefly offline. ON = door open, OFF = door closed
   domain: automation
-  source_url: https://github.com/konstar/hass/blob/main/blueprints/AREA-Door-set-state.yaml
+  source_url: https://github.com/konstar/hass/blob/main/blueprints/DEVICE-Door-set-state.yaml
   input:
     door:
       name: Door helper
