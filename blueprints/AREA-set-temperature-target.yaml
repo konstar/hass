@@ -2,7 +2,7 @@ blueprint:
   name: AREA set temperature target
   description: Set target temperature based on the activity state of an area.
   domain: automation
-  source_url: https://github.com/konstar/hass/blob/main/blueprints/area-set-temperature-target.yaml
+  source_url: https://github.com/konstar/hass/blob/main/blueprints/AREA-set-temperature-target.yaml
   input:
     activity:
       name: Activity helper

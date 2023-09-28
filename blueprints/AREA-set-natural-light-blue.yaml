@@ -2,7 +2,7 @@ blueprint:
   name: AREA set natural light (blue)
   description: Figure out whether there is sufficient natural light in a room, which will eventually trigger artificial light to be switched on or off automatically
   domain: automation
-  source_url: https://github.com/konstar/hass/blob/main/blueprints/area-set-natural-light-blue.yaml
+  source_url: https://github.com/konstar/hass/blob/main/blueprints/AREA-set-natural-light-blue.yaml
   input:
     artifical_light_source:
       name: Artifical light source
