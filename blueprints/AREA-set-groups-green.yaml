@@ -1,46 +1,22 @@
 blueprint:
-  name: AREA set groups (blue)
+  name: AREA set groups (green)
   description: Set entities within area based groups.
   domain: automation
-  source_url: https://github.com/konstar/hass/blob/main/blueprints/AREA-set-groups-blue.yaml
+  source_url: https://github.com/konstar/hass/blob/main/blueprints/AREA-set-groups-green.yaml
   input:
     area:
       name: Area
       description: Name of the Area this blueprint is for. E.g. "Deck"
       selector:
         text:
-    humidity_group:
-      name: Humidity group id
-      description: Group ID for humidity sensors. e.g. "deck_humidity"
-      selector:
-        text:
-    illuminance_group:
-      name: Illuminance group id
-      description: Group ID for illuminance sensors. e.g. "back_yard_illuminance"
-      selector:
-        text:
-    motion_group:
-      name: Motion group id
-      description: Group ID for motion binary sensors. e.g. "master_bedroom_motion"
-      selector:
-        text:
-    temperature_group:
-      name: Temperature group id
-      description: Group ID for temperature sensors. e.g. "lounge_temperature"
-      selector:
-        text:
 variables:
   area: !input "area"
-  humidity_group: !input "humidity_group"
-  illuminance_group: !input "illuminance_group"
-  motion_group: !input "motion_group"
-  temperature_group: !input "temperature_group"
 trigger:
   - platform: time_pattern
     hours: /1
   - platform: homeassistant
     event: start
-  - platform: event
+  - platform: eventx
     event_type: call_service
     event_data:
       domain: group
@@ -54,7 +30,7 @@ action:
       milliseconds: 0
   - service: group.set
     data:
-      object_id: !input "humidity_group"
+      object_id: "{{ area|lower|replace(' ','_') }}_humiidty"
       entities: >-
         {% set entities = expand(area_entities(area))
         | selectattr('domain','eq','sensor')
@@ -68,7 +44,7 @@ action:
         {% else %}[]{% endif %}
   - service: group.set
     data:
-      object_id: !input "illuminance_group"
+      object_id: "{{ area|lower|replace(' ','_') }}_illuminance"
       entities: >-
         {% set entities = expand(area_entities(area))
         | selectattr('domain','eq','sensor')
@@ -82,7 +58,7 @@ action:
         {% else %}[]{% endif %}
   - service: group.set
     data:
-      object_id: !input "motion_group"
+      object_id: "{{ area|lower|replace(' ','_') }}_motion"
       entities: >-
         {% set entities = expand(area_entities(area))
         | selectattr('domain','eq','binary_sensor')
@@ -95,7 +71,7 @@ action:
         {% else %}[]{% endif %}
   - service: group.set
     data:
-      object_id: !input "temperature_group"
+      object_id: "{{ area|lower|replace(' ','_') }}_temperature"
       entities: >-
         {% set entities = expand(area_entities(area))
         | selectattr('domain','eq','sensor')
