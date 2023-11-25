@@ -16,7 +16,7 @@ trigger:
     hours: /1
   - platform: homeassistant
     event: start
-  - platform: eventx
+  - platform: event
     event_type: call_service
     event_data:
       domain: group
