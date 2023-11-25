@@ -1,8 +1,8 @@
 blueprint:
-  name: AREA set groups (green)
+  name: AREA set groups (blue)
   description: Set entities within area based groups.
   domain: automation
-  source_url: https://github.com/konstar/hass/blob/main/blueprints/AREA-set-groups-green.yaml
+  source_url: https://github.com/konstar/hass/blob/main/blueprints/AREA-set-groups-blue.yaml
   input:
     area:
       name: Area
@@ -64,7 +64,7 @@ action:
         | selectattr('domain','eq','binary_sensor')
         | selectattr('attributes.device_class','defined')
         | selectattr('attributes.device_class','match','motion|moving|occupancy|presence')
-        | selectattr('entity_id','match','.*_hue_.*occupancy|.*_mi_motion')
+        | selectattr('entity_id','match','.*_occupancy')
         | map(attribute='entity_id') | list %}
         {% if entities|count > 0 %}
           {{ entities|join(',') }}
@@ -79,7 +79,7 @@ action:
         | selectattr('attributes.device_class','eq','temperature')
         | selectattr('attributes.unit_of_measurement','eq','°C')
         | select('ne','0')
-        | rejectattr('entity_id','match','.*_feels_like|.*_plug_temperature')
+        | rejectattr('entity_id','match','.*_feels_like|.*_plug_temperature|.*_device_temperature')
         | map(attribute='entity_id') | list %}
         {% if entities|count > 0 %}
           {{ entities|join(',') }}
