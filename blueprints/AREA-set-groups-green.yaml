@@ -1,8 +1,8 @@
 blueprint:
-  name: AREA set groups (blue)
+  name: AREA set groups (green)
   description: Set entities within area based groups.
   domain: automation
-  source_url: https://github.com/konstar/hass/blob/main/blueprints/AREA-set-groups-blue.yaml
+  source_url: https://github.com/konstar/hass/blob/main/blueprints/AREA-set-groups-green.yaml
   input:
     area:
       name: Area
@@ -30,7 +30,7 @@ action:
       milliseconds: 0
   - service: group.set
     data:
-      object_id: "{{ area|lower|replace(' ','_') }}_humidty"
+      object_id: "{{ area|lower|replace(' ','_') }}_humidity"
       entities: >-
         {% set entities = expand(area_entities(area))
         | selectattr('domain','eq','sensor')
