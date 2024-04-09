@@ -2,7 +2,7 @@ blueprint:
   name: AREA set groups (green)
   description: Set entities within area based groups.
   domain: automation
-  source_url: https://github.com/konstar/hass/blob/main/blueprints/AREA-set-groups-green.yaml
+  source_url: https://github.com/konstar/hass/blob/main/blueprints/AREA-set-groups-blue.yaml
   input:
     area:
       name: Area
