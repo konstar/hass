@@ -79,7 +79,7 @@ action:
         | selectattr('attributes.device_class','eq','temperature')
         | selectattr('attributes.unit_of_measurement','eq','°C')
         | select('ne','0')
-        | rejectattr('entity_id','match','.*_feels_like|.*_plug_temperature|.*_device_temperature')
+        | rejectattr('entity_id','match','.*_feels_like|.*_plug_temperature|.*_device_temperature|.*_bed_temperature')
         | map(attribute='entity_id') | list %}
         {% if entities|count > 0 %}
           {{ entities|join(',') }}
