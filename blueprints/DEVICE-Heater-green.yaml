@@ -1,8 +1,8 @@
 blueprint:
-  name: DEVICE Heater (blue)
+  name: DEVICE Heater (green)
   description: Manages the ducted vents of a Heating system
   domain: automation
-  source_url: https://github.com/konstar/hass/blob/main/blueprints/DEVICE-Heater-blue.yaml
+  source_url: https://github.com/konstar/hass/blob/main/blueprints/DEVICE-Heater-green.yaml
   input:
     heater:
       name: Heater
@@ -96,7 +96,7 @@ action:
       - conditions:
           - condition: state
             entity_id: !input heater
-            state: heat
+            state: "off"
           - condition: numeric_state
             entity_id: !input temperature_sensor
             below: 0
