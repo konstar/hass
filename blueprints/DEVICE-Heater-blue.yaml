@@ -87,8 +87,8 @@ trigger:
     attribute: temperature
   - platform: state
     entity_id:
-      - !input input temperature_target_low
-      - !input input temperature_target_high
+      - !input temperature_target_low
+      - !input temperature_target_high
 condition:
   - condition: state
     entity_id: !input automatic
