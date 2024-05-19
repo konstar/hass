@@ -49,14 +49,6 @@ variables:
   temperature_target_high: !input temperature_target_high
   temperature_target_low: !input temperature_target_low
 trigger:
-  - id: auto_on
-    platform: state
-    entity_id: !input automatic
-    to: "on"
-  - id: auto_off
-    platform: state
-    entity_id: !input automatic
-    to: "off"
   - id: home_open
     platform: state
     entity_id: input_boolean.home_open
