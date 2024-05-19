@@ -61,12 +61,12 @@ trigger:
     entity_id: !input presence
   - platform: numeric_state
     entity_id: !input temperature_sensor
-    above: 0
-    value_template: "{{ state.state|float - states(temperature_target_low)|float + 1 }}"
+    above: 1
+    value_template: "{{ state.state|float - states(temperature_target_low)|float }}"
   - platform: numeric_state
     entity_id: sensor.jaydens_room_temperature
-    below: 0
-    value_template: "{{ state.state|float - states(temperature_target_low)|float + 1 }}"
+    below: 1
+    value_template: "{{ state.state|float - states(temperature_target_low)|float }}"
   - platform: state
     entity_id: climate.home_heater
     attribute: temperature
@@ -88,8 +88,8 @@ action:
                     state: present
               - condition: numeric_state
                 entity_id: !input temperature_sensor
-                above: 0
-                value_template: "{{ state.state|float - states(temperature_target_low)|float + 1 }}"
+                above: 1
+                value_template: "{{ state.state|float - states(temperature_target_low)|float }}"
         sequence:
           - service: climate.turn_off
             entity_id: !input heater
