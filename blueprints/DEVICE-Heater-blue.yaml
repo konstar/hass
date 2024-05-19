@@ -1,8 +1,8 @@
 blueprint:
-  name: DEVICE Heater (green)
+  name: DEVICE Heater (blue)
   description: Manages the ducted vents of a Heating system
   domain: automation
-  source_url: https://github.com/konstar/hass/blob/main/blueprints/DEVICE-Heater-green.yaml
+  source_url: https://github.com/konstar/hass/blob/main/blueprints/DEVICE-Heater-blue.yaml
   input:
     heater:
       name: Heater
@@ -10,12 +10,6 @@ blueprint:
       selector:
         entity:
           domain: climate
-    automatic:
-      name: automatic
-      description: Helper to enable automatic climate management
-      selector:
-        entity:
-          domain: input_boolean
     presence:
       name: Presence Helper
       description: Presence helper of the room
@@ -49,7 +43,6 @@ blueprint:
           domain: input_number
 variables:
   heater: !input heater
-  automatic: !input automatic
   presence: !input presence
   temperature: !input temperature
   temperature_sensor: !input temperature_sensor
@@ -89,10 +82,7 @@ trigger:
     entity_id:
       - !input temperature_target_low
       - !input temperature_target_high
-condition:
-  - condition: state
-    entity_id: !input automatic
-    state: "on"
+condition: []
 action:
   - choose:
       - conditions:
