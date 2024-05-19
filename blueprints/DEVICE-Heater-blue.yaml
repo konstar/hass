@@ -1,0 +1,120 @@
+blueprint:
+  name: DEVICE Heater (blue)
+  description: Manages the ducted vents of a Heating system
+  domain: automation
+  source_url: https://github.com/konstar/hass/blob/main/blueprints/DEVICE-Heater-heater.yaml
+  input:
+    heater:
+      name: Heater
+      description: Heater of the room
+      selector:
+        entity:
+          domain: climate
+    automatic:
+      name: automatic
+      description: Helper to enable automatic climate management
+      selector:
+        entity:
+          domain: input_boolean
+    presence:
+      name: Presence Helper
+      description: Presence helper of the room
+      selector:
+        entity:
+          domain: input_select
+    temperature:
+      name: Temperature Helper
+      description: Temperature helper of the room
+      selector:
+        entity:
+          domain: input_select
+    temperature_sensor:
+      name: Temperature Sensor
+      description: Temperature sensor of the room
+      selector:
+        entity:
+          domain: sensor
+          device_class: temperature
+    temperature_target_high:
+      name: High Temperature Target Helper
+      description: High target temperature helper of the room
+      selector:
+        entity:
+          domain: input_number
+    temperature_target_low:
+      name: Low Temperature Target Helper
+      description: Low target temperature helper of the room
+      selector:
+        entity:
+          domain: input_number
+variables:
+  heater: !input heater
+  automatic: !input automatic
+  presence: !input presence
+  temperature: !input temperature
+  temperature_sensor: !input temperature_sensor
+  temperature_target_high: !input temperature_target_high
+  temperature_target_low: !input temperature_target_low
+trigger:
+  - id: auto_on
+    platform: state
+    entity_id: !input automatic
+    to: "on"
+  - id: auto_off
+    platform: state
+    entity_id: !input automatic
+    to: "off"
+  - id: home_open
+    platform: state
+    entity_id: input_boolean.home_open
+    to: "on"
+  - id: home_closed
+    platform: state
+    entity_id: input_boolean.home_open
+    to: "on"
+  - platform: state
+    entity_id: !input presence
+  - platform: numeric_state
+    entity_id: !input temperature_sensor
+    above: 0
+    value_template: "{{ states(temperature_target_low)|float + 1 }}"
+  - platform: numeric_state
+    entity_id: sensor.jaydens_room_temperature
+    below: 0
+    value_template: "{{ states(temperature_target_low)|float + 1 }}"
+  - platform: state
+    entity_id: climate.home_heater
+    attribute: temperature
+  - platform: state
+    entity_id:
+      - !input input temperature_target_low
+      - !input input temperature_target_high
+condition:
+  - condition: state
+    entity_id: !input automatic
+    state: "on"
+action:
+  - choose:
+      - conditions:
+          - or:
+              - condition: state
+                entity_id: input_boolean.home_open
+                state: "on"
+              - not:
+                  - condition: state
+                    entity_id: !input presence
+                    state: present
+              - condition: numeric_state
+                entity_id: !input temperature_sensor
+                above: 0
+                value_template: "{{ states(temperature_target_low)|float + 1 }}"
+        sequence:
+          - service: climate.turn_off
+            entity_id: !input heater
+    default:
+      - service: climate.set_hvac_mode
+        data:
+          hvac_mode: heat
+        target:
+          entity_id: !input heater
+mode: restart
