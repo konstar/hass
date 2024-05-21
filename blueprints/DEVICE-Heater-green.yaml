@@ -1,8 +1,8 @@
 blueprint:
-  name: DEVICE Heater (blue)
+  name: DEVICE Heater (green)
   description: Manages the ducted vents of a Heating system
   domain: automation
-  source_url: https://github.com/konstar/hass/blob/main/blueprints/DEVICE-Heater-blue.yaml
+  source_url: https://github.com/konstar/hass/blob/main/blueprints/DEVICE-Heater-green.yaml
   input:
     heater:
       name: Heater
@@ -59,14 +59,12 @@ trigger:
     to: "on"
   - platform: state
     entity_id: !input presence
-  - platform: numeric_state
-    entity_id: !input temperature_sensor
-    above: 1
-    value_template: "{{ float(state.state) - states(temperature_target_low)|float }}"
-  - platform: numeric_state
-    entity_id: !input temperature_sensor
-    below: 0
-    value_template: "{{ float(state.state) - states(temperature_target_low)|float }}"
+  - id: too_hot
+    platform: template
+    value_template: "{{ ( states(temperature_sensor)|float - states(temperature_target_low)|float ) > 0.5 }}"
+  - id: too_cold
+    platform: template
+    value_template: "{{ ( states(temperature_sensor)|float - states(temperature_target_low)|float ) < 0 }}"
   - platform: state
     entity_id: climate.home_heater
     attribute: temperature
@@ -90,6 +88,8 @@ action:
                 entity_id: !input temperature_sensor
                 above: 1
                 value_template: "{{ float(state.state) - states(temperature_target_low)|float }}"
+              - condition: template
+                value_template: "{{ ( states(temperature_sensor)|float - states(temperature_target_low)|float ) > 0.5 }}"
         sequence:
           - service: climate.turn_off
             entity_id: !input heater
@@ -97,10 +97,8 @@ action:
           - condition: state
             entity_id: !input heater
             state: "off"
-          - condition: numeric_state
-            entity_id: !input temperature_sensor
-            below: 0
-            value_template: "{{ float(state.state) - states(temperature_target_low)|float }}"
+          - condition: template
+            value_template: "{{ ( states(temperature_sensor)|float - states(temperature_target_low)|float ) < 0 }}"
         sequence:
           - service: climate.set_hvac_mode
             data:
