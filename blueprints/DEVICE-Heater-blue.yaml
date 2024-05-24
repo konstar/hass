@@ -73,7 +73,10 @@ trigger:
     entity_id: input_boolean.electricity_grid_connected
   - id: spike
     platform: state
-    entity_id: input_boolean.electricity_spike
+    entity_id: input_boolean.electricity_price_spike
+  - id: exporting
+    platform: state
+    entity_id: input_boolean.electricity_exporting
   - id: air_con
     platform: state
     entity_id: !input air_con
