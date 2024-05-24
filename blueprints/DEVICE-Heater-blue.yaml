@@ -10,6 +10,12 @@ blueprint:
       selector:
         entity:
           domain: climate
+    air_con:
+      name: Air Conditioner
+      description: Air Con of the room, that will take over if heating the room
+      selector:
+        entity:
+          domain: climate
     presence:
       name: Presence Helper
       description: Presence helper of the room
@@ -43,6 +49,7 @@ blueprint:
           domain: input_number
 variables:
   heater: !input heater
+  air_con: !input air_con
   presence: !input presence
   temperature: !input temperature
   temperature_sensor: !input temperature_sensor
@@ -61,7 +68,17 @@ trigger:
     platform: state
     entity_id: input_boolean.home_open
     to: "on"
-  - platform: state
+  - id: off_grid
+    platform: state
+    entity_id: input_boolean.electricity_grid_connected
+  - id: spike
+    platform: state
+    entity_id: input_boolean.electricity_spike
+  - id: air_con
+    platform: state
+    entity_id: !input air_con
+  - id: movement
+    platform: state
     entity_id: !input presence
   - id: too_hot
     platform: numeric_state
@@ -101,6 +118,15 @@ action:
                 value_template: "{{ float(state.state) - states(temperature_target_low)|float }}"
               - condition: template
                 value_template: "{{ ( states(temperature_sensor)|float - states(temperature_target_low)|float ) > 0.5 }}"
+              - condition: state
+                entity_id: input_boolean.electrcity_grid_connected
+                state: "off"
+              - condition: state
+                entity_id: input_boolean.electrcity_price_spike
+                state: "on"
+              - condition: state
+                entity_id: input_boolean.electrcity_exporting
+                state: "on"
         sequence:
           - service: climate.turn_off
             entity_id: !input heater
