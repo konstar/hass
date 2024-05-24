@@ -1,8 +1,8 @@
 blueprint:
-  name: DEVICE Heater (green)
+  name: DEVICE Heater (blue)
   description: Manages the ducted vents of a Heating system
   domain: automation
-  source_url: https://github.com/konstar/hass/blob/main/blueprints/DEVICE-Heater-green.yaml
+  source_url: https://github.com/konstar/hass/blob/main/blueprints/DEVICE-Heater-blue.yaml
   input:
     heater:
       name: Heater
@@ -48,6 +48,10 @@ variables:
   temperature_sensor: !input temperature_sensor
   temperature_target_high: !input temperature_target_high
   temperature_target_low: !input temperature_target_low
+trigger_variables:
+  trig_temperature_sensor: !input temperature_sensor
+  trig_temperature_target_high: !input temperature_target_high
+  trig_temperature_target_low: !input temperature_target_low
 trigger:
   - id: home_open
     platform: state
@@ -60,11 +64,18 @@ trigger:
   - platform: state
     entity_id: !input presence
   - id: too_hot
-    platform: template
-    value_template: "{{ ( states(temperature_sensor)|float - states(temperature_target_low)|float ) > 0.5 }}"
+    platform: numeric_state
+    entity_id: !input temperature_sensor
+    above: !input temperature_target_high
   - id: too_cold
-    platform: template
-    value_template: "{{ ( states(temperature_sensor)|float - states(temperature_target_low)|float ) < 0 }}"
+    platform: numeric_state
+    entity_id: !input temperature_sensor
+    below: !input temperature_target_low
+  - id: too_warm
+    platform: numeric_state
+    entity_id: !input temperature_sensor
+    above: 0.5
+    value_template: "{{ state.state|float - states(trig_temperature_target_low)|float }}"
   - platform: state
     entity_id: climate.home_heater
     attribute: temperature
