@@ -79,7 +79,9 @@ trigger:
     entity_id: input_boolean.electricity_exporting
   - id: air_con
     platform: state
-    entity_id: !input air_con
+    entity_id:
+      - !input air_con
+      - climate.home_air_con
   - id: movement
     platform: state
     entity_id: !input presence
@@ -130,6 +132,23 @@ action:
               - condition: state
                 entity_id: input_boolean.electrcity_exporting
                 state: "on"
+              - condition: state
+                entity_id: !input air_con
+                state:
+                  - heat
+                  - cool
+                  - heat_cool
+              - and:
+                  - condition: state
+                    entity_id: !input air_con
+                    state:
+                      - heat_cool
+                  - condition: state
+                    entity_id: climate.home_air_con
+                    state:
+                      - "off"
+                      - cool
+                      - heat
         sequence:
           - service: climate.turn_off
             entity_id: !input heater
