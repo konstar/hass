@@ -1,8 +1,8 @@
 blueprint:
-  name: AREA set presence (blue)
+  name: AREA set presence
   description: Set presence helper for the state of an area.
   domain: automation
-  source_url: https://github.com/konstar/hass/blob/main/blueprints/AREA-set-presence-blue.yaml
+  source_url: https://github.com/konstar/hass/blob/main/blueprints/AREA-set-presence.yaml
   input:
     activity_helper:
       name: Activity helper
