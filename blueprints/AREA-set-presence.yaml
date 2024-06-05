@@ -152,6 +152,11 @@ action:
               - condition: state
                 entity_id: vacuum.deebot
                 state: cleaning
+        sequence:
+          - service: input_select.select_option
+            entity_id: !input presence_helper
+            data:
+              option: absent
       - conditions:
           - condition: state
             entity_id: !input activity_helper
