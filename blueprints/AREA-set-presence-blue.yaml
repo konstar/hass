@@ -1,8 +1,8 @@
 blueprint:
-  name: AREA set presence
+  name: AREA set presence (blue)
   description: Set presence helper for the state of an area.
   domain: automation
-  source_url: https://github.com/konstar/hass/blob/main/blueprints/AREA-set-presence.yaml
+  source_url: https://github.com/konstar/hass/blob/main/blueprints/AREA-set-presence-blue.yaml
   input:
     activity_helper:
       name: Activity helper
@@ -75,6 +75,9 @@ variables:
 trigger:
   - platform: homeassistant
     event: start
+  - id: home_presence
+    platform: state
+    entity_id: input_boolean.home_presence
   - id: motion
     platform: state
     entity_id: !input motion_sensor
@@ -135,17 +138,20 @@ trigger:
   - id: started
     platform: homeassistant
     event: start
-condition:
-  - not:
-      - and:
+condition: []
+action:
+  - choose:
+      - conditions:
           - condition: state
             entity_id: input_boolean.home_presence
             state: "off"
-          - condition: state
-            entity_id: vacuum.deebot
-            state: cleaning
-action:
-  - choose:
+          - or:
+              - condition: state
+                entity_id: vacuum.deebot
+                state: cleaning
+              - condition: state
+                entity_id: vacuum.deebot
+                state: cleaning
       - conditions:
           - condition: state
             entity_id: !input activity_helper
