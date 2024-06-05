@@ -113,6 +113,9 @@ action:
               - condition: state
                 entity_id: input_boolean.home_open
                 state: "on"
+              - condition: state
+                entity_id: input_boolean.home_presence
+                state: "off"
               - not:
                   - condition: state
                     entity_id: !input presence
@@ -138,17 +141,6 @@ action:
                   - heat
                   - cool
                   - heat_cool
-              - and:
-                  - condition: state
-                    entity_id: !input air_con
-                    state:
-                      - heat_cool
-                  - condition: state
-                    entity_id: climate.home_air_con
-                    state:
-                      - "off"
-                      - cool
-                      - heat
         sequence:
           - service: climate.turn_off
             entity_id: !input heater
