@@ -83,18 +83,21 @@ action:
       - condition: state
         entity_id: !input air_quality
         state:
-        - very-abnormal
         - abnormal
+        - very-abnormal
+        - extremely-abnormal
       - condition: state
         entity_id: !input humidity
         state:
-        - very-humid
         - humid
+        - very-humid
+        - extremely-humid
       - condition: state
         entity_id: !input temperature
         state:
-        - very-hot
         - hot
+        - very-hot
+        - extremely-hot
     sequence:
     - service: fan.turn_on
       data:
@@ -134,6 +137,7 @@ action:
       entity_id: !input temperature
       state:
       - very-hot
+      - extremely-hot
     sequence:
     - service: fan.turn_on
       data:
@@ -156,6 +160,7 @@ action:
       entity_id: !input temperature
       state:
       - very-hot
+      - extremely-hot
     sequence:
     - service: fan.turn_on
       data:
@@ -184,6 +189,7 @@ action:
         entity_id: !input air_quality
         state:
         - very-abnormal
+        - extremely-abnormal
     sequence:
     - service: fan.turn_on
       data:
@@ -213,6 +219,7 @@ action:
         state:
         - humid
         - very-humid
+        - extremely-humid
     sequence:
     - service: fan.turn_on
       data:
@@ -236,6 +243,7 @@ action:
       state:
       - cold
       - very-cold
+      - extremely-cold
     sequence:
     - service: fan.turn_off
       target:
