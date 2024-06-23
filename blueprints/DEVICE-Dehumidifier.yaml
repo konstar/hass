@@ -68,9 +68,31 @@ trigger:
     minutes: 10
 - platform: state
   entity_id: input_select.electricity_rate
+- platform: state
+  entity_id:
+    - input_boolean.electricity_exporting
+    - input_boolean.electricity_price_spike
+    - input_boolean.electricity_grid_connected
 condition: []
 action:
   - choose:
+      - alias: Turn off dehumidifer if an exceptional Electricity event is happening
+        conditions:
+            - or:
+                - conditions: state
+                  entity_id: input_boolean.electricity_exporting
+                  state: "on"
+                - conditions: state
+                  entity_id: input_boolean.electricity_price_spike
+                  state: "on"
+                - conditions: state
+                  entity_id: input_boolean.electricity_grid_connected
+                  state: "off"
+        sequence:
+          - service: fan.turn_off
+            entity_id: !input dehumidifier
+          - delay:
+              minutes: 1
       - conditions:
           - condition: trigger
             id: maybe_full
