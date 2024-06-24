@@ -79,13 +79,13 @@ action:
       - alias: Turn off dehumidifer if an exceptional Electricity event is happening
         conditions:
             - or:
-                - conditions: state
+                - condition: state
                   entity_id: input_boolean.electricity_exporting
                   state: "on"
-                - conditions: state
+                - condition: state
                   entity_id: input_boolean.electricity_price_spike
                   state: "on"
-                - conditions: state
+                - condition: state
                   entity_id: input_boolean.electricity_grid_connected
                   state: "off"
         sequence:
