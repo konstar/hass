@@ -1,0 +1,141 @@
+blueprint:
+  name: AREA set temperature (blue)
+  description: Set temperature selection for the state of an area.
+  domain: automation
+  source_url: https://github.com/konstar/hass/blob/main/blueprints/AREA-set-temperature-blue.yaml
+  input:
+    helper:
+      name: Temperature helper
+      description: Helper that stores whether room is hot or cold, etc.
+      selector:
+        entity:
+          domain: input_select
+    sensor:
+      name: Temperature sensor
+      description: Temperature sensor of the area.
+      selector:
+        entity:
+          domain: sensor
+          device_class: temperature
+    very_cold_high:
+      name: Very cold temperature high mark
+      description: High mark of the "very cold" temperature band.
+      selector:
+        entity:
+          domain: input_number
+    very_cold_low:
+      name: Very cold temperature low mark
+      description: Low mark of the "very cold" temperature band.
+      selector:
+        entity:
+          domain: input_number
+    cold_high:
+      name: Cold temperature high mark
+      description: High mark of the "cold" temperature band.
+      selector:
+        entity:
+          domain: input_number
+    cold_low:
+      name: Cold temperature low mark
+      description: Low mark of the "cold" temperature band.
+      selector:
+        entity:
+          domain: input_number
+    target_high:
+      name: Target/normal temperature high mark
+      description: High mark of the normal or target temperature band.
+      selector:
+        entity:
+          domain: input_number
+    target_low:
+      name: Target/normal temperature low mark
+      description: Low mark of the normal or target temperature band.
+      selector:
+        entity:
+          domain: input_number
+    hot_high:
+      name: Hot temperature high mark
+      description: High mark of the "hot" temperature band.
+      selector:
+        entity:
+          domain: input_number
+    hot_low:
+      name: Hot temperature low mark
+      description: Low mark of the "hot" temperature band.
+      selector:
+        entity:
+          domain: input_number
+    very_hot_high:
+      name: Very Hot temperature high mark
+      description: High mark of the "very hot" temperature band.
+      selector:
+        entity:
+          domain: input_number
+    very_hot_low:
+      name: Very Hot temperature low mark
+      description: Low mark of the "very hot" temperature band.
+      selector:
+        entity:
+          domain: input_number
+trigger:
+  - id: extremely-cold
+    platform: numeric_state
+    entity_id: !input sensor
+    below: input_number.indoor_temperature_target_min
+  - id: very-cold
+    platform: numeric_state
+    entity_id: !input sensor
+    above: !input very_cold_low
+    below: !input very_cold_high
+  - id: cold
+    platform: numeric_state
+    entity_id: !input sensor
+    above: !input cold_low
+    below: !input cold_high
+  - id: normal
+    platform: numeric_state
+    entity_id: !input sensor
+    above: !input target_low
+    below: !input target_high
+  - id: hot
+    platform: numeric_state
+    entity_id: !input sensor
+    above: !input hot_low
+    below: !input hot_high
+  - id: very-hot
+    platform: numeric_state
+    entity_id: !input sensor
+    above: !input very_hot_low
+    below: !input very_hot_high
+  - id: extremely-hot
+    platform: numeric_state
+    entity_id: !input sensor
+    above: input_number.indoor_temperature_target_max
+  - id: sensor
+    platform: state
+    entity_id: !input sensor
+  - id: target
+    platform: state
+    entity_id: !input target_high
+  - id: target
+    platform: state
+    entity_id: !input target_low
+condition: []
+action:
+  - if:
+      - condition: trigger
+        id:
+          - extremely-cold
+          - very-cold
+          - cold
+          - normal
+          - hot
+          - very-hot
+          - extremely-hot
+    then:
+      - service: input_select.select_option
+        target:
+          entity_id: !input helper
+        data:
+          option: " {{ trigger.id }}"
+mode: restart
