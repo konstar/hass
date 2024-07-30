@@ -18,61 +18,61 @@ blueprint:
           domain: sensor
           device_class: temperature
     very_cold_high:
-      name: Very cold temperature high mark
+      name: Temperature very-cold high
       description: High mark of the "very cold" temperature band.
       selector:
         entity:
           domain: input_number
     very_cold_low:
-      name: Very cold temperature low mark
+      name: Temperature very-cold low
       description: Low mark of the "very cold" temperature band.
       selector:
         entity:
           domain: input_number
     cold_high:
-      name: Cold temperature high mark
+      name: Temperature cold high
       description: High mark of the "cold" temperature band.
       selector:
         entity:
           domain: input_number
     cold_low:
-      name: Cold temperature low mark
+      name: Temperature cold low
       description: Low mark of the "cold" temperature band.
       selector:
         entity:
           domain: input_number
     target_high:
-      name: Target/normal temperature high mark
+      name: Temperature target high
       description: High mark of the normal or target temperature band.
       selector:
         entity:
           domain: input_number
     target_low:
-      name: Target/normal temperature low mark
+      name: Temperature target low
       description: Low mark of the normal or target temperature band.
       selector:
         entity:
           domain: input_number
     hot_high:
-      name: Hot temperature high mark
+      name: Temperature hot high
       description: High mark of the "hot" temperature band.
       selector:
         entity:
           domain: input_number
     hot_low:
-      name: Hot temperature low mark
+      name: Temperature hot low
       description: Low mark of the "hot" temperature band.
       selector:
         entity:
           domain: input_number
     very_hot_high:
-      name: Very Hot temperature high mark
+      name: Temperature very-hot high
       description: High mark of the "very hot" temperature band.
       selector:
         entity:
           domain: input_number
     very_hot_low:
-      name: Very Hot temperature low mark
+      name: Temperature very-hot low mark
       description: Low mark of the "very hot" temperature band.
       selector:
         entity:
@@ -111,15 +111,6 @@ trigger:
     platform: numeric_state
     entity_id: !input sensor
     above: input_number.indoor_temperature_target_max
-  - id: sensor
-    platform: state
-    entity_id: !input sensor
-  - id: target
-    platform: state
-    entity_id: !input target_high
-  - id: target
-    platform: state
-    entity_id: !input target_low
 condition: []
 action:
   - if:
