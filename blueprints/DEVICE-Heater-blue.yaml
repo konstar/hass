@@ -151,11 +151,16 @@ action:
           - condition: template
             value_template: "{{ ( states(temperature_sensor)|float - states(temperature_target_low)|float ) < 0 }}"
         sequence:
-          - service: climate.set_hvac_mode
+          - service: climate.set_preset_mode
+            target:
+              entity_id: climate.home_heater
             data:
-              hvac_mode: heat
+              preset_mode: "Heating: set temperature"
+          - service: climate.set_hvac_mode
             target:
               entity_id: !input heater
+            data:
+              hvac_mode: heat
           - service: climate.set_hvac_mode
             target:
               entity_id: !input heater
