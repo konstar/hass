@@ -1,0 +1,259 @@
+blueprint:
+  name: DEVICE Tuya set air quality
+  description: Helps define normal vs abnormal air quality based on sensors on Tuya air quality devices
+  domain: automation
+  source_url: https://github.com/konstar/hass/blob/main/blueprints/DEVICE-Tuya-set-air-quality.yaml
+  input:
+    co2_sensor:
+      name: Carbon Dioxide sensor
+      description: Carbon Dioxide (CO2) sensor from your Tuya device
+      selector:
+        entity:
+          domain: sensor
+    co2_helper:
+      name: Carbon Dioxide helper
+      description: Carbon Dioxide (CO2) helper
+      selector:
+        entity:
+          domain: input_select
+    co2_bad:
+      name: Carbon Dioxide "good to bad" level
+      description: This is the Carbon Dioxide level where air quality goes from good to bad. Levels between 300 and 400 are considered normal. https://www.fsis.usda.gov/sites/default/files/media_file/2020-08/Carbon-Dioxide.pdf
+      selector:
+        number:
+          unit_of_measurement: ppm
+          min: 300
+          max: 1000
+          step: 5
+    co2_worst:
+      name: Carbon Dioxide "bad to very bad" level
+      description: This is the Carbon Dioxide level where air quality goes from bad to really bad. 
+      selector:
+        number:
+          unit_of_measurement: ppm
+          min: 300
+          max: 1000
+          step: 5
+    h2co_sensor:
+      name: Formaldehyde sensor
+      description: Formaldehyde (H2CO) sensor from your Tuya device
+      selector:
+        entity:
+          domain: sensor
+    h2co_helper:
+      name: Formaldehyde helper
+      description: Formaldehyde (H2CO) helper
+      selector:
+        entity:
+          domain: input_select
+    h2co_bad:
+      name: Formaldehyde "good to bad" level
+      description: This is the Formaldehye level where air quality goes from good to bad. Levels between 0 and 0.1 ppm are recommended. https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3175005/
+      selector:
+        number:
+          unit_of_measurement: ppm
+          min: 0
+          max: 0.1
+          step: 0.005
+    h2co_worst:
+      name: Formaldehyde "bad to very bad" level
+      description: This is Formaldehyde level where air quality goes from bad to really bad. 
+      selector:
+        number:
+          unit_of_measurement: ppm
+          min: 0
+          max: 0.1
+          step: 0.005
+    pm25_sensor:
+      name: Particulate Matter 2.5 sensor
+      description: Particulate Matter 2.5 micron (PM 2.5) sensor from your Tuya device
+      selector:
+        entity:
+          domain: sensor
+    pm25_helper:
+      name: Particulate Matter 2.5 helper
+      description: Particulate Matter 2.5 micron (PM 2.5) helper
+      selector:
+        entity:
+          domain: input_select
+    pm25_bad:
+      name: PM2.5 "good to bad" level
+      description: The WHO recommends PM 2.5 levels under 5 µg/m³. https://iris.who.int/bitstream/handle/10665/345329/9789240034228-eng.pdf
+      selector:
+        number:
+          unit_of_measurement: µg/m³
+          min: 0
+          max: 20
+          step: 0.1
+    pm25_worst:
+      name: PM2.5 "bad to very bad" level
+      description: This is the PM 2.5 level where air quality goes from bad to really bad. 
+      selector:
+        number:
+          unit_of_measurement: µg/m³
+          min: 0
+          max: 20
+          step: 0.1
+    vocs_sensor:
+      name: Volatile Organic Compounds sensor
+      description: Volatile Organic Compounds (VOCs) sensor from your Tuya device
+      selector:
+        entity:
+          domain: sensor
+    vocs_helper:
+      name: Volatile Organic Compounds helper
+      description: Helper for the Volatile Organic Compounds (VOCs) sensor
+      selector:
+        entity:
+          domain: input_select
+    vocs_bad:
+      name: VOCs "good to bad" level
+      description: 
+      selector:
+        number:
+          unit_of_measurement: ppm
+          min: 0
+          max: 1
+          step: 0.01
+    vocs_worst:
+      name: VOCs "bad to very bad" level
+      description: This is the PM 2.5 level where air quality goes from bad to really bad. 
+      selector:
+        number:
+          unit_of_measurement: ppm
+          min: 0
+          max: 1
+          step: 0.01
+variables:
+  air_con: !input air_con
+  vent: !input vent
+  summary: !input summary
+trigger:
+  - id: co2,very-abnormal
+    platform: numeric_state
+    entity_id: !input co2_sensor
+    above: !input co2_worst
+    for:
+      minutes: 1
+  - id: h2co,very-abnormal
+    platform: numeric_state
+    entity_id: !input h2co_sensor
+    above: !input h2co_worst
+    for:
+      minutes: 1
+  - id: pm25,very-abnormal
+    platform: numeric_state
+    entity_id: !input pm25_sensor
+    above: !input pm25_worst
+    for:
+      minutes: 1
+  - id: vocs,very-abnormal
+    platform: numeric_state
+    entity_id: !input vocs_sensor
+    above: !input vocs_worst
+    for:
+      minutes: 1
+  - id: co2,abnormal
+    platform: numeric_state
+    entity_id: !input co2_sensor
+    above: !input co2_bad
+    below: !input co2_worst
+    for:
+      minutes: 1
+  - id: h2co,abnormal
+    platform: numeric_state
+    entity_id: !input h2co_sensor
+    above: !input h2co_bad
+    below: !input h2co_worst
+    for:
+      minutes: 1
+  - id: pm25,abnormal
+    platform: numeric_state
+    entity_id: !input pm25_sensor
+    above: !input pm25_bad
+    below: !input pm25_worst
+    for:
+      minutes: 1
+  - id: vocs,abnormal
+    platform: numeric_state
+    entity_id: !input vocs_sensor
+    above: !input vocs_bad
+    below: !input vocs_worst
+    for:
+      minutes: 1
+  - id: co2,normal
+    platform: numeric_state
+    entity_id: !input co2_sensor
+    below: !input co2_bad
+    for:
+      minutes: 1
+  - id: h2co,normal
+    platform: numeric_state
+    entity_id: !input h2co_sensor
+    below: !input h2co_bad
+    for:
+      minutes: 1
+  - id: pm25,normal
+    platform: numeric_state
+    entity_id: !input pm25_sensor
+    below: !input pm25_bad
+    for:
+      minutes: 1
+  - id: vocs,normal
+    platform: numeric_state
+    entity_id: !input vocs_sensor
+    below: !input vocs_bad
+condition: []
+action:
+  - choose:
+      - conditions:
+          - condition: trigger
+            id:
+              - co2,normal
+              - co2,abnormal
+              - co2,very-abnormal
+        sequence:
+          - service: input_select.select_option
+            target:
+              entity_id: !input co2_helper
+            data:
+              option: "{{ trigger.id|regex_replace('.*,','') }}"
+      - conditions:
+          - condition: trigger
+            id:
+              - h2co,normal
+              - h2co,abnormal
+              - h2co,very-abnormal
+        sequence:
+          - service: input_select.select_option
+            target:
+              entity_id: !input h2co_helper
+            data:
+              option: "{{ trigger.id|regex_replace('.*,','') }}"
+      - conditions:
+          - condition: trigger
+            id:
+              - pm25,normal
+              - pm25,abnormal
+              - pm25,very-abnormal
+        sequence:
+          - service: input_select.select_option
+            target:
+              entity_id: !input pm25_helper
+            data:
+              option: "{{ trigger.id|regex_replace('.*,','') }}"
+      - conditions:
+          - condition: trigger
+            id:
+              - vocs,normal
+              - vocs,abnormal
+              - vocs,very-abnormal
+        sequence:
+          - service: input_select.select_option
+            target:
+              entity_id: !input vocs_helper
+            data:
+              option: "{{ trigger.id|regex_replace('.*,','') }}"
+    default: []
+mode: parallel
+max: 10
