@@ -108,7 +108,7 @@ blueprint:
           domain: input_select
     vocs_bad:
       name: VOCs "good to bad" level
-      description: 
+      description: The WHO recommends less than 0.05 ppm
       selector:
         number:
           unit_of_measurement: ppm
@@ -117,7 +117,7 @@ blueprint:
           step: 0.01
     vocs_worst:
       name: VOCs "bad to very bad" level
-      description: This is the PM 2.5 level where air quality goes from bad to really bad. 
+      description: This is the VOCs level where air quality goes from bad to really bad. 
       selector:
         number:
           unit_of_measurement: ppm
