@@ -124,10 +124,6 @@ blueprint:
           min: 0
           max: 1
           step: 0.01
-variables:
-  air_con: !input air_con
-  vent: !input vent
-  summary: !input summary
 trigger:
   - id: co2,very-abnormal
     platform: numeric_state
