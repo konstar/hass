@@ -1,0 +1,194 @@
+blueprint:
+  name: DEVICE Philips Air Purifier set air quality
+  description: Helps define normal vs abnormal air quality based on sensors on Tuya air quality devices
+  domain: automation
+  source_url: https://github.com/konstar/hass/blob/main/blueprints/DEVICE-Philips-Air-Purifier-set-air-quality.yaml
+  input:
+    iai_sensor:
+      name: Indoor Allergen sensor
+      description: Indoor Allergen Index (IAI) sensor
+      selector:
+        entity:
+          domain: sensor
+    iai_helper:
+      name: Indoor Allergen helper
+      description: Indoor Allergen Index (IAI) helper
+      selector:
+        entity:
+          domain: input_select
+    iai_bad:
+      name: Indoor Allergen "good to bad" level
+      description: This is the Indoor Allergen Index level where air quality goes from good to bad.
+      selector:
+        number:
+          unit_of_measurement: level
+          min: 0
+          max: 20
+          step: 1
+    iai_worst:
+      name: Indoor Allergen "bad to very bad" level
+      description: This is the Indoor Allergen Index level where air quality goes from bad to really bad. 
+      selector:
+        number:
+          unit_of_measurement: level
+          min: 0
+          max: 20
+          step: 1
+    pm25_sensor:
+      name: Particulate Matter 2.5 sensor
+      description: Particulate Matter 2.5 micron (PM 2.5) sensor
+      selector:
+        entity:
+          domain: sensor
+    pm25_helper:
+      name: Particulate Matter 2.5 helper
+      description: Particulate Matter 2.5 micron (PM 2.5) helper
+      selector:
+        entity:
+          domain: input_select
+    pm25_bad:
+      name: PM2.5 "good to bad" level
+      description: The WHO recommends PM 2.5 levels under 5 µg/m³. https://iris.who.int/bitstream/handle/10665/345329/9789240034228-eng.pdf
+      selector:
+        number:
+          unit_of_measurement: µg/m³
+          min: 0
+          max: 20
+          step: 0.1
+    pm25_worst:
+      name: PM2.5 "bad to very bad" level
+      description: This is the PM 2.5 level where air quality goes from bad to really bad. 
+      selector:
+        number:
+          unit_of_measurement: µg/m³
+          min: 0
+          max: 20
+          step: 0.1
+    vocs_sensor:
+      name: Volatile Organic Compounds sensor
+      description: Volatile Organic Compounds (VOCs) sensor
+      selector:
+        entity:
+          domain: sensor
+    vocs_helper:
+      name: Volatile Organic Compounds helper
+      description: Helper for the Volatile Organic Compounds (VOCs) sensor
+      selector:
+        entity:
+          domain: input_select
+    vocs_bad:
+      name: VOCs "good to bad" level
+      description: The WHO recommends less than 0.05 ppm
+      selector:
+        number:
+          unit_of_measurement: ppm
+          min: 0
+          max: 1
+          step: 0.01
+    vocs_worst:
+      name: VOCs "bad to very bad" level
+      description: This is the VOCs level where air quality goes from bad to really bad. 
+      selector:
+        number:
+          unit_of_measurement: ppm
+          min: 0
+          max: 1
+          step: 0.01
+trigger:
+  - id: iai,very-abnormal
+    platform: numeric_state
+    entity_id: !input iai_sensor
+    above: !input iai_worst
+    for:
+      minutes: 1
+  - id: pm25,very-abnormal
+    platform: numeric_state
+    entity_id: !input pm25_sensor
+    above: !input pm25_worst
+    for:
+      minutes: 1
+  - id: vocs,very-abnormal
+    platform: numeric_state
+    entity_id: !input vocs_sensor
+    above: !input vocs_worst
+    for:
+      minutes: 1
+  - id: iai,abnormal
+    platform: numeric_state
+    entity_id: !input iai_sensor
+    above: !input iai_bad
+    below: !input iai_worst
+    for:
+      minutes: 1
+  - id: pm25,abnormal
+    platform: numeric_state
+    entity_id: !input pm25_sensor
+    above: !input pm25_bad
+    below: !input pm25_worst
+    for:
+      minutes: 1
+  - id: vocs,abnormal
+    platform: numeric_state
+    entity_id: !input vocs_sensor
+    above: !input vocs_bad
+    below: !input vocs_worst
+    for:
+      minutes: 1
+  - id: iai,normal
+    platform: numeric_state
+    entity_id: !input iai_sensor
+    below: !input iai_bad
+    for:
+      minutes: 1
+  - id: pm25,normal
+    platform: numeric_state
+    entity_id: !input pm25_sensor
+    below: !input pm25_bad
+    for:
+      minutes: 1
+  - id: vocs,normal
+    platform: numeric_state
+    entity_id: !input vocs_sensor
+    below: !input vocs_bad
+condition: []
+action:
+  - choose:
+      - conditions:
+          - condition: trigger
+            id:
+              - iai,normal
+              - iai,abnormal
+              - iai,very-abnormal
+        sequence:
+          - service: input_select.select_option
+            target:
+              entity_id: !input iai_helper
+            data:
+              option: "{{ trigger.id|regex_replace('.*,','') }}"
+      - conditions:
+          - condition: trigger
+            id:
+              - pm25,normal
+              - pm25,abnormal
+              - pm25,very-abnormal
+        sequence:
+          - service: input_select.select_option
+            target:
+              entity_id: !input pm25_helper
+            data:
+              option: "{{ trigger.id|regex_replace('.*,','') }}"
+      - conditions:
+          - condition: trigger
+            id:
+              - vocs,normal
+              - vocs,abnormal
+              - vocs,very-abnormal
+        sequence:
+          - service: input_select.select_option
+            target:
+              entity_id: !input vocs_helper
+            data:
+              option: "{{ trigger.id|regex_replace('.*,','') }}"
+    default: []
+mode: parallel
+max: 10
