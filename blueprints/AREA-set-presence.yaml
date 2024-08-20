@@ -145,13 +145,6 @@ action:
           - condition: state
             entity_id: input_boolean.home_presence
             state: "off"
-          - or:
-              - condition: state
-                entity_id: vacuum.deebot
-                state: cleaning
-              - condition: state
-                entity_id: vacuum.deebot
-                state: cleaning
         sequence:
           - service: input_select.select_option
             entity_id: !input presence_helper
