@@ -127,13 +127,13 @@ action:
               - condition: template
                 value_template: "{{ ( states(temperature_sensor)|float - states(temperature_target_low)|float ) > 0.5 }}"
               - condition: state
-                entity_id: input_boolean.electrcity_grid_connected
+                entity_id: input_boolean.electricity_grid_connected
                 state: "off"
               - condition: state
-                entity_id: input_boolean.electrcity_price_spike
+                entity_id: input_boolean.electricity_price_spike
                 state: "on"
               - condition: state
-                entity_id: input_boolean.electrcity_exporting
+                entity_id: input_boolean.electricity_exporting
                 state: "on"
               - condition: state
                 entity_id: !input air_con
