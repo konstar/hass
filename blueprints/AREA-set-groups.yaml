@@ -37,7 +37,7 @@ action:
         | selectattr('attributes.device_class','defined')
         | selectattr('attributes.device_class','eq','humidity')
         | selectattr('attributes.unit_of_measurement','eq','%')
-        | rejectattr('entity_id','match','.*_mold_risk_limit')
+        | rejectattr('entity_id','match','.*_mold_limit')
         | select('ne','0')
         | map(attribute='entity_id') | list %}
         {% if entities|count > 0 %}
