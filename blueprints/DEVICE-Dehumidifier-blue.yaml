@@ -1,8 +1,8 @@
 blueprint:
-  name: DEVICE Dehumidifier
+  name: DEVICE Dehumidifier (blue)
   description: Manages a dehumidifier
   domain: automation
-  source_url: https://github.com/konstar/hass/blob/main/blueprints/DEVICE-Dehumidifier.yaml
+  source_url: https://github.com/konstar/hass/blob/main/blueprints/DEVICE-Dehumidifier-blue.yaml
   input:
     dehumidifier:
       name: Dehumidifier
@@ -18,12 +18,12 @@ blueprint:
         entity:
           domain: input_select
           multiple: false
-    humidity:
-      name: Humidity Helper
-      description: Sensor which records the humidity level of the room
+    mold:
+      name: Mold Risk Index
+      description: Sensor which records the mold risk level of the room
       selector:
         entity:
-          domain: input_select
+          domain: sensor
           multiple: false
     door:
       name: Door Helper
@@ -59,13 +59,16 @@ trigger:
   platform: state
   entity_id: !input door
   to: 'off'
-- platform: state
-  entity_id: !input humidity
-- platform: state
-  entity_id: !input humidity
-  to: normal
+- platform: numeric_state
+  entity_id: !input mold
+  above: 0.5
   for:
-    minutes: 10
+    minutes: 1
+- platform: numeric_state
+  entity_id: !input mold
+  below: 0.5
+  for:
+    minutes: 5
 - platform: state
   entity_id: input_select.electricity_rate
 - platform: state
@@ -76,7 +79,7 @@ trigger:
 condition: []
 action:
   - choose:
-      - alias: Turn off dehumidifer if an exceptional Electricity event is happening
+      - alias: Turn off the dehumidifer if an exceptional Electricity event is happening
         conditions:
             - or:
                 - condition: state
@@ -93,14 +96,16 @@ action:
             entity_id: !input dehumidifier
           - delay:
               minutes: 1
-      - conditions:
+      - alias: Dehumidifer might be full or might be starting to stop
+        conditions:
           - condition: trigger
             id: maybe_full
         sequence:
           - delay:
               minutes: 10
           - choose:
-              - conditions:
+              - alias: Dehumidifier is full
+                conditions:
                   - condition: state
                     entity_id: !input dehumidifier_activity
                     state: sleeping
@@ -109,30 +114,23 @@ action:
                     data:
                       message: The Dehumidifier in the {{ area_name(dehumidifier) }} is full.
                       short_message: '{{ state_attr(dehumidifier,''friendly_name'') }} is full'
-              - conditions:
+              - alias: Dehumidifier is stopping
+                conditions:
                   - condition: state
                     entity_id: !input dehumidifier_activity
                     state: stopping
-                  - condition: state
-                    entity_id: !input humidity
-                    state:
-                      - normal
-                      - dry
-                      - very-dry
-                      - extremely-dry
+                  - condition: numeric_state
+                    entity_id: !input mold
+                    below: 0.5
                 sequence:
                   - repeat:
                       while:
                         - condition: state
                           entity_id: !input dehumidifier_activity
                           state: stopping
-                        - condition: state
-                          entity_id: !input humidity
-                          state:
-                            - normal
-                            - dry
-                            - very-dry
-                            - extremely-dry
+                        - condition: numeric_state
+                          entity_id: !input mold
+                          below: 0.5
                         - not:
                             - condition: state
                               entity_id: !input dehumidifier
@@ -142,46 +140,17 @@ action:
                           entity_id: !input dehumidifier
                         - delay:
                             minutes: 1
-      - alias: Switch off the dehumidifier if the room is dry
+      - alias: Switch off the dehumidifier if the room doesn't have a risk of mold
         conditions:
-          - condition: state
-            entity_id: !input humidity
-            state:
-              - dry
-              - very-dry
-              - extremely-dry
+          - condition: numeric_state
+            entity_id: !input mold
+            below: 0.5
         sequence:
           - repeat:
               while:
-                - condition: state
-                  entity_id: !input humidity
-                  state:
-                    - dry
-                    - very-dry
-                    - extremely-dry
-                - not:
-                    - condition: state
-                      entity_id: !input dehumidifier
-                      state: "off"
-              sequence:
-                - service: fan.turn_off
-                  entity_id: !input dehumidifier
-                - delay:
-                    minutes: 1
-      - alias: Switch off the dehumidifier if the room isn't humid
-        conditions:
-          - condition: state
-            entity_id: !input humidity
-            state: normal
-            for:
-              minutes: 10
-        sequence:
-          - repeat:
-              while:
-                - condition: state
-                  entity_id: !input humidity
-                  state:
-                    - normal
+                - condition: numeric_state
+                  entity_id: !input mold
+                  below: 0.5
                 - not:
                     - condition: state
                       entity_id: !input dehumidifier
@@ -218,18 +187,15 @@ action:
                   entity_id: !input dehumidifier
                 - delay:
                     minutes: 1
-      - alias: Switch off the dehumidifier if we're in shoulder and it isn't very humid
+      - alias: Switch off the dehumidifier if we're in shoulder and there is only a low risk of mold
         conditions:
         - condition: state
           entity_id: input_select.electricity_rate
           state:
             - shoulder
-        - not:
-            - condition: state
-              entity_id: !input humidity
-              state:
-                - very-humid
-                - extremely-humid
+        - condition: numeric_state
+          entity_id: !input mold
+          below: 1.5
         sequence:
           - repeat:
               while:
@@ -237,12 +203,9 @@ action:
                   entity_id: input_select.electricity_rate
                   state:
                     - shoulder
-                - not:
-                    - condition: state
-                      entity_id: !input humidity
-                      state:
-                        - very-humid
-                        - extremely-humid
+                - condition: numeric_state
+                  entity_id: !input mold
+                  below: 1.5
                 - not:
                     - condition: state
                       entity_id: !input dehumidifier
@@ -258,11 +221,9 @@ action:
             entity_id: input_select.electricity_rate
             state:
               - peak
-          - not:
-              - condition: state
-                entity_id: !input humidity
-                state:
-                  - extremely-humid
+        - condition: numeric_state
+          entity_id: !input mold
+          below: 2.5
         sequence:
           - repeat:
               while:
@@ -270,11 +231,9 @@ action:
                   entity_id: input_select.electricity_rate
                   state:
                     - peak
-                - not:
-                    - condition: state
-                      entity_id: !input humidity
-                      state:
-                        - extremely-humid
+                - condition: numeric_state
+                  entity_id: !input mold
+                  below: 2.5
                 - not:
                     - condition: state
                       entity_id: !input dehumidifier
