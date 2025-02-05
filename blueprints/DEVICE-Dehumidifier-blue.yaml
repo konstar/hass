@@ -221,9 +221,9 @@ action:
             entity_id: input_select.electricity_rate
             state:
               - peak
-        - condition: numeric_state
-          entity_id: !input mold
-          below: 2.5
+          - condition: numeric_state
+            entity_id: !input mold
+            below: 2.5
         sequence:
           - repeat:
               while:
