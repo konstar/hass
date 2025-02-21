@@ -1,0 +1,224 @@
+blueprint:
+  name: DEVICE Dehumidifier
+  description: Manages a dehumidifier
+  domain: automation
+  source_url: https://github.com/konstar/hass/blob/main/blueprints/DEVICE-Dehumidifier.yaml
+  input:
+    dehumidifier:
+      name: Dehumidifier
+      description: Entity that controls the dehumidifier
+      selector:
+        entity:
+          domain: fan
+          multiple: false
+    dehumidifier_activity:
+      name: Dehumidifier Activity Helper
+      description: Helper which records the state of the dehumidifier
+      selector:
+        entity:
+          domain: input_select
+          multiple: false
+    mold:
+      name: Mold Risk Index
+      description: Sensor which records the mold risk level of the room
+      selector:
+        entity:
+          domain: sensor
+          multiple: false
+    humidity:
+      name: Humidity Helper
+      description: Helper which records the humidity in the room
+      selector:
+        entity:
+          domain: input_select
+          multiple: false
+    temperature:
+      name: Temperature Helper
+      description: Helper which records the temperature of the room
+      selector:
+        entity:
+          domain: input_select
+          multiple: false
+    door:
+      name: Door Helper
+      description: Helper which records the state of the door
+      selector:
+        entity:
+          domain: input_boolean
+          multiple: false
+variables:
+  dehumidifier: !input dehumidifier
+trigger:
+- id: maybe_full
+  platform: state
+  entity_id: !input dehumidifier_activity
+  to: stopping
+- id: home_open
+  platform: state
+  entity_id: input_boolean.home_open
+  for:
+    minutes: 5
+  to: 'on'
+- id: home_closed
+  platform: state
+  entity_id: input_boolean.home_open
+  to: 'off'
+  for:
+    minutes: 1
+- id: door_closed
+  platform: state
+  entity_id: !input door
+  to: 'on'
+- id: door_open
+  platform: state
+  entity_id: !input door
+  to: 'off'
+- platform: numeric_state
+  entity_id: !input mold
+  above: 0.5
+  for:
+    minutes: 1
+- platform: numeric_state
+  entity_id: !input mold
+  below: 0.5
+  for:
+    minutes: 1
+- platform: state
+  entity_id: !input humidity
+  for:
+    minutes: 1
+- platform: state
+  entity_id: !input temperature
+  for:
+    minutes: 1
+- platform: state
+  entity_id: input_select.electricity_rate
+- platform: state
+  entity_id:
+    - input_boolean.electricity_exporting
+    - input_boolean.electricity_price_spike
+    - input_boolean.electricity_grid_connected
+condition: []
+action:
+  - choose:
+      - alias: Turn off the dehumidifer if an exceptional Electricity event is happening
+        conditions:
+            - or:
+                - condition: state
+                  entity_id: input_boolean.electricity_exporting
+                  state: "on"
+                - condition: state
+                  entity_id: input_boolean.electricity_price_spike
+                  state: "on"
+                - condition: state
+                  entity_id: input_boolean.electricity_grid_connected
+                  state: "off"
+        sequence:
+          - service: fan.turn_off
+            entity_id: !input dehumidifier
+      - alias: Dehumidifer might be full or might be starting to stop
+        conditions:
+          - condition: trigger
+            id: maybe_full
+        sequence:
+          - delay:
+              minutes: 10
+          - choose:
+              - alias: Dehumidifier is full
+                conditions:
+                  - condition: state
+                    entity_id: !input dehumidifier_activity
+                    state: sleeping
+                sequence:
+                  - service: script.notify
+                    data:
+                      message: The Dehumidifier in the {{ area_name(dehumidifier) }} is full.
+                      short_message: '{{ state_attr(dehumidifier,''friendly_name'') }} is full'
+              - alias: Dehumidifier is stopping
+                conditions:
+                  - condition: state
+                    entity_id: !input dehumidifier_activity
+                    state: stopping
+                sequence:
+                  - service: fan.turn_off
+                    entity_id: !input dehumidifier
+      - alias: There's no point dehumidifying, when the house and room are open
+        conditions:
+          - condition: state
+            entity_id: input_boolean.home_open
+            state: 'on'
+          - condition: state
+            entity_id: !input door
+            state: 'on'
+        sequence:
+            - service: fan.turn_off
+              entity_id: !input dehumidifier
+      - alias: Switch off the dehumidifier if it is hot
+        conditions:
+          - condition: state
+            entity_id: !input temperature
+            state:
+            - hot
+            - very-hot
+            - extremely-hot
+        sequence:
+          - service: fan.turn_off
+            entity_id: !input dehumidifier
+      - alias: Switch on the dehumidifier if it is peak and extremely humid or high risk of mold
+        conditions:
+          - condition: state
+            entity_id: input_select.electricity_rate
+            state: peak
+          - or:
+              - condition: numeric_state
+                entity_id: !input mold
+                above: 2.5
+              - condition: numeric_state
+                entity_id: !input humidity
+                state:
+                  - extremely-humid
+        sequence:
+            - service: fan.turn_on
+              entity_id: !input dehumidifier
+      - alias: Switch on the dehumidifier if we're in shoulder and very humid or medium risk of mold
+        conditions:
+          - condition: state
+            entity_id: input_select.electricity_rate
+            state:
+              - shoulder
+          - or:
+              - condition: numeric_state
+                entity_id: !input mold
+                above: 1.5
+              - condition: numeric_state
+                entity_id: !input humidity
+                state:
+                  - very-humid
+                  - extremely-humid
+        sequence:
+          - service: fan.turn_on
+            entity_id: !input dehumidifier
+      - alias: Switch on the dehumidifier if we're in offpeak or free and a bit of humidity or low risk of mold
+        conditions:
+          - condition: state
+            entity_id: input_select.electricity_rate
+            state:
+              - offpeak
+              - free
+          - or:
+              - condition: numeric_state
+                entity_id: !input mold
+                above: 0.5
+              - condition: numeric_state
+                entity_id: !input humidity
+                state:
+                  - humid
+                  - very-humid
+                  - extremely-humid
+        sequence:
+            - service: fan.turn_on
+              entity_id: !input dehumidifier
+    default:
+      - service: fan.turn_off
+        entity_id: !input dehumidifier
+mode: restart
