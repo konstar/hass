@@ -173,7 +173,7 @@ action:
               - condition: numeric_state
                 entity_id: !input mold
                 above: 2.5
-              - condition: numeric_state
+              - condition: state
                 entity_id: !input humidity
                 state:
                   - extremely-humid
@@ -190,7 +190,7 @@ action:
               - condition: numeric_state
                 entity_id: !input mold
                 above: 1.5
-              - condition: numeric_state
+              - condition: state
                 entity_id: !input humidity
                 state:
                   - very-humid
@@ -209,7 +209,7 @@ action:
               - condition: numeric_state
                 entity_id: !input mold
                 above: 0.5
-              - condition: numeric_state
+              - condition: state
                 entity_id: !input humidity
                 state:
                   - humid
