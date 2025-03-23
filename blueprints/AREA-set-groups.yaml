@@ -65,7 +65,7 @@ action:
         | selectattr('domain','eq','binary_sensor')
         | selectattr('attributes.device_class','defined')
         | selectattr('attributes.device_class','match','motion|moving|occupancy|presence')
-        | selectattr('entity_id','match','.*_occupancy')
+        | selectattr('entity_id','match','.*_(occupancy|motion)')
         | map(attribute='entity_id') | list %}
         {% if entities|count > 0 %}
           {{ entities|join(',') }}
