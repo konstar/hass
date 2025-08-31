@@ -155,10 +155,11 @@ action:
                         message: Problem switching off the {{ heater|replace('climate.','')|replace('_',' ')|title }}.
                         short_message: Cant turn off {{ heater|replace('climate.','')|replace('_',' ')|title }}
               until:
-                - condition: state
-                  entity_id: !input heater
-                  state: "off"
-                - "{{ repeat.index > 10 }}"
+                - or:
+                  - condition: state
+                    entity_id: !input heater
+                    state: "off"
+                  - "{{ repeat.index > 10 }}"
       - conditions:
           - condition: state
             entity_id: !input heater
@@ -207,9 +208,10 @@ action:
                         message: Problem switching on the {{ heater|replace('climate.','')|replace('_',' ')|title }}.
                         short_message: Cant turn on {{ heater|replace('climate.','')|replace('_',' ')|title }}
               until:
-                - condition: state
-                  entity_id: !input heater
-                  state: "heat"
-                - "{{ repeat.index > 10 }}"
+                - or:
+                    - condition: state
+                      entity_id: !input heater
+                      state: "heat"
+                    - "{{ repeat.index > 10 }}"
     default: []
 mode: restart
