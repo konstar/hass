@@ -152,7 +152,8 @@ action:
                   then:
                     - service: script.notify
                       data:
-                        message: Problem switching off the {{ heater|replace('_',' ') }}
+                        message: Problem switching off the {{ heater|replace('climate.','')|replace('_',' ')|title }}.
+                        short_message: Cant turn off {{ heater|replace('climate.','')|replace('_',' ')|title }}
               until:
                 - condition: state
                   entity_id: !input heater
@@ -203,7 +204,8 @@ action:
                   then:
                     - service: script.notify
                       data:
-                        message: Problem switching on the {{ heater|replace('_',' ') }}
+                        message: Problem switching on the {{ heater|replace('climate.','')|replace('_',' ')|title }}.
+                        short_message: Cant turn on {{ heater|replace('climate.','')|replace('_',' ')|title }}
               until:
                 - condition: state
                   entity_id: !input heater
