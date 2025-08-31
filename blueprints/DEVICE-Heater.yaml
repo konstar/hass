@@ -142,22 +142,23 @@ action:
                   - heat_cool
         sequence:
           - repeat:
-              - service: climate.turn_off
-                entity_id: !input heater
-              - delay:
-                  seconds: 10
-              - if:
-                  - "{{ repeat.index > 10 }}"
-                then:
-                  - service: script.notify
-                    data:
-                      message: Problem switching off the {{ heater|replace('_',' ') }}
-            until:
-              - condition: state
-                entity_id: !input heater
-                state: "off"
-              - "{{ repeat.index > 10 }}"
-      - conditions:
+              sequence:
+                - service: climate.turn_off
+                  entity_id: !input heater
+                - delay:
+                    seconds: 10
+                - if:
+                    - "{{ repeat.index > 10 }}"
+                  then:
+                    - service: script.notify
+                      data:
+                        message: Problem switching off the {{ heater|replace('_',' ') }}
+              until:
+                - condition: state
+                  entity_id: !input heater
+                  state: "off"
+                - "{{ repeat.index > 10 }}"
+    - conditions:
           - condition: state
             entity_id: !input heater
             state: "off"
@@ -189,23 +190,24 @@ action:
             data:
               preset_mode: "Heating: set temperature"
           - repeat:
-              - service: climate.set_hvac_mode
-                target:
+              sequence:
+                - service: climate.set_hvac_mode
+                  target:
+                    entity_id: !input heater
+                  data:
+                    hvac_mode: heat
+                - delay:
+                    seconds: 10
+                - if:
+                    - "{{ repeat.index > 10 }}"
+                  then:
+                    - service: script.notify
+                      data:
+                        message: Problem switching on the {{ heater|replace('_',' ') }}
+              until:
+                - condition: state
                   entity_id: !input heater
-                data:
-                  hvac_mode: heat
-              - delay:
-                  seconds: 10
-              - if:
-                  - "{{ repeat.index > 10 }}"
-                then:
-                  - service: script.notify
-                    data:
-                      message: Problem switching on the {{ heater|replace('_',' ') }}
-            until:
-              - condition: state
-                entity_id: !input heater
-                state: "heat"
-              - "{{ repeat.index > 10 }}"
+                  state: "heat"
+                - "{{ repeat.index > 10 }}"
     default: []
 mode: restart
