@@ -199,7 +199,7 @@ action:
                   data:
                     hvac_mode: heat
                 - delay:
-                    seconds: 10
+                    seconds: 30
                 - if:
                     - "{{ repeat.index > 10 }}"
                   then:
