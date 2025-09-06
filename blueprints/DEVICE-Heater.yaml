@@ -146,7 +146,7 @@ action:
                 - service: climate.turn_off
                   entity_id: !input heater
                 - delay:
-                    seconds: 10
+                    minutes: 1
                 - if:
                     - "{{ repeat.index > 10 }}"
                   then:
@@ -199,7 +199,7 @@ action:
                   data:
                     hvac_mode: heat
                 - delay:
-                    seconds: 30
+                    minutes: 1
                 - if:
                     - "{{ repeat.index > 10 }}"
                   then:
