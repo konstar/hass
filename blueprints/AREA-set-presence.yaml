@@ -160,13 +160,17 @@ action:
             data:
               option: present
       - conditions:
-          - condition: state
-            entity_id: !input presence_helper
-            state:
-              - enter
-              - leave
-            for:
-              minutes: 2
+          - or:
+              - condition: state
+                entity_id: !input presence_helper
+                state: enter
+                for:
+                  minutes: 2
+              - condition: state
+                entity_id: !input presence_helper
+                state: leave
+                for:
+                  minutes: 2
           - not:
               - condition: state
                 entity_id: !input motion_sensor
@@ -179,13 +183,17 @@ action:
             data:
               option: present
       - conditions:
-          - condition: state
-            entity_id: !input presence_helper
-            state:
-              - enter
-              - leave
-            for:
-              minutes: 2
+          - or:
+              - condition: state
+                entity_id: !input presence_helper
+                state: enter
+                for:
+                  minutes: 2
+              - condition: state
+                entity_id: !input presence_helper
+                state: leave
+                for:
+                  minutes: 2
           - condition: state
             entity_id: !input motion_sensor
             state: "off"
